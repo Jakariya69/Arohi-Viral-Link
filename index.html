@@ -1,174 +1,76 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arohi Mim Link 🔞</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src='//libtl.com/sdk.js' data-zone='10530857' data-sdk='show_10530857'></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;800&display=swap');
-        body { background-color: #f0f2f5; font-family: 'Urbanist', sans-serif; }
-        .sub-page { display: none; }
-        .sub-page.active { display: block; animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .nav-active { color: #5f33e1 !important; }
-        .glass-header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
-        .episode-card { background: white; border-radius: 24px; overflow: hidden; }
-    </style>
-</head>
-<body class="max-w-md mx-auto pb-32">
-
-    <div class="glass-header sticky top-0 z-50 p-4 flex items-center justify-between shadow-sm">
-        <h1 class="text-xl font-extrabold text-[#1a1c1e]">Arohi Mim Link 🔞</h1>
-        <div class="flex items-center gap-2">
-             <div class="bg-indigo-50 px-3 py-1.5 rounded-2xl flex items-center gap-2">
-                <div class="w-6 h-6 bg-[#5f33e1] rounded-full flex items-center justify-center">
-                    <i data-lucide="wallet" class="w-3.5 h-3.5 text-white"></i>
-                </div>
-                <div>
-                    <p class="text-[8px] font-bold text-gray-400 uppercase leading-none">My Balance</p>
-                    <p class="text-xs font-black text-gray-800">৳<span id="display-balance">30.00</span></p>
-                </div>
-             </div>
-             <div class="flex items-center gap-2 bg-gray-100 p-1 pr-3 rounded-full">
-                <div class="w-8 h-8 bg-[#00d2ff] rounded-full flex items-center justify-center text-white font-bold text-xs shadow-inner">JD</div>
-                <span class="text-[10px] font-extrabold text-gray-700">Jakariya</span>
-             </div>
-        </div>
-    </div>
-
-    <div id="pages-container" class="p-4 space-y-4">
+<div id="profile-page" class="sub-page">
+    <div class="bg-white p-6 rounded-[35px] shadow-sm border border-gray-100">
+        <h2 class="text-xl font-black text-gray-800 mb-6 flex items-center gap-2">
+            <i data-lucide="wallet" class="text-indigo-600"></i> Withdraw Money
+        </h2>
         
-        <div id="home-page" class="sub-page active">
-            <div id="episode-list" class="space-y-4">
-                </div>
-        </div>
+        <div class="space-y-5">
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="selectMethod('Bkash', this)" id="b-btn" class="method-card p-4 border-2 border-gray-100 rounded-[25px] flex flex-col items-center gap-2 transition-all">
+                    <img src="https://admin.f-pay.app/p_logo/bkash.png" class="w-10 h-10 object-contain">
+                    <span class="text-xs font-black text-gray-700">Bkash</span>
+                </button>
+                <button onclick="selectMethod('Nagad', this)" id="n-btn" class="method-card p-4 border-2 border-gray-100 rounded-[25px] flex flex-col items-center gap-2 transition-all">
+                    <img src="https://freepnglogo.com/images/all_img/1701524320nagad-logo-png.png" class="w-10 h-10 object-contain">
+                    <span class="text-xs font-black text-gray-700">Nagad</span>
+                </button>
+            </div>
 
-        <div id="earn-page" class="sub-page">
-            <div class="bg-white p-6 rounded-[30px] shadow-sm text-center">
-                <h2 class="text-xl font-black mb-2">Earn Extra</h2>
-                <div id="earn-list" class="space-y-3">
-                    <p class="text-gray-400">Loading daily offers...</p>
+            <div class="space-y-3">
+                <div class="relative">
+                    <input id="w-number" type="number" placeholder="Enter Account Number" class="w-full p-4 pl-12 bg-gray-50 rounded-2xl outline-none border border-gray-100 font-bold text-sm focus:border-indigo-500 transition-all">
+                    <i data-lucide="phone" class="w-4 h-4 absolute left-4 top-4.5 text-gray-400"></i>
+                </div>
+                <div class="relative">
+                    <input id="w-amount" type="number" placeholder="Enter Amount (Min. ৳100)" class="w-full p-4 pl-12 bg-gray-50 rounded-2xl outline-none border border-gray-100 font-bold text-sm focus:border-indigo-500 transition-all">
+                    <i data-lucide="banknote" class="w-4 h-4 absolute left-4 top-4.5 text-gray-400"></i>
                 </div>
             </div>
-        </div>
 
-        <div id="tasks-page" class="sub-page">
-            <h2 class="text-lg font-black mb-4">Daily Tasks</h2>
-            <div id="task-list" class="space-y-3">
-                </div>
+            <button onclick="submitWithdraw()" class="w-full bg-[#1a1c1e] text-white py-5 rounded-[25px] font-black text-sm shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-transform">
+                Send Request <i data-lucide="send" class="w-4 h-4"></i>
+            </button>
         </div>
-
-        <div id="refer-page" class="sub-page">
-            <div class="bg-[#1a1c1e] p-8 rounded-[40px] text-center text-white">
-                <div class="w-20 h-20 bg-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i data-lucide="users" class="w-10 h-10"></i>
-                </div>
-                <h2 class="text-2xl font-black mb-2">Refer & Earn</h2>
-                <p class="text-gray-400 text-sm mb-6">Invite friends and get ৳10 per user.</p>
-                <div class="bg-white/10 p-4 rounded-3xl border border-white/20">
-                    <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Your Refer Code</p>
-                    <h3 class="text-2xl font-black tracking-widest">JAK6969</h3>
-                </div>
-            </div>
-        </div>
-
-        <div id="profile-page" class="sub-page">
-            <div class="bg-white p-6 rounded-[35px] shadow-sm">
-                <h2 class="text-xl font-black mb-6">Withdraw Money</h2>
-                <div class="space-y-4">
-                    <div class="grid grid-cols-2 gap-3">
-                        <button onclick="setMethod('Bkash')" class="w-full py-4 border-2 border-indigo-50 rounded-2xl font-bold hover:border-indigo-600 transition-all">Bkash</button>
-                        <button onclick="setMethod('Nagad')" class="w-full py-4 border-2 border-indigo-50 rounded-2xl font-bold hover:border-indigo-600 transition-all">Nagad</button>
-                    </div>
-                    <input id="w-number" type="number" placeholder="Enter Wallet Number" class="w-full p-4 bg-gray-50 rounded-2xl outline-none">
-                    <input id="w-amount" type="number" placeholder="Enter Amount" class="w-full p-4 bg-gray-50 rounded-2xl outline-none">
-                    <button onclick="submitWithdraw()" class="w-full bg-[#1a1c1e] text-white py-5 rounded-3xl font-black shadow-xl">Submit Withdrawal</button>
-                </div>
-            </div>
-        </div>
-
     </div>
+</div>
 
-    <nav class="fixed bottom-6 left-6 right-6 bg-[#1a1c1e] flex justify-between items-center px-4 py-3 rounded-[32px] shadow-2xl">
-        <button onclick="changePage('home-page', this)" class="nav-btn nav-active flex flex-col items-center flex-1">
-            <i data-lucide="home" class="w-5 h-5"></i><span class="text-[9px] mt-1 font-bold">Home</span>
-        </button>
-        <button onclick="changePage('earn-page', this)" class="nav-btn text-gray-500 flex flex-col items-center flex-1">
-            <i data-lucide="coins" class="w-5 h-5"></i><span class="text-[9px] mt-1 font-bold">Earn</span>
-        </button>
-        <button onclick="changePage('tasks-page', this)" class="nav-btn text-gray-500 flex flex-col items-center flex-1">
-            <i data-lucide="check-circle" class="w-5 h-5"></i><span class="text-[9px] mt-1 font-bold">Tasks</span>
-        </button>
-        <button onclick="changePage('refer-page', this)" class="nav-btn text-gray-500 flex flex-col items-center flex-1">
-            <i data-lucide="user-plus" class="w-5 h-5"></i><span class="text-[9px] mt-1 font-bold">Refer</span>
-        </button>
-        <button onclick="changePage('profile-page', this)" class="nav-btn text-gray-500 flex flex-col items-center flex-1">
-            <i data-lucide="user" class="w-5 h-5"></i><span class="text-[9px] mt-1 font-bold">Profile</span>
-        </button>
-    </nav>
+<style>
+    .method-active { border-color: #5f33e1 !important; background: #f5f3ff !important; }
+</style>
 
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script>
-        const firebaseConfig = { apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150", projectId: "mini-app-link", appId: "1:608662003617:web:681a069935bc118d5bb5e0" };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+<script>
+    let currentMethod = "";
 
-        let balance = parseFloat(localStorage.getItem('user_balance')) || 30.00;
-        let selectedMethod = "Bkash";
+    function selectMethod(method, el) {
+        currentMethod = method;
+        document.querySelectorAll('.method-card').forEach(c => c.classList.remove('method-active'));
+        el.classList.add('method-active');
+    }
 
-        function updateBalance() {
-            document.getElementById('display-balance').innerText = balance.toFixed(2);
-            localStorage.setItem('user_balance', balance);
-        }
+    async function submitWithdraw() {
+        const num = document.getElementById('w-number').value;
+        const amt = document.getElementById('w-amount').value;
+        const uName = document.getElementById('user-name').innerText;
 
-        function changePage(id, el) {
-            document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
-            el.classList.add('nav-active');
-            lucide.createIcons();
-        }
+        if(!currentMethod) return alert("Please select Bkash or Nagad!");
+        if(num.length < 11) return alert("Enter valid number!");
+        if(amt < 100) return alert("Minimum withdrawal ৳100");
+        if(amt > balance) return alert("Insufficient balance!");
 
-        async function loadEpisodes() {
-            const container = document.getElementById('episode-list');
-            const snapshot = await db.collection('episodes').orderBy('order', 'desc').get();
-            container.innerHTML = '';
-            snapshot.forEach(doc => {
-                const ep = doc.data();
-                container.innerHTML += `
-                    <div class="episode-card p-3 flex gap-4 shadow-sm border border-gray-100">
-                        <div class="relative w-28 h-28 rounded-2xl overflow-hidden shadow-md">
-                            <img src="${ep.thumb}" class="w-full h-full object-cover">
-                        </div>
-                        <div class="flex-grow flex flex-col justify-between py-1">
-                            <div>
-                                <h3 class="font-black text-gray-800 text-sm">${ep.title}</h3>
-                                <p class="text-[10px] text-gray-400 font-bold mt-1">Click Unlock Button And Watch 😊</p>
-                            </div>
-                            <button onclick="handleAd('${doc.id}')" class="w-full bg-[#1a1c1e] text-white py-2.5 rounded-xl text-xs font-black flex items-center justify-center gap-2">
-                                <i data-lucide="lock" class="w-3.5 h-3.5"></i> Unlock (0/4)
-                            </button>
-                        </div>
-                    </div>`;
-            });
-            lucide.createIcons();
-        }
+        // Firebase-এ রিকোয়েস্ট সেভ করা
+        await db.collection('withdrawals').add({
+            name: uName,
+            method: currentMethod,
+            number: num,
+            amount: parseFloat(amt),
+            status: "Pending",
+            time: Date.now()
+        });
 
-        function handleAd(id) {
-            if (typeof show_10530857 === 'function') {
-                show_10530857().then(() => {
-                    balance += 5.00;
-                    updateBalance();
-                    alert("Episode Unlocked! ৳5 added.");
-                });
-            } else { alert("Ad System Loading..."); }
-        }
-
-        window.onload = () => { lucide.createIcons(); updateBalance(); loadEpisodes(); };
-    </script>
-</body>
-</html>
+        balance -= parseFloat(amt);
+        updateBalance();
+        alert("Withdrawal request sent successfully! Wait 24h.");
+        document.getElementById('w-number').value = "";
+        document.getElementById('w-amount').value = "";
+    }
+</script>
