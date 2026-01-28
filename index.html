@@ -13,19 +13,22 @@
         .sub-page.active { display: block; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* নেভিগেশন বার লাইট ইফেক্ট - শুধুমাত্র এই অংশটুকু আপডেট করা হয়েছে */
-        .nav-btn.nav-active { color: #8b5cf6 !important; position: relative; }
+        /* নেভিগেশন বার স্টাইল এবং লাইট ইফেক্ট */
+        .nav-btn { transition: all 0.3s ease; }
+        .nav-btn.nav-active { color: #7c3aed !important; transform: translateY(-2px); } /* ভায়োলেট কালার */
+        
+        /* একটিভ বাটনের নিচে গ্লোয়িং ডট */
         .nav-btn.nav-active::after {
             content: ''; 
             position: absolute; 
-            bottom: -5px; 
+            bottom: -8px; 
             left: 50%;
             transform: translateX(-50%);
-            width: 6px; 
-            height: 6px;
-            background: #8b5cf6; 
+            width: 5px; 
+            height: 5px;
+            background: #7c3aed; 
             border-radius: 50%; 
-            box-shadow: 0 0 10px #8b5cf6, 0 0 20px #8b5cf6; /* লাইট অন করা হয়েছে */
+            box-shadow: 0 0 10px #7c3aed, 0 0 20px #7c3aed; 
         }
         
         .method-card.active { border-color: #8b5cf6; background: #f5f3ff; }
@@ -126,21 +129,21 @@
 
     </div>
 
-    <nav class="fixed bottom-6 left-6 right-6 bg-[#1a1c1e] flex justify-between items-center px-4 py-3 rounded-[35px] shadow-2xl">
-        <button onclick="changePage('home-page', this)" class="nav-btn nav-active flex flex-col items-center flex-1">
-            <i data-lucide="home" class="w-5 h-5"></i><span class="text-[10px] mt-1 font-bold">Home</span>
+    <nav class="fixed bottom-6 left-6 right-6 bg-white/95 backdrop-blur-xl flex justify-between items-center px-6 py-4 rounded-[40px] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] border border-gray-100/50 z-50">
+        <button onclick="changePage('home-page', this)" class="nav-btn nav-active flex flex-col items-center flex-1 relative">
+            <i data-lucide="home" class="w-6 h-6 stroke-[2.5]"></i>
         </button>
-        <button onclick="changePage('earn-page', this)" class="nav-btn text-gray-500 flex flex-col items-center flex-1">
-            <i data-lucide="coins" class="w-5 h-5"></i><span class="text-[10px] mt-1 font-bold">Earn</span>
+        <button onclick="changePage('earn-page', this)" class="nav-btn text-gray-400 hover:text-gray-600 flex flex-col items-center flex-1 relative">
+            <i data-lucide="coins" class="w-6 h-6 stroke-[2.5]"></i>
         </button>
-        <button onclick="changePage('tasks-page', this)" class="nav-btn text-gray-500 flex flex-col items-center flex-1">
-            <i data-lucide="check-square" class="w-5 h-5"></i><span class="text-[10px] mt-1 font-bold">Tasks</span>
+        <button onclick="changePage('tasks-page', this)" class="nav-btn text-gray-400 hover:text-gray-600 flex flex-col items-center flex-1 relative">
+            <i data-lucide="check-square" class="w-6 h-6 stroke-[2.5]"></i>
         </button>
-        <button onclick="changePage('refer-page', this)" class="nav-btn text-gray-500 flex flex-col items-center flex-1">
-            <i data-lucide="user-plus" class="w-5 h-5"></i><span class="text-[10px] mt-1 font-bold">Refer</span>
+        <button onclick="changePage('refer-page', this)" class="nav-btn text-gray-400 hover:text-gray-600 flex flex-col items-center flex-1 relative">
+            <i data-lucide="user-plus" class="w-6 h-6 stroke-[2.5]"></i>
         </button>
-        <button onclick="changePage('profile-page', this)" class="nav-btn text-gray-500 flex flex-col items-center flex-1">
-            <i data-lucide="user" class="w-5 h-5"></i><span class="text-[10px] mt-1 font-bold">Profile</span>
+        <button onclick="changePage('profile-page', this)" class="nav-btn text-gray-400 hover:text-gray-600 flex flex-col items-center flex-1 relative">
+            <i data-lucide="user" class="w-6 h-6 stroke-[2.5]"></i>
         </button>
     </nav>
 
@@ -152,8 +155,17 @@
         function changePage(id, el) {
             document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active', 'text-gray-500'));
+            
+            // সব বাটন রিসেট
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('nav-active');
+                b.classList.add('text-gray-400');
+            });
+            
+            // একটিভ বাটন সেট
+            el.classList.remove('text-gray-400');
             el.classList.add('nav-active');
+            
             lucide.createIcons();
         }
         window.onload = () => { lucide.createIcons(); };
