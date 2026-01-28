@@ -6,117 +6,90 @@
     <title>Arohi Mim Link</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;800&display=swap');
         body { background-color: #f8fafc; font-family: 'Urbanist', sans-serif; }
+        
         .sub-page { display: none; }
         .sub-page.active { display: block; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Navigation Active Light */
-        .nav-btn.nav-active { color: #8b5cf6 !important; position: relative; }
-        .nav-btn.nav-active i { filter: drop-shadow(0 0 8px #8b5cf6); }
-        .nav-btn.nav-active::after {
-            content: ''; position: absolute; bottom: -8px; width: 5px; height: 5px;
-            background: #8b5cf6; border-radius: 50%; box-shadow: 0 0 10px #8b5cf6;
-        }
 
-        .method-card.active { border-color: #ec4899; background: #fff1f2; transform: scale(1.05); }
+        /* Navigation Active Light/Dot Effect */
+        .nav-btn.nav-active { color: #8b5cf6 !important; position: relative; }
+        .nav-btn.nav-active::after {
+            content: ''; 
+            position: absolute; 
+            bottom: -6px; 
+            width: 6px; 
+            height: 6px;
+            background: #8b5cf6; 
+            border-radius: 50%; 
+            box-shadow: 0 0 12px #8b5cf6;
+        }
     </style>
 </head>
 <body class="max-w-md mx-auto pb-32">
 
-    <div class="sticky top-0 z-50 bg-white/80 backdrop-blur-md p-4 flex justify-between items-center shadow-sm border-b border-gray-100">
-        <h1 class="text-xl font-extrabold text-gray-900">Arohi Mim Link 🔞</h1>
+    <div class="bg-white p-4 shadow-sm border-b border-gray-100">
+        <div class="text-center mb-3">
+            <h1 class="text-xl font-extrabold text-gray-900">Arohi Mim Link 🔞</h1>
+        </div>
         
-        <div class="flex items-center gap-2">
-            <div class="bg-violet-100 px-3 py-1.5 rounded-2xl flex items-center gap-2">
-                <i data-lucide="wallet" class="w-4 h-4 text-violet-600"></i>
-                <span class="text-xs font-black text-gray-800">৳<span id="display-balance">30.50</span></span>
-            </div>
-            <div class="flex items-center gap-2 bg-gray-50 p-1 pr-3 rounded-full border border-gray-100">
-                <img id="user-avatar" src="https://ui-avatars.com/api/?name=User" class="w-8 h-8 rounded-full border-2 border-white shadow-sm">
-                <span id="user-display-name" class="text-[10px] font-bold text-gray-700">Loading...</span>
+        <div class="flex justify-start">
+            <div class="bg-violet-100 px-4 py-2 rounded-2xl flex items-center gap-2 border border-violet-200 shadow-sm">
+                <i data-lucide="wallet" class="w-5 h-5 text-violet-600"></i>
+                <div class="flex flex-col">
+                    <span class="text-[8px] font-bold text-violet-400 uppercase leading-none">My Balance</span>
+                    <span class="text-sm font-black text-gray-800">৳<span id="display-balance">30.50</span></span>
+                </div>
             </div>
         </div>
     </div>
 
     <div id="pages-container" class="p-4">
-        
         <div id="home-page" class="sub-page active">
             <div id="episode-list" class="space-y-4">
-                </div>
-        </div>
-
-        <div id="profile-page" class="sub-page">
-            <div class="bg-white p-6 rounded-[35px] shadow-sm border border-gray-50">
-                <h2 class="text-xl font-black mb-6">Withdraw Money</h2>
-                
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div onclick="setMethod('Bkash', this)" class="method-card cursor-pointer p-4 border-2 border-gray-100 rounded-3xl flex flex-col items-center gap-2 transition-all">
-                        <img src="https://admin.f-pay.app/p_logo/bkash.png" class="w-12 h-12 object-contain">
-                        <span class="text-xs font-bold">Bkash</span>
-                    </div>
-                    <div onclick="setMethod('Nagad', this)" class="method-card cursor-pointer p-4 border-2 border-gray-100 rounded-3xl flex flex-col items-center gap-2 transition-all">
-                        <img src="https://freepnglogo.com/images/all_img/1701524320nagad-logo-png.png" class="w-12 h-12 object-contain">
-                        <span class="text-xs font-bold">Nagad</span>
-                    </div>
-                </div>
-
-                <div class="space-y-4">
-                    <input id="w-num" type="number" placeholder="Account Number" class="w-full p-4 bg-gray-50 rounded-2xl outline-none border border-transparent focus:border-violet-300 font-bold">
-                    <input id="w-amt" type="number" placeholder="Amount (Min ৳100)" class="w-full p-4 bg-gray-50 rounded-2xl outline-none border border-transparent focus:border-violet-300 font-bold">
-                    <button onclick="requestPayment()" class="w-full bg-gray-900 text-white py-5 rounded-[25px] font-black shadow-lg active:scale-95 transition-all">Send Request</button>
-                </div>
+                <p class="text-center text-gray-400 py-10">Loading Episodes...</p>
             </div>
         </div>
-
-    </div>
+        </div>
 
     <nav class="fixed bottom-6 left-6 right-6 bg-[#1a1c1e] flex justify-between items-center px-4 py-3 rounded-[35px] shadow-2xl">
         <button onclick="changePage('home-page', this)" class="nav-btn nav-active flex flex-col items-center flex-1">
-            <i data-lucide="home" class="w-5 h-5"></i><span class="text-[9px] mt-1 font-bold">Home</span>
+            <i data-lucide="home" class="w-5 h-5"></i>
+            <span class="text-[10px] mt-1 font-bold">Home</span>
         </button>
         <button onclick="changePage('earn-page', this)" class="nav-btn text-gray-500 flex flex-col items-center flex-1">
-            <i data-lucide="coins" class="w-5 h-5"></i><span class="text-[9px] mt-1 font-bold">Earn</span>
+            <i data-lucide="layout-grid" class="w-5 h-5"></i>
+            <span class="text-[10px] mt-1 font-bold">Earn</span>
         </button>
         <button onclick="changePage('tasks-page', this)" class="nav-btn text-gray-500 flex flex-col items-center flex-1">
-            <i data-lucide="list-checks" class="w-5 h-5"></i><span class="text-[9px] mt-1 font-bold">Tasks</span>
+            <i data-lucide="check-square" class="w-5 h-5"></i>
+            <span class="text-[10px] mt-1 font-bold">Tasks</span>
         </button>
         <button onclick="changePage('refer-page', this)" class="nav-btn text-gray-500 flex flex-col items-center flex-1">
-            <i data-lucide="user-plus" class="w-5 h-5"></i><span class="text-[9px] mt-1 font-bold">Refer</span>
+            <i data-lucide="users" class="w-5 h-5"></i>
+            <span class="text-[10px] mt-1 font-bold">Refer</span>
         </button>
         <button onclick="changePage('profile-page', this)" class="nav-btn text-gray-500 flex flex-col items-center flex-1">
-            <i data-lucide="user" class="w-5 h-5"></i><span class="text-[9px] mt-1 font-bold">Profile</span>
+            <i data-lucide="user" class="w-5 h-5"></i>
+            <span class="text-[10px] mt-1 font-bold">Profile</span>
         </button>
     </nav>
 
     <script>
-        // Telegram WebApp Integration
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        const user = tg.initDataUnsafe?.user;
-
-        if(user) {
-            document.getElementById('user-display-name').innerText = user.first_name;
-            document.getElementById('user-avatar').src = user.photo_url || `https://ui-avatars.com/api/?name=${user.first_name}&background=random`;
-        } else {
-            document.getElementById('user-display-name').innerText = "Guest User";
-        }
-
-        let selectedMethod = "";
-        function setMethod(m, el) {
-            selectedMethod = m;
-            document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
-            el.classList.add('active');
-        }
-
         function changePage(id, el) {
+            // Hide all pages
             document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
+            // Show selected page
+            const targetPage = document.getElementById(id);
+            if(targetPage) targetPage.classList.add('active');
+            
+            // Update Nav Icons
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active', 'text-gray-500'));
+            document.querySelectorAll('.nav-btn').forEach(b => { if(b !== el) b.classList.add('text-gray-500'); });
             el.classList.add('nav-active');
+            
             lucide.createIcons();
         }
 
@@ -124,5 +97,3 @@
     </script>
 </body>
 </html>
-
-
