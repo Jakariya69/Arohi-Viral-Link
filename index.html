@@ -1,76 +1,128 @@
-<div id="profile-page" class="sub-page">
-    <div class="bg-white p-6 rounded-[35px] shadow-sm border border-gray-100">
-        <h2 class="text-xl font-black text-gray-800 mb-6 flex items-center gap-2">
-            <i data-lucide="wallet" class="text-indigo-600"></i> Withdraw Money
-        </h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arohi Mim Link</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;800&display=swap');
+        body { background-color: #f8fafc; font-family: 'Urbanist', sans-serif; }
+        .sub-page { display: none; }
+        .sub-page.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        <div class="space-y-5">
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="selectMethod('Bkash', this)" id="b-btn" class="method-card p-4 border-2 border-gray-100 rounded-[25px] flex flex-col items-center gap-2 transition-all">
-                    <img src="https://admin.f-pay.app/p_logo/bkash.png" class="w-10 h-10 object-contain">
-                    <span class="text-xs font-black text-gray-700">Bkash</span>
-                </button>
-                <button onclick="selectMethod('Nagad', this)" id="n-btn" class="method-card p-4 border-2 border-gray-100 rounded-[25px] flex flex-col items-center gap-2 transition-all">
-                    <img src="https://freepnglogo.com/images/all_img/1701524320nagad-logo-png.png" class="w-10 h-10 object-contain">
-                    <span class="text-xs font-black text-gray-700">Nagad</span>
-                </button>
-            </div>
+        /* Navigation Active Light */
+        .nav-btn.nav-active { color: #8b5cf6 !important; position: relative; }
+        .nav-btn.nav-active i { filter: drop-shadow(0 0 8px #8b5cf6); }
+        .nav-btn.nav-active::after {
+            content: ''; position: absolute; bottom: -8px; width: 5px; height: 5px;
+            background: #8b5cf6; border-radius: 50%; box-shadow: 0 0 10px #8b5cf6;
+        }
 
-            <div class="space-y-3">
-                <div class="relative">
-                    <input id="w-number" type="number" placeholder="Enter Account Number" class="w-full p-4 pl-12 bg-gray-50 rounded-2xl outline-none border border-gray-100 font-bold text-sm focus:border-indigo-500 transition-all">
-                    <i data-lucide="phone" class="w-4 h-4 absolute left-4 top-4.5 text-gray-400"></i>
-                </div>
-                <div class="relative">
-                    <input id="w-amount" type="number" placeholder="Enter Amount (Min. ৳100)" class="w-full p-4 pl-12 bg-gray-50 rounded-2xl outline-none border border-gray-100 font-bold text-sm focus:border-indigo-500 transition-all">
-                    <i data-lucide="banknote" class="w-4 h-4 absolute left-4 top-4.5 text-gray-400"></i>
-                </div>
-            </div>
+        .method-card.active { border-color: #ec4899; background: #fff1f2; transform: scale(1.05); }
+    </style>
+</head>
+<body class="max-w-md mx-auto pb-32">
 
-            <button onclick="submitWithdraw()" class="w-full bg-[#1a1c1e] text-white py-5 rounded-[25px] font-black text-sm shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-transform">
-                Send Request <i data-lucide="send" class="w-4 h-4"></i>
-            </button>
+    <div class="sticky top-0 z-50 bg-white/80 backdrop-blur-md p-4 flex justify-between items-center shadow-sm border-b border-gray-100">
+        <h1 class="text-xl font-extrabold text-gray-900">Arohi Mim Link 🔞</h1>
+        
+        <div class="flex items-center gap-2">
+            <div class="bg-violet-100 px-3 py-1.5 rounded-2xl flex items-center gap-2">
+                <i data-lucide="wallet" class="w-4 h-4 text-violet-600"></i>
+                <span class="text-xs font-black text-gray-800">৳<span id="display-balance">30.50</span></span>
+            </div>
+            <div class="flex items-center gap-2 bg-gray-50 p-1 pr-3 rounded-full border border-gray-100">
+                <img id="user-avatar" src="https://ui-avatars.com/api/?name=User" class="w-8 h-8 rounded-full border-2 border-white shadow-sm">
+                <span id="user-display-name" class="text-[10px] font-bold text-gray-700">Loading...</span>
+            </div>
         </div>
     </div>
-</div>
 
-<style>
-    .method-active { border-color: #5f33e1 !important; background: #f5f3ff !important; }
-</style>
+    <div id="pages-container" class="p-4">
+        
+        <div id="home-page" class="sub-page active">
+            <div id="episode-list" class="space-y-4">
+                </div>
+        </div>
 
-<script>
-    let currentMethod = "";
+        <div id="profile-page" class="sub-page">
+            <div class="bg-white p-6 rounded-[35px] shadow-sm border border-gray-50">
+                <h2 class="text-xl font-black mb-6">Withdraw Money</h2>
+                
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div onclick="setMethod('Bkash', this)" class="method-card cursor-pointer p-4 border-2 border-gray-100 rounded-3xl flex flex-col items-center gap-2 transition-all">
+                        <img src="https://admin.f-pay.app/p_logo/bkash.png" class="w-12 h-12 object-contain">
+                        <span class="text-xs font-bold">Bkash</span>
+                    </div>
+                    <div onclick="setMethod('Nagad', this)" class="method-card cursor-pointer p-4 border-2 border-gray-100 rounded-3xl flex flex-col items-center gap-2 transition-all">
+                        <img src="https://freepnglogo.com/images/all_img/1701524320nagad-logo-png.png" class="w-12 h-12 object-contain">
+                        <span class="text-xs font-bold">Nagad</span>
+                    </div>
+                </div>
 
-    function selectMethod(method, el) {
-        currentMethod = method;
-        document.querySelectorAll('.method-card').forEach(c => c.classList.remove('method-active'));
-        el.classList.add('method-active');
-    }
+                <div class="space-y-4">
+                    <input id="w-num" type="number" placeholder="Account Number" class="w-full p-4 bg-gray-50 rounded-2xl outline-none border border-transparent focus:border-violet-300 font-bold">
+                    <input id="w-amt" type="number" placeholder="Amount (Min ৳100)" class="w-full p-4 bg-gray-50 rounded-2xl outline-none border border-transparent focus:border-violet-300 font-bold">
+                    <button onclick="requestPayment()" class="w-full bg-gray-900 text-white py-5 rounded-[25px] font-black shadow-lg active:scale-95 transition-all">Send Request</button>
+                </div>
+            </div>
+        </div>
 
-    async function submitWithdraw() {
-        const num = document.getElementById('w-number').value;
-        const amt = document.getElementById('w-amount').value;
-        const uName = document.getElementById('user-name').innerText;
+    </div>
 
-        if(!currentMethod) return alert("Please select Bkash or Nagad!");
-        if(num.length < 11) return alert("Enter valid number!");
-        if(amt < 100) return alert("Minimum withdrawal ৳100");
-        if(amt > balance) return alert("Insufficient balance!");
+    <nav class="fixed bottom-6 left-6 right-6 bg-[#1a1c1e] flex justify-between items-center px-4 py-3 rounded-[35px] shadow-2xl">
+        <button onclick="changePage('home-page', this)" class="nav-btn nav-active flex flex-col items-center flex-1">
+            <i data-lucide="home" class="w-5 h-5"></i><span class="text-[9px] mt-1 font-bold">Home</span>
+        </button>
+        <button onclick="changePage('earn-page', this)" class="nav-btn text-gray-500 flex flex-col items-center flex-1">
+            <i data-lucide="coins" class="w-5 h-5"></i><span class="text-[9px] mt-1 font-bold">Earn</span>
+        </button>
+        <button onclick="changePage('tasks-page', this)" class="nav-btn text-gray-500 flex flex-col items-center flex-1">
+            <i data-lucide="list-checks" class="w-5 h-5"></i><span class="text-[9px] mt-1 font-bold">Tasks</span>
+        </button>
+        <button onclick="changePage('refer-page', this)" class="nav-btn text-gray-500 flex flex-col items-center flex-1">
+            <i data-lucide="user-plus" class="w-5 h-5"></i><span class="text-[9px] mt-1 font-bold">Refer</span>
+        </button>
+        <button onclick="changePage('profile-page', this)" class="nav-btn text-gray-500 flex flex-col items-center flex-1">
+            <i data-lucide="user" class="w-5 h-5"></i><span class="text-[9px] mt-1 font-bold">Profile</span>
+        </button>
+    </nav>
 
-        // Firebase-এ রিকোয়েস্ট সেভ করা
-        await db.collection('withdrawals').add({
-            name: uName,
-            method: currentMethod,
-            number: num,
-            amount: parseFloat(amt),
-            status: "Pending",
-            time: Date.now()
-        });
+    <script>
+        // Telegram WebApp Integration
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        const user = tg.initDataUnsafe?.user;
 
-        balance -= parseFloat(amt);
-        updateBalance();
-        alert("Withdrawal request sent successfully! Wait 24h.");
-        document.getElementById('w-number').value = "";
-        document.getElementById('w-amount').value = "";
-    }
-</script>
+        if(user) {
+            document.getElementById('user-display-name').innerText = user.first_name;
+            document.getElementById('user-avatar').src = user.photo_url || `https://ui-avatars.com/api/?name=${user.first_name}&background=random`;
+        } else {
+            document.getElementById('user-display-name').innerText = "Guest User";
+        }
+
+        let selectedMethod = "";
+        function setMethod(m, el) {
+            selectedMethod = m;
+            document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        function changePage(id, el) {
+            document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active', 'text-gray-500'));
+            el.classList.add('nav-active');
+            lucide.createIcons();
+        }
+
+        window.onload = () => { lucide.createIcons(); };
+    </script>
+</body>
+</html>
+
+
