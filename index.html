@@ -6,7 +6,9 @@
     <title>Arohi Mim Link</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src='//libtl.com/sdk.js' data-zone='8690632' data-sdk='show_8690632'></script>
+    
+    <script src='//libtl.com/sdk.js' data-zone='10530857' data-sdk='show_10530857'></script>
+    
     <style>
         body { background-color: #f8f9fc; font-family: 'Inter', sans-serif; }
         .sub-page { display: none; }
@@ -34,6 +36,186 @@
                 <p class="text-center text-gray-400 py-10">Loading episodes...</p>
             </div>
         </div>
+
+        <div id="earn-page" class="sub-page text-center py-10">
+            <h2 class="text-xl font-bold">Earn More</h2>
+            <p class="text-gray-500 mt-2">Loading content...</p>
+        </div>
+
+        <div id="tasks-page" class="sub-page text-center py-10">
+            <h2 class="text-xl font-bold">Daily Tasks</h2>
+            <p class="text-gray-500 mt-2">Loading content...</p>
+        </div>
+
+        <div id="refer-page" class="sub-page text-center py-10">
+            <h2 class="text-xl font-bold">Refer & Earn</h2>
+            <div class="bg-white p-6 rounded-3xl shadow-sm mt-4">
+                <p class="text-sm text-gray-400">Your Refer Code</p>
+                <h3 class="text-2xl font-bold text-purple-600">VIRAL123</h3>
+            </div>
+        </div>
+
+        <div id="profile-page" class="sub-page">
+            <div class="bg-white p-6 rounded-3xl shadow-sm text-center">
+                <div class="w-20 h-20 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <i data-lucide="user" class="w-10 h-10 text-purple-600"></i>
+                </div>
+                <h2 class="text-xl font-bold mb-2">Jakariya</h2>
+                <p id="min-withdraw-text" class="text-xs text-gray-400 mb-6">Min Withdraw: ৳0</p>
+                
+                <div class="text-left space-y-4">
+                    <div><label class="text-[10px] font-bold text-gray-400 uppercase">Method</label>
+                        <select id="w-method" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none">
+                            <option value="Bkash">Bkash</option>
+                            <option value="Nagad">Nagad</option>
+                            <option value="Rocket">Rocket</option>
+                        </select>
+                    </div>
+                    <div><label class="text-[10px] font-bold text-gray-400 uppercase">Number</label>
+                        <input id="w-number" type="number" placeholder="017xxxxxxxx" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none">
+                    </div>
+                    <div><label class="text-[10px] font-bold text-gray-400 uppercase">Amount (৳)</label>
+                        <input id="w-amount" type="number" placeholder="0.00" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-xl outline-none">
+                    </div>
+                    <button onclick="submitWithdraw()" class="bg-black text-white px-6 py-4 rounded-2xl w-full font-bold shadow-lg">Submit Withdrawal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#2d3436] flex justify-between items-center px-6 py-3 rounded-t-3xl shadow-2xl">
+        <button onclick="changePage('home-page', this)" class="nav-btn nav-active flex flex-col items-center">
+            <i data-lucide="home"></i><span class="text-[10px] mt-1">Home</span>
+        </button>
+        <button onclick="changePage('earn-page', this)" class="nav-btn text-gray-400 flex flex-col items-center">
+            <i data-lucide="coins"></i><span class="text-[10px] mt-1">Earn</span>
+        </button>
+        <button onclick="changePage('tasks-page', this)" class="nav-btn text-gray-400 flex flex-col items-center">
+            <i data-lucide="check-circle"></i><span class="text-[10px] mt-1">Tasks</span>
+        </button>
+        <button onclick="changePage('refer-page', this)" class="nav-btn text-gray-400 flex flex-col items-center">
+            <i data-lucide="user-plus"></i><span class="text-[10px] mt-1">Refer</span>
+        </button>
+        <button onclick="changePage('profile-page', this)" class="nav-btn text-gray-400 flex flex-col items-center">
+            <i data-lucide="user"></i><span class="text-[10px] mt-1">Profile</span>
+        </button>
+    </nav>
+
+    <div id="video-modal" class="hidden fixed inset-0 bg-black z-[100] flex flex-col">
+        <div class="p-4 bg-white flex justify-between items-center">
+            <span id="playing-title" class="font-bold">Watching Episode</span>
+            <button onclick="closeVideo()" class="text-red-500 font-bold">Close</button>
+        </div>
+        <div class="flex-grow flex items-center justify-center">
+            <iframe id="video-frame" class="w-full h-64" src="" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150",
+            projectId: "mini-app-link",
+            appId: "1:608662003617:web:681a069935bc118d5bb5e0"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let balance = parseFloat(localStorage.getItem('user_balance')) || 30.00;
+        let minWithdraw = 0;
+        document.getElementById('display-balance').innerText = balance.toFixed(2);
+
+        function changePage(id, el) {
+            document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active', 'text-white'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.add('text-gray-400'));
+            el.classList.add('nav-active'); el.classList.remove('text-gray-400'); el.classList.add('text-white');
+            lucide.createIcons();
+        }
+
+        async function loadEpisodes() {
+            const container = document.getElementById('episode-list');
+            const snapshot = await db.collection('episodes').orderBy('order', 'desc').get();
+            container.innerHTML = '';
+            snapshot.forEach(doc => {
+                const ep = doc.data();
+                container.innerHTML += `
+                    <div class="bg-white rounded-3xl p-3 flex gap-4 shadow-sm border border-gray-100">
+                        <img src="${ep.thumb}" class="w-24 h-24 rounded-2xl object-cover">
+                        <div class="flex-grow">
+                            <h3 class="font-bold text-gray-800">${ep.title}</h3>
+                            <button onclick="unlockEpisode('${doc.id}')" class="w-full mt-2 bg-black text-white py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+                                <i data-lucide="lock" class="w-3 h-3"></i> Unlock (<span id="count-${doc.id}">0/5</span>)
+                            </button>
+                        </div>
+                    </div>`;
+            });
+            lucide.createIcons();
+        }
+
+        async function loadAppSettings() {
+            try {
+                const doc = await db.collection('settings').doc('app_data').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    if(data.earn_info) document.querySelector('#earn-page p').innerText = data.earn_info;
+                    if(data.task_info) document.querySelector('#tasks-page p').innerText = data.task_info;
+                    if(data.min_withdraw) {
+                        minWithdraw = parseFloat(data.min_withdraw);
+                        document.getElementById('min-withdraw-text').innerText = "Min Withdraw: ৳" + minWithdraw;
+                    }
+                }
+            } catch (e) { console.log(e); }
+        }
+
+        let adCounter = 0;
+        function unlockEpisode(id) { adCounter = 0; showAd(id); }
+
+        function showAd(id) {
+            // Updated with your Correct Rewarded Interstitial ID (10530857)
+            if (typeof show_10530857 === 'function') {
+                show_10530857().then(() => {
+                    adCounter++;
+                    document.getElementById(`count-${id}`).innerText = adCounter + "/5";
+                    if (adCounter < 5) { alert("Ad Watch Successful! Next ad loading..."); showAd(id); }
+                    else { playVideo(id); }
+                }).catch(() => playVideo(id));
+            } else { playVideo(id); }
+        }
+
+        async function playVideo(id) {
+            const doc = await db.collection('episodes').doc(id).get();
+            const data = doc.data();
+            document.getElementById('video-modal').classList.remove('hidden');
+            document.getElementById('video-frame').src = data.url;
+            document.getElementById('playing-title').innerText = data.title;
+            balance += parseFloat(data.reward || 0.50);
+            localStorage.setItem('user_balance', balance);
+            document.getElementById('display-balance').innerText = balance.toFixed(2);
+        }
+
+        async function submitWithdraw() {
+            const method = document.getElementById('w-method').value;
+            const number = document.getElementById('w-number').value;
+            const amount = parseFloat(document.getElementById('w-amount').value);
+            if(!number || !amount) return alert("Please fill all fields!");
+            if(amount < minWithdraw) return alert("Minimum withdrawal amount is ৳" + minWithdraw);
+            if(amount > balance) return alert("Insufficient balance!");
+            await db.collection('withdrawals').add({ method, number, amount, createdAt: new Date() });
+            balance -= amount;
+            localStorage.setItem('user_balance', balance);
+            document.getElementById('display-balance').innerText = balance.toFixed(2);
+            alert("Withdrawal request sent successfully! Please wait for payment.");
+        }
+
+        function closeVideo() { document.getElementById('video-modal').classList.add('hidden'); document.getElementById('video-frame').src = ""; }
+
+        window.onload = () => { lucide.createIcons(); loadEpisodes(); loadAppSettings(); };
+    </script>
+</body>
+</html>
 
         <div id="earn-page" class="sub-page text-center py-10">
             <h2 class="text-xl font-bold">Earn More</h2>
@@ -220,3 +402,4 @@
     </script>
 </body>
 </html>
+
