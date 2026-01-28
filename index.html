@@ -8,23 +8,34 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src='//libtl.com/sdk.js' data-zone='10530857' data-sdk='show_10530857'></script>
     <style>
-        body { background-color: #f3f7ff; font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;800&display=swap');
+        body { background-color: #f0f2f5; font-family: 'Urbanist', sans-serif; }
         .sub-page { display: none; }
-        .sub-page.active { display: block; animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .nav-active { color: #6366f1 !important; background: #eef2ff; border-radius: 20px; }
+        .sub-page.active { display: block; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .nav-active { color: #5f33e1 !important; }
+        .glass-header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+        .episode-card { background: white; border-radius: 24px; overflow: hidden; }
     </style>
 </head>
-<body class="max-w-md mx-auto pb-24">
+<body class="max-w-md mx-auto pb-32">
 
-    <div class="bg-white p-5 flex items-center justify-between sticky top-0 z-50 shadow-sm border-b">
-        <div>
-            <h1 class="text-xl font-black text-gray-800">Arohi Mim Link 🔞</h1>
-            <p class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">Premium Access</p>
-        </div>
-        <div class="bg-indigo-600 px-4 py-2 rounded-2xl shadow-lg shadow-indigo-100 text-white text-center">
-            <p class="text-[8px] opacity-80 font-bold uppercase">Balance</p>
-            <p class="text-sm font-black">৳<span id="display-balance">0.00</span></p>
+    <div class="glass-header sticky top-0 z-50 p-4 flex items-center justify-between shadow-sm">
+        <h1 class="text-xl font-extrabold text-[#1a1c1e]">Arohi Mim Link 🔞</h1>
+        <div class="flex items-center gap-2">
+             <div class="bg-indigo-50 px-3 py-1.5 rounded-2xl flex items-center gap-2">
+                <div class="w-6 h-6 bg-[#5f33e1] rounded-full flex items-center justify-center">
+                    <i data-lucide="wallet" class="w-3.5 h-3.5 text-white"></i>
+                </div>
+                <div>
+                    <p class="text-[8px] font-bold text-gray-400 uppercase leading-none">My Balance</p>
+                    <p class="text-xs font-black text-gray-800">৳<span id="display-balance">30.00</span></p>
+                </div>
+             </div>
+             <div class="flex items-center gap-2 bg-gray-100 p-1 pr-3 rounded-full">
+                <div class="w-8 h-8 bg-[#00d2ff] rounded-full flex items-center justify-center text-white font-bold text-xs shadow-inner">JD</div>
+                <span class="text-[10px] font-extrabold text-gray-700">Jakariya</span>
+             </div>
         </div>
     </div>
 
@@ -32,82 +43,70 @@
         
         <div id="home-page" class="sub-page active">
             <div id="episode-list" class="space-y-4">
-                <p class="text-center py-20 text-gray-400">Loading Viral Content...</p>
-            </div>
+                </div>
         </div>
 
         <div id="earn-page" class="sub-page">
-            <div class="bg-indigo-600 p-6 rounded-[35px] text-white mb-6 shadow-xl shadow-indigo-100">
-                <h2 class="text-xl font-bold">Earn More! 💰</h2>
-                <p class="text-sm opacity-80 mt-1">Complete simple offers to increase your balance.</p>
-            </div>
-            <div id="earn-content" class="space-y-4 text-center text-gray-400 py-10">
-                Loading earn offers...
+            <div class="bg-white p-6 rounded-[30px] shadow-sm text-center">
+                <h2 class="text-xl font-black mb-2">Earn Extra</h2>
+                <div id="earn-list" class="space-y-3">
+                    <p class="text-gray-400">Loading daily offers...</p>
+                </div>
             </div>
         </div>
 
         <div id="tasks-page" class="sub-page">
-            <h2 class="text-lg font-black text-gray-800 mb-4 px-2">Daily Tasks</h2>
+            <h2 class="text-lg font-black mb-4">Daily Tasks</h2>
             <div id="task-list" class="space-y-3">
-                <p class="text-center py-10 text-gray-400">Loading daily tasks...</p>
-            </div>
+                </div>
         </div>
 
         <div id="refer-page" class="sub-page">
-            <div class="bg-white p-8 rounded-[40px] shadow-sm text-center border-2 border-dashed border-indigo-200">
-                <div class="w-16 h-16 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i data-lucide="users" class="text-indigo-600"></i>
+            <div class="bg-[#1a1c1e] p-8 rounded-[40px] text-center text-white">
+                <div class="w-20 h-20 bg-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="users" class="w-10 h-10"></i>
                 </div>
-                <h2 class="text-xl font-black text-gray-800">Refer & Earn ৳50</h2>
-                <p class="text-sm text-gray-400 mt-2">Share your code and get reward for every friend joins.</p>
-                <div class="mt-6 p-4 bg-gray-50 rounded-3xl relative">
-                    <p class="text-[10px] text-indigo-400 font-bold uppercase mb-1">Your Refer Code</p>
-                    <h3 class="text-2xl font-black tracking-widest text-gray-800">VIP786</h3>
+                <h2 class="text-2xl font-black mb-2">Refer & Earn</h2>
+                <p class="text-gray-400 text-sm mb-6">Invite friends and get ৳10 per user.</p>
+                <div class="bg-white/10 p-4 rounded-3xl border border-white/20">
+                    <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Your Refer Code</p>
+                    <h3 class="text-2xl font-black tracking-widest">JAK6969</h3>
                 </div>
-                <button class="w-full mt-4 bg-indigo-600 text-white py-4 rounded-3xl font-bold shadow-lg shadow-indigo-100">Share with Friends</button>
             </div>
         </div>
 
         <div id="profile-page" class="sub-page">
-            <div class="bg-white p-6 rounded-[40px] shadow-sm mb-4">
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="w-16 h-16 bg-indigo-600 rounded-3xl flex items-center justify-center text-white text-2xl font-black">JD</div>
-                    <div>
-                        <h2 class="text-lg font-black text-gray-800">Jakariya</h2>
-                        <p class="text-xs text-green-500 font-bold">Verified User</p>
+            <div class="bg-white p-6 rounded-[35px] shadow-sm">
+                <h2 class="text-xl font-black mb-6">Withdraw Money</h2>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="setMethod('Bkash')" class="w-full py-4 border-2 border-indigo-50 rounded-2xl font-bold hover:border-indigo-600 transition-all">Bkash</button>
+                        <button onclick="setMethod('Nagad')" class="w-full py-4 border-2 border-indigo-50 rounded-2xl font-bold hover:border-indigo-600 transition-all">Nagad</button>
                     </div>
-                </div>
-                <hr class="opacity-50 mb-6">
-                <h3 class="font-black text-gray-800 mb-4">Withdraw Funds</h3>
-                <div class="space-y-3">
-                    <select id="w-method" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none font-bold">
-                        <option value="Bkash">Bkash</option>
-                        <option value="Nagad">Nagad</option>
-                    </select>
-                    <input id="w-number" type="number" placeholder="Enter Wallet Number" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none">
-                    <input id="w-amount" type="number" placeholder="Enter Amount" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none">
-                    <button onclick="submitWithdraw()" class="w-full bg-black text-white py-4 rounded-2xl font-black">Request Withdrawal</button>
+                    <input id="w-number" type="number" placeholder="Enter Wallet Number" class="w-full p-4 bg-gray-50 rounded-2xl outline-none">
+                    <input id="w-amount" type="number" placeholder="Enter Amount" class="w-full p-4 bg-gray-50 rounded-2xl outline-none">
+                    <button onclick="submitWithdraw()" class="w-full bg-[#1a1c1e] text-white py-5 rounded-3xl font-black shadow-xl">Submit Withdrawal</button>
                 </div>
             </div>
         </div>
 
     </div>
 
-    <nav class="fixed bottom-4 left-4 right-4 bg-white/90 backdrop-blur-md flex justify-between p-2 rounded-[30px] shadow-2xl border border-gray-100 overflow-hidden">
-        <button onclick="changePage('home-page', this)" class="nav-btn nav-active flex flex-col items-center py-3 px-4">
-            <i data-lucide="home" class="w-5 h-5"></i><span class="text-[9px] font-bold mt-1">Home</span>
+    <nav class="fixed bottom-6 left-6 right-6 bg-[#1a1c1e] flex justify-between items-center px-4 py-3 rounded-[32px] shadow-2xl">
+        <button onclick="changePage('home-page', this)" class="nav-btn nav-active flex flex-col items-center flex-1">
+            <i data-lucide="home" class="w-5 h-5"></i><span class="text-[9px] mt-1 font-bold">Home</span>
         </button>
-        <button onclick="changePage('earn-page', this)" class="nav-btn text-gray-400 flex flex-col items-center py-3 px-4">
-            <i data-lucide="sparkles" class="w-5 h-5"></i><span class="text-[9px] font-bold mt-1">Earn</span>
+        <button onclick="changePage('earn-page', this)" class="nav-btn text-gray-500 flex flex-col items-center flex-1">
+            <i data-lucide="coins" class="w-5 h-5"></i><span class="text-[9px] mt-1 font-bold">Earn</span>
         </button>
-        <button onclick="changePage('tasks-page', this)" class="nav-btn text-gray-400 flex flex-col items-center py-3 px-4">
-            <i data-lucide="list-checks" class="w-5 h-5"></i><span class="text-[9px] font-bold mt-1">Tasks</span>
+        <button onclick="changePage('tasks-page', this)" class="nav-btn text-gray-500 flex flex-col items-center flex-1">
+            <i data-lucide="check-circle" class="w-5 h-5"></i><span class="text-[9px] mt-1 font-bold">Tasks</span>
         </button>
-        <button onclick="changePage('refer-page', this)" class="nav-btn text-gray-400 flex flex-col items-center py-3 px-4">
-            <i data-lucide="user-plus" class="w-5 h-5"></i><span class="text-[9px] font-bold mt-1">Refer</span>
+        <button onclick="changePage('refer-page', this)" class="nav-btn text-gray-500 flex flex-col items-center flex-1">
+            <i data-lucide="user-plus" class="w-5 h-5"></i><span class="text-[9px] mt-1 font-bold">Refer</span>
         </button>
-        <button onclick="changePage('profile-page', this)" class="nav-btn text-gray-400 flex flex-col items-center py-3 px-4">
-            <i data-lucide="user" class="w-5 h-5"></i><span class="text-[9px] font-bold mt-1">Profile</span>
+        <button onclick="changePage('profile-page', this)" class="nav-btn text-gray-500 flex flex-col items-center flex-1">
+            <i data-lucide="user" class="w-5 h-5"></i><span class="text-[9px] mt-1 font-bold">Profile</span>
         </button>
     </nav>
 
@@ -119,62 +118,57 @@
         const db = firebase.firestore();
 
         let balance = parseFloat(localStorage.getItem('user_balance')) || 30.00;
-        document.getElementById('display-balance').innerText = balance.toFixed(2);
+        let selectedMethod = "Bkash";
+
+        function updateBalance() {
+            document.getElementById('display-balance').innerText = balance.toFixed(2);
+            localStorage.setItem('user_balance', balance);
+        }
 
         function changePage(id, el) {
             document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active', 'text-indigo-600'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.add('text-gray-400'));
-            el.classList.add('nav-active'); el.classList.remove('text-gray-400');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
+            el.classList.add('nav-active');
             lucide.createIcons();
         }
 
-        // Load Content
-        async function loadAll() {
-            // Load Videos
-            const vSnap = await db.collection('episodes').get();
-            const vCont = document.getElementById('episode-list'); vCont.innerHTML = '';
-            vSnap.forEach(doc => {
+        async function loadEpisodes() {
+            const container = document.getElementById('episode-list');
+            const snapshot = await db.collection('episodes').orderBy('order', 'desc').get();
+            container.innerHTML = '';
+            snapshot.forEach(doc => {
                 const ep = doc.data();
-                vCont.innerHTML += `
-                <div class="bg-white p-3 rounded-[30px] flex gap-4 shadow-sm border border-gray-50">
-                    <img src="${ep.thumb}" class="w-24 h-24 rounded-3xl object-cover shadow-inner">
-                    <div class="flex-grow py-1">
-                        <h3 class="font-bold text-gray-800 text-sm mb-3">${ep.title}</h3>
-                        <button onclick="showAd('${doc.id}')" class="w-full bg-indigo-600 text-white py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-100 flex items-center justify-center gap-2">
-                            <i data-lucide="lock" class="w-3 h-3"></i> Unlock Content
-                        </button>
-                    </div>
-                </div>`;
-            });
-
-            // Load Tasks
-            const tSnap = await db.collection('tasks').get();
-            const tCont = document.getElementById('task-list'); tCont.innerHTML = '';
-            tSnap.forEach(doc => {
-                const t = doc.data();
-                tCont.innerHTML += `
-                <div class="bg-white p-5 rounded-[30px] flex justify-between items-center shadow-sm border border-gray-50">
-                    <div><p class="font-black text-gray-800 text-sm">${t.title}</p><p class="text-indigo-500 font-bold text-xs">Reward: ৳${t.amount}</p></div>
-                    <button onclick="window.open('${t.link}')" class="bg-black text-white px-6 py-2 rounded-2xl text-[10px] font-bold">GO</button>
-                </div>`;
+                container.innerHTML += `
+                    <div class="episode-card p-3 flex gap-4 shadow-sm border border-gray-100">
+                        <div class="relative w-28 h-28 rounded-2xl overflow-hidden shadow-md">
+                            <img src="${ep.thumb}" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-grow flex flex-col justify-between py-1">
+                            <div>
+                                <h3 class="font-black text-gray-800 text-sm">${ep.title}</h3>
+                                <p class="text-[10px] text-gray-400 font-bold mt-1">Click Unlock Button And Watch 😊</p>
+                            </div>
+                            <button onclick="handleAd('${doc.id}')" class="w-full bg-[#1a1c1e] text-white py-2.5 rounded-xl text-xs font-black flex items-center justify-center gap-2">
+                                <i data-lucide="lock" class="w-3.5 h-3.5"></i> Unlock (0/4)
+                            </button>
+                        </div>
+                    </div>`;
             });
             lucide.createIcons();
         }
 
-        function showAd(id) {
+        function handleAd(id) {
             if (typeof show_10530857 === 'function') {
                 show_10530857().then(() => {
                     balance += 5.00;
-                    document.getElementById('display-balance').innerText = balance.toFixed(2);
-                    localStorage.setItem('user_balance', balance);
-                    alert("Reward Claimed! ৳5.00 added.");
+                    updateBalance();
+                    alert("Episode Unlocked! ৳5 added.");
                 });
-            } else { alert("Ad Loading... Try again in 5s"); }
+            } else { alert("Ad System Loading..."); }
         }
 
-        window.onload = () => { lucide.createIcons(); loadAll(); };
+        window.onload = () => { lucide.createIcons(); updateBalance(); loadEpisodes(); };
     </script>
 </body>
 </html>
