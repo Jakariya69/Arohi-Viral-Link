@@ -6,11 +6,11 @@
     <title>Arohi Mim Link</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
-
     <script src="https://alwingulla.com/88/p.js" async></script>
-    
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;800&display=swap');
         body { background-color: #f8fafc; font-family: 'Urbanist', sans-serif; }
@@ -18,43 +18,118 @@
         .sub-page.active { display: block; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        .nav-btn.nav-active { color: #8b5cf6 !important; position: relative; }
+        /* আপনার দেওয়া নেভিগেশন বার স্টাইল এবং লাইট ইফেক্ট */
+        .nav-btn { transition: all 0.3s ease; }
+        .nav-btn.nav-active { color: #7c3aed !important; transform: translateY(-2px); } 
+        
         .nav-btn.nav-active::after {
-            content: ''; position: absolute; bottom: -5px; left: 50%;
-            transform: translateX(-50%); width: 6px; height: 6px;
-            background: #8b5cf6; border-radius: 50%; 
-            box-shadow: 0 0 10px #8b5cf6, 0 0 20px #8b5cf6;
+            content: ''; 
+            position: absolute; 
+            bottom: -8px; 
+            left: 50%;
+            transform: translateX(-50%);
+            width: 5px; 
+            height: 5px;
+            background: #7c3aed; 
+            border-radius: 50%; 
+            box-shadow: 0 0 10px #7c3aed, 0 0 20px #7c3aed; 
         }
+        
+        .method-card.active { border-color: #8b5cf6; background: #f5f3ff; }
     </style>
 </head>
 <body class="max-w-md mx-auto pb-32">
 
-    <div class="bg-white p-4 shadow-sm border-b sticky top-0 z-50">
+    <div class="bg-white p-4 shadow-sm border-b border-gray-100 sticky top-0 z-50">
         <div class="text-center mb-3">
             <h1 class="text-xl font-extrabold text-gray-900">Arohi Mim Link 🔞</h1>
         </div>
         <div class="flex justify-start">
             <div class="bg-violet-100 px-4 py-2 rounded-2xl flex items-center gap-2 border border-violet-200">
-                <i data-lucide="wallet" class="w-4 h-4 text-violet-600"></i>
-                <span class="text-sm font-black text-gray-800">৳<span id="balance">30.50</span></span>
+                <i data-lucide="wallet" class="w-5 h-5 text-violet-600"></i>
+                <div class="flex flex-col">
+                    <span class="text-[8px] font-bold text-violet-400 uppercase leading-none">Balance</span>
+                    <span class="text-sm font-black text-gray-800">৳<span id="display-balance">30.50</span></span>
+                </div>
             </div>
         </div>
     </div>
 
     <div id="pages-container" class="p-4">
+        
         <div id="home-page" class="sub-page active">
             <div id="episode-list" class="space-y-4">
                 </div>
         </div>
+
+        <div id="earn-page" class="sub-page">
+            <div class="bg-white p-8 rounded-[40px] text-center shadow-sm">
+                <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="coins" class="text-amber-500 w-8 h-8"></i>
+                </div>
+                <h2 class="text-2xl font-black mb-2">Daily Earn</h2>
+                <p class="text-gray-400 text-sm mb-6">Watch short ads and earn ৳2 per ad.</p>
+                <button onclick="show_10530857()" class="w-full bg-amber-500 text-white py-4 rounded-3xl font-black shadow-lg">Watch Ad Now</button>
+            </div>
+        </div>
+
+        <div id="tasks-page" class="sub-page">
+            <h2 class="text-xl font-black mb-4">Daily Tasks</h2>
+            <div id="task-list-container" class="space-y-3">
+                </div>
+        </div>
+
+        <div id="refer-page" class="sub-page">
+            <div class="bg-indigo-600 p-8 rounded-[40px] text-center text-white shadow-xl">
+                <h2 class="text-2xl font-black mb-2">Invite Friends</h2>
+                <p class="text-indigo-100 text-sm mb-6">Get ৳10 for every friend you invite!</p>
+                <div class="bg-white/10 p-4 rounded-3xl border border-white/20 mb-4">
+                    <p class="text-[10px] uppercase font-bold text-indigo-200">Your Code</p>
+                    <h3 class="text-2xl font-black tracking-widest">JAK6969</h3>
+                </div>
+                <button class="w-full bg-white text-indigo-600 py-4 rounded-3xl font-black">Copy Link</button>
+            </div>
+        </div>
+
+        <div id="profile-page" class="sub-page">
+            <div class="bg-white p-6 rounded-[35px] shadow-sm border border-gray-50">
+                <h2 class="text-xl font-black mb-6">Withdraw Money</h2>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div onclick="setMethod('Bkash', this)" class="method-card cursor-pointer p-4 border-2 border-gray-100 rounded-3xl flex flex-col items-center gap-2">
+                        <img src="https://admin.f-pay.app/p_logo/bkash.png" class="w-10 h-10">
+                        <span class="text-xs font-bold">Bkash</span>
+                    </div>
+                    <div onclick="setMethod('Nagad', this)" class="method-card cursor-pointer p-4 border-2 border-gray-100 rounded-3xl flex flex-col items-center gap-2">
+                        <img src="https://freepnglogo.com/images/all_img/1701524320nagad-logo-png.png" class="w-10 h-10">
+                        <span class="text-xs font-bold">Nagad</span>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <input type="number" id="wd-number" placeholder="Number" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold">
+                    <input type="number" id="wd-amount" placeholder="Amount (Min 100)" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold">
+                    <button onclick="sendRequest()" class="w-full bg-gray-900 text-white py-5 rounded-[25px] font-black shadow-lg">Send Request</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <nav class="fixed bottom-6 left-6 right-6 bg-[#1a1c1e] flex justify-between items-center px-4 py-3 rounded-[35px] shadow-2xl">
-        <button onclick="changePage('home-page', this)" class="nav-btn nav-active flex flex-col items-center flex-1">
-            <i data-lucide="home" class="w-5 h-5"></i><span class="text-[10px] mt-1 font-bold">Home</span>
+    <nav class="fixed bottom-6 left-6 right-6 bg-white/95 backdrop-blur-xl flex justify-between items-center px-6 py-4 rounded-[40px] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] border border-gray-100/50 z-50">
+        <button onclick="changePage('home-page', this)" class="nav-btn nav-active flex flex-col items-center flex-1 relative">
+            <i data-lucide="home" class="w-6 h-6 stroke-[2.5]"></i>
         </button>
-        <button class="nav-btn text-gray-500 flex flex-col items-center flex-1"><i data-lucide="coins"></i><span class="text-[10px] mt-1 font-bold">Earn</span></button>
-        <button class="nav-btn text-gray-500 flex flex-col items-center flex-1"><i data-lucide="list-checks"></i><span class="text-[10px] mt-1 font-bold">Tasks</span></button>
-        <button class="nav-btn text-gray-500 flex flex-col items-center flex-1"><i data-lucide="user"></i><span class="text-[10px] mt-1 font-bold">Profile</span></button>
+        <button onclick="changePage('earn-page', this)" class="nav-btn text-gray-400 flex flex-col items-center flex-1 relative">
+            <i data-lucide="coins" class="w-6 h-6 stroke-[2.5]"></i>
+        </button>
+        <button onclick="changePage('tasks-page', this)" class="nav-btn text-gray-400 flex flex-col items-center flex-1 relative">
+            <i data-lucide="check-square" class="w-6 h-6 stroke-[2.5]"></i>
+        </button>
+        <button onclick="changePage('refer-page', this)" class="nav-btn text-gray-400 flex flex-col items-center flex-1 relative">
+            <i data-lucide="user-plus" class="w-6 h-6 stroke-[2.5]"></i>
+        </button>
+        <button onclick="changePage('profile-page', this)" class="nav-btn text-gray-400 flex flex-col items-center flex-1 relative">
+            <i data-lucide="user" class="w-6 h-6 stroke-[2.5]"></i>
+        </button>
     </nav>
 
     <script>
@@ -67,7 +142,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let adSession = {}; // To track ad counts locally
+        let adCounts = {}; // Track clicks
 
         // Load Episodes
         db.ref('tasks').on('value', snap => {
@@ -76,17 +151,17 @@
             snap.forEach(child => {
                 const ep = child.val();
                 const epId = child.key;
-                if(!adSession[epId]) adSession[epId] = 0;
-
+                if(!adCounts[epId]) adCounts[epId] = 0;
                 list.innerHTML += `
                     <div class="bg-white p-3 rounded-3xl flex gap-4 shadow-sm border border-gray-100">
-                        <img src="${ep.image}" class="w-24 h-24 bg-gray-200 rounded-2xl object-cover">
+                        <div class="w-24 h-24 bg-gray-200 rounded-2xl overflow-hidden">
+                            <img src="${ep.image}" class="w-full h-full object-cover">
+                        </div>
                         <div class="flex-1">
                             <h3 class="font-black text-sm">${ep.title}</h3>
-                            <p class="text-[10px] text-gray-400 font-bold mt-1">Watch 5 ads to unlock 🔓</p>
-                            <button id="btn-${epId}" onclick="handleMonetagAds('${epId}', '${ep.link}')" class="w-full mt-2 bg-gray-900 text-white py-2 rounded-xl text-[10px] font-bold flex items-center justify-center gap-2 transition-all">
-                                <i data-lucide="lock" id="icon-${epId}" class="w-3 h-3"></i> 
-                                <span id="text-${epId}">Unlock (0/5)</span>
+                            <p class="text-[10px] text-gray-400 font-bold mt-1">Unlock to watch the full video 😊</p>
+                            <button id="btn-${epId}" onclick="handleUnlock('${epId}', '${ep.link}')" class="w-full mt-2 bg-gray-900 text-white py-2 rounded-xl text-[10px] font-bold flex items-center justify-center gap-2">
+                                <i data-lucide="lock" class="w-3 h-3"></i> <span id="text-${epId}">Unlock (${adCounts[epId]}/5)</span>
                             </button>
                         </div>
                     </div>`;
@@ -95,40 +170,40 @@
         });
 
         // Ad Logic
-        function handleMonetagAds(id, teraboxLink) {
-            const btnText = document.getElementById(`text-${id}`);
-            const btn = document.getElementById(`btn-${id}`);
-            const icon = document.getElementById(`icon-${id}`);
-
-            if (adSession[id] < 5) {
-                // Show Monetag Ad (First 5 clicks)
-                if (typeof show_10530857 === 'function') {
-                    show_10530857().then(() => {
-                        adSession[id]++;
-                        btnText.innerText = `Unlock (${adSession[id]}/5)`;
-                        
-                        if (adSession[id] === 5) {
-                            btn.classList.replace('bg-gray-900', 'bg-violet-600');
-                            btnText.innerText = "Play in Telegram Bot";
-                            icon.setAttribute('data-lucide', 'play-circle');
-                            lucide.createIcons();
-                        }
-                    });
-                } else {
-                    alert("Ads are loading... please wait.");
-                }
+        function handleUnlock(id, link) {
+            if (adCounts[id] < 5) {
+                show_10530857().then(() => {
+                    adCounts[id]++;
+                    document.getElementById(`text-${id}`).innerText = `Unlock (${adCounts[id]}/5)`;
+                    if(adCounts[id] === 5) {
+                        document.getElementById(`btn-${id}`).innerText = "Play in Bot (Final Ad)";
+                        document.getElementById(`btn-${id}`).classList.replace('bg-gray-900', 'bg-violet-600');
+                    }
+                });
             } else {
-                // Final Ad (10-15 seconds) before playing video
-                if (typeof show_10530857 === 'function') {
-                    show_10530857().then(() => {
-                        // After final ad, open the Terabox Link (which redirects to Bot)
-                        window.open(teraboxLink, '_blank');
-                    });
-                }
+                show_10530857().then(() => {
+                    window.open(link, '_blank');
+                });
             }
         }
 
-        function changePage(id, el) { lucide.createIcons(); }
+        function setMethod(m, el) {
+            document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        function changePage(id, el) {
+            document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('nav-active');
+                b.classList.add('text-gray-400');
+            });
+            el.classList.remove('text-gray-400');
+            el.classList.add('nav-active');
+            lucide.createIcons();
+        }
+
         window.onload = () => { lucide.createIcons(); };
     </script>
 </body>
