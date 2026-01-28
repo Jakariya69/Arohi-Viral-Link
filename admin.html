@@ -2,58 +2,116 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Master Admin - Control Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arohi Mim Link</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script src='//libtl.com/sdk.js' data-zone='10530857' data-sdk='show_10530857'></script>
+    
     <style>
-        body { background-color: #f0f2f5; font-family: 'Inter', sans-serif; }
-        .sidebar-link.active { background-color: #4f46e5; color: white; }
+        body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; }
+        .sub-page { display: none; }
+        .sub-page.active { display: block; animation: fadeIn 0.3s; }
+        .nav-active { color: #8257e5 !important; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
-<body class="flex min-h-screen">
-    <div id="login-screen" class="fixed inset-0 bg-slate-900 z-[500] flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-3xl max-w-sm w-full text-center">
-            <h2 class="text-2xl font-bold mb-6">Admin Login</h2>
-            <input id="admin-pass" type="password" placeholder="Password" class="w-full p-3 border rounded-xl mb-4">
-            <button onclick="login()" class="w-full bg-indigo-600 text-white py-3 rounded-xl">Login</button>
+<body class="max-w-md mx-auto pb-24">
+
+    <div class="bg-white p-3 flex items-center justify-between border-b sticky top-0 z-50">
+        <div class="flex items-center gap-2">
+            <h1 class="text-lg font-bold text-gray-800">Arohi Mim Link 🔞</h1>
+        </div>
+        
+        <div class="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-2xl border border-gray-100">
+            <div class="w-7 h-7 bg-[#8257e5] rounded-full flex items-center justify-center shadow-sm">
+                <i data-lucide="wallet" class="w-4 h-4 text-white"></i>
+            </div>
+            <div class="flex flex-col">
+                <p class="text-[9px] text-gray-400 font-bold uppercase leading-none">My Balance</p>
+                <p class="text-sm font-extrabold text-gray-900 leading-none mt-0.5">৳<span id="display-balance">0.00</span></p>
+            </div>
         </div>
     </div>
 
-    <div id="main-ui" class="hidden flex w-full">
-        <div class="w-64 bg-slate-900 text-white p-4 space-y-4">
-            <h1 class="text-xl font-bold text-indigo-400 mb-8">Admin Master</h1>
-            <button onclick="showTab('tab-ep')" class="sidebar-link w-full flex items-center gap-3 p-3 rounded-xl active"><i data-lucide="play"></i> Episodes</button>
-            <button onclick="showTab('tab-set')" class="sidebar-link w-full flex items-center gap-3 p-3 rounded-xl"><i data-lucide="settings"></i> Settings</button>
-            <button onclick="showTab('tab-wit')" class="sidebar-link w-full flex items-center gap-3 p-3 rounded-xl"><i data-lucide="wallet"></i> Withdraws</button>
+    <div id="pages-container" class="p-4">
+        <div id="home-page" class="sub-page active">
+            <div id="episode-list" class="space-y-4 pt-2">
+                </div>
         </div>
 
-        <div class="flex-grow p-8">
-            <div id="tab-ep" class="tab-content">
-                <div class="bg-white p-6 rounded-2xl shadow-sm mb-6">
-                    <h2 class="font-bold mb-4">Add Episode</h2>
-                    <input id="v-title" placeholder="Title" class="w-full p-2 border mb-2 rounded">
-                    <input id="v-order" type="number" placeholder="Order No" class="w-full p-2 border mb-2 rounded">
-                    <input id="v-url" placeholder="YouTube Embed URL" class="w-full p-2 border mb-2 rounded">
-                    <input id="v-thumb" placeholder="Thumbnail URL" class="w-full p-2 border mb-2 rounded">
-                    <input id="v-reward" type="number" placeholder="Reward (৳)" class="w-full p-2 border mb-4 rounded">
-                    <button onclick="addEpisode()" class="w-full bg-indigo-600 text-white py-2 rounded">Upload</button>
-                </div>
-                <div id="ep-list" class="bg-white p-6 rounded-2xl shadow-sm space-y-2"></div>
-            </div>
+        <div id="earn-page" class="sub-page text-center py-10">
+            <h2 class="text-xl font-bold">Earn More</h2>
+            <p id="earn-info-text" class="text-gray-500 mt-2">Loading...</p>
+        </div>
 
-            <div id="tab-set" class="tab-content hidden">
-                <div class="bg-white p-6 rounded-2xl shadow-sm">
-                    <h2 class="font-bold mb-4">App Settings</h2>
-                    <textarea id="s-earn" placeholder="Earn More Text" class="w-full p-2 border mb-2 rounded"></textarea>
-                    <textarea id="s-task" placeholder="Daily Task Text" class="w-full p-2 border mb-2 rounded"></textarea>
-                    <input id="s-min" type="number" placeholder="Min Withdraw" class="w-full p-2 border mb-4 rounded">
-                    <button onclick="saveSettings()" class="w-full bg-black text-white py-2 rounded">Save</button>
+        <div id="tasks-page" class="sub-page text-center py-10">
+            <h2 class="text-xl font-bold">Daily Tasks</h2>
+            <p id="task-info-text" class="text-gray-500 mt-2">Loading...</p>
+        </div>
+
+        <div id="refer-page" class="sub-page text-center py-10">
+            <h2 class="text-xl font-bold">Refer & Earn</h2>
+            <div class="bg-white p-6 rounded-3xl shadow-sm mt-4 border border-gray-100">
+                <p class="text-sm text-gray-400 font-bold uppercase">Your Refer Code</p>
+                <h3 class="text-3xl font-black text-purple-600 mt-1">VIRAL123</h3>
+            </div>
+        </div>
+
+        <div id="profile-page" class="sub-page">
+            <div class="bg-white p-6 rounded-[30px] shadow-sm text-center border border-gray-100">
+                <div class="w-20 h-20 bg-purple-50 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <i data-lucide="user" class="w-10 h-10 text-purple-600"></i>
+                </div>
+                <h2 class="text-xl font-bold mb-1">Jakariya</h2>
+                <p id="min-withdraw-text" class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6">Min Withdraw: ৳0</p>
+                
+                <div class="text-left space-y-4">
+                    <div><label class="text-[10px] font-bold text-gray-400 uppercase ml-2">Method</label>
+                        <select id="w-method" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold">
+                            <option value="Bkash">Bkash</option>
+                            <option value="Nagad">Nagad</option>
+                            <option value="Rocket">Rocket</option>
+                        </select>
+                    </div>
+                    <div><label class="text-[10px] font-bold text-gray-400 uppercase ml-2">Number</label>
+                        <input id="w-number" type="number" placeholder="017xxxxxxxx" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold">
+                    </div>
+                    <div><label class="text-[10px] font-bold text-gray-400 uppercase ml-2">Amount (৳)</label>
+                        <input id="w-amount" type="number" placeholder="0.00" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold">
+                    </div>
+                    <button onclick="submitWithdraw()" class="bg-black text-white px-6 py-4 rounded-2xl w-full font-black shadow-xl mt-2 active:scale-95 transition-all">Submit Withdrawal</button>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div id="tab-wit" class="tab-content hidden">
-                <div id="wit-list" class="bg-white p-6 rounded-2xl shadow-sm space-y-4"></div>
-            </div>
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white flex justify-between items-center px-6 py-3 border-t shadow-2xl">
+        <button onclick="changePage('home-page', this)" class="nav-btn nav-active flex flex-col items-center">
+            <i data-lucide="home"></i><span class="text-[10px] font-bold mt-1">Home</span>
+        </button>
+        <button onclick="changePage('earn-page', this)" class="nav-btn text-gray-400 flex flex-col items-center">
+            <i data-lucide="layout-grid"></i><span class="text-[10px] font-bold mt-1">Earn</span>
+        </button>
+        <button onclick="changePage('tasks-page', this)" class="nav-btn text-gray-400 flex flex-col items-center">
+            <i data-lucide="check-square"></i><span class="text-[10px] font-bold mt-1">Tasks</span>
+        </button>
+        <button onclick="changePage('refer-page', this)" class="nav-btn text-gray-400 flex flex-col items-center">
+            <i data-lucide="users"></i><span class="text-[10px] font-bold mt-1">Refer</span>
+        </button>
+        <button onclick="changePage('profile-page', this)" class="nav-btn text-gray-400 flex flex-col items-center">
+            <i data-lucide="user-circle"></i><span class="text-[10px] font-bold mt-1">Profile</span>
+        </button>
+    </nav>
+
+    <div id="video-modal" class="hidden fixed inset-0 bg-black/95 z-[100] flex flex-col">
+        <div class="p-4 bg-white flex justify-between items-center">
+            <span id="playing-title" class="font-black text-sm truncate pr-4">Watching Video</span>
+            <button onclick="closeVideo()" class="bg-red-500 text-white px-4 py-1 rounded-full text-xs font-bold">Close</button>
+        </div>
+        <div class="flex-grow flex items-center justify-center p-2">
+            <iframe id="video-frame" class="w-full aspect-video rounded-xl shadow-2xl" src="" frameborder="0" allowfullscreen></iframe>
         </div>
     </div>
 
@@ -68,66 +126,94 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        function login() {
-            if(document.getElementById('admin-pass').value === 'admin786') {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('main-ui').classList.remove('hidden');
-                loadAll();
-            } else alert("Wrong!");
+        let balance = parseFloat(localStorage.getItem('user_balance')) || 30.00;
+        let minWithdraw = 0;
+        document.getElementById('display-balance').innerText = balance.toFixed(2);
+
+        function changePage(id, el) {
+            document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.add('text-gray-400'));
+            el.classList.add('nav-active'); el.classList.remove('text-gray-400');
+            lucide.createIcons();
         }
 
-        function showTab(id) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-            document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active', 'bg-indigo-600'));
-            event.currentTarget.classList.add('active', 'bg-indigo-600');
-        }
-
-        async function addEpisode() {
-            await db.collection('episodes').add({
-                title: document.getElementById('v-title').value,
-                order: parseInt(document.getElementById('v-order').value),
-                url: document.getElementById('v-url').value,
-                thumb: document.getElementById('v-thumb').value,
-                reward: parseFloat(document.getElementById('v-reward').value),
-                createdAt: new Date()
+        async function loadEpisodes() {
+            const container = document.getElementById('episode-list');
+            const snapshot = await db.collection('episodes').orderBy('order', 'desc').get();
+            container.innerHTML = '';
+            snapshot.forEach(doc => {
+                const ep = doc.data();
+                container.innerHTML += `
+                    <div class="bg-white rounded-3xl p-4 flex flex-col shadow-sm border border-gray-100 overflow-hidden">
+                        <img src="${ep.thumb}" class="w-full h-44 rounded-2xl object-cover mb-3">
+                        <div>
+                            <h3 class="font-black text-gray-800 text-base leading-tight mb-3">${ep.title}</h3>
+                            <button onclick="unlockEpisode('${doc.id}')" class="w-full bg-[#1e272e] text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3">
+                                <i data-lucide="lock" class="w-4 h-4 text-yellow-400"></i> Unlock (<span id="count-${doc.id}">0/5</span>)
+                            </button>
+                        </div>
+                    </div>`;
             });
-            alert("Added!"); loadAll();
+            lucide.createIcons();
         }
 
-        async function saveSettings() {
-            await db.collection('settings').doc('app_data').set({
-                earn_info: document.getElementById('s-earn').value,
-                task_info: document.getElementById('s-task').value,
-                min_withdraw: document.getElementById('s-min').value
-            });
-            alert("Saved!");
+        async function loadAppSettings() {
+            const doc = await db.collection('settings').doc('app_data').get();
+            if (doc.exists) {
+                const data = doc.data();
+                if(data.earn_info) document.getElementById('earn-info-text').innerText = data.earn_info;
+                if(data.task_info) document.getElementById('task-info-text').innerText = data.task_info;
+                if(data.min_withdraw) {
+                    minWithdraw = parseFloat(data.min_withdraw);
+                    document.getElementById('min-withdraw-text').innerText = "Min Withdraw: ৳" + minWithdraw;
+                }
+            }
         }
 
-        async function loadAll() {
-            // Load Episodes
-            const epSnap = await db.collection('episodes').orderBy('order','desc').get();
-            const epList = document.getElementById('ep-list'); epList.innerHTML = '';
-            epSnap.forEach(doc => {
-                epList.innerHTML += `<div class="flex justify-between border-b pb-2"><span>${doc.data().title}</span><button onclick="del('episodes','${doc.id}')" class="text-red-500">Del</button></div>`;
-            });
+        let adCounter = 0;
+        function unlockEpisode(id) { adCounter = 0; showAd(id); }
 
-            // Load Withdraws
-            const witSnap = await db.collection('withdrawals').orderBy('createdAt','desc').get();
-            const witList = document.getElementById('wit-list'); witList.innerHTML = '';
-            witSnap.forEach(doc => {
-                const w = doc.data();
-                witList.innerHTML += `<div class="p-3 bg-gray-50 rounded border">
-                    <p><b>৳${w.amount}</b> - ${w.method}</p>
-                    <p>No: ${w.number}</p>
-                    <button onclick="del('withdrawals','${doc.id}')" class="text-green-600 text-xs font-bold">PAID/DELETE</button>
-                </div>`;
-            });
+        function showAd(id) {
+            if (typeof show_10530857 === 'function') {
+                show_10530857().then(() => {
+                    adCounter++;
+                    document.getElementById(`count-${id}`).innerText = adCounter + "/5";
+                    if (adCounter < 5) { alert("Ad success! Watch more to unlock."); showAd(id); }
+                    else { playVideo(id); }
+                }).catch(() => playVideo(id));
+            } else { playVideo(id); }
         }
 
-        async function del(col, id) { if(confirm("Delete?")) { await db.collection(col).doc(id).delete(); loadAll(); } }
+        async function playVideo(id) {
+            const doc = await db.collection('episodes').doc(id).get();
+            const data = doc.data();
+            document.getElementById('video-modal').classList.remove('hidden');
+            document.getElementById('video-frame').src = data.url;
+            document.getElementById('playing-title').innerText = data.title;
+            balance += parseFloat(data.reward || 0.50);
+            localStorage.setItem('user_balance', balance);
+            document.getElementById('display-balance').innerText = balance.toFixed(2);
+        }
 
-        window.onload = () => lucide.createIcons();
+        async function submitWithdraw() {
+            const method = document.getElementById('w-method').value;
+            const number = document.getElementById('w-number').value;
+            const amount = parseFloat(document.getElementById('w-amount').value);
+            if(!number || !amount) return alert("Fill all fields!");
+            if(amount < minWithdraw) return alert("Min withdraw is ৳" + minWithdraw);
+            if(amount > balance) return alert("Insufficient balance!");
+            await db.collection('withdrawals').add({ method, number, amount, createdAt: new Date() });
+            balance -= amount;
+            localStorage.setItem('user_balance', balance);
+            document.getElementById('display-balance').innerText = balance.toFixed(2);
+            alert("Withdraw request sent!");
+        }
+
+        function closeVideo() { document.getElementById('video-modal').classList.add('hidden'); document.getElementById('video-frame').src = ""; }
+
+        window.onload = () => { lucide.createIcons(); loadEpisodes(); loadAppSettings(); };
     </script>
 </body>
 </html>
