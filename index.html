@@ -13,20 +13,21 @@
         .sub-page.active { display: block; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Navigation Active Light/Dot Effect */
+        /* নেভিগেশন বার লাইট ইফেক্ট - শুধুমাত্র এই অংশটুকু আপডেট করা হয়েছে */
         .nav-btn.nav-active { color: #8b5cf6 !important; position: relative; }
         .nav-btn.nav-active::after {
             content: ''; 
             position: absolute; 
-            bottom: -2px; /* ডটটি এখন আইকনের একদম কাছাকাছি থাকবে */
+            bottom: -5px; 
             left: 50%;
             transform: translateX(-50%);
             width: 6px; 
             height: 6px;
             background: #8b5cf6; 
             border-radius: 50%; 
-            box-shadow: 0 0 12px #8b5cf6, 0 0 20px #8b5cf6; /* উজ্জ্বল লাইট ইফেক্ট */
+            box-shadow: 0 0 10px #8b5cf6, 0 0 20px #8b5cf6; /* লাইট অন করা হয়েছে */
         }
+        
         .method-card.active { border-color: #8b5cf6; background: #f5f3ff; }
     </style>
 </head>
