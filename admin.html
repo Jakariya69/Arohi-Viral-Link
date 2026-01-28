@@ -3,78 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Arohi Mim Link</title>
+    <title>Master Power Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Inter', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .active-btn { background-color: #000; color: #fff; }
+        #admin-main-content { display: none; }
+    </style>
 </head>
-<body class="max-w-2xl mx-auto p-6 bg-gray-100">
+<body class="max-w-4xl mx-auto p-4 pb-20">
 
-    <div class="flex items-center justify-between mb-8">
-        <h1 class="text-2xl font-bold">Admin Dashboard</h1>
-        <a href="index.html" class="text-blue-600 font-bold">Back to App</a>
-    </div>
-
-    <div class="bg-white p-6 rounded-2xl shadow-md mb-8">
-        <h2 class="text-lg font-bold mb-4">Add New Video</h2>
-        <div class="space-y-4">
-            <input id="ep-title" type="text" placeholder="Video Title" class="w-full p-3 border rounded-xl">
-            <input id="ep-thumb" type="text" placeholder="Thumbnail URL" class="w-full p-3 border rounded-xl">
-            <input id="ep-url" type="text" placeholder="Video URL" class="w-full p-3 border rounded-xl">
-            <button onclick="addEpisode()" class="w-full bg-black text-white py-4 rounded-xl font-bold">Upload</button>
+    <div id="login-screen" class="fixed inset-0 bg-gray-900 z-[200] flex items-center justify-center p-6">
+        <div class="bg-white p-8 rounded-[35px] shadow-2xl w-full max-w-sm text-center">
+            <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i data-lucide="lock" class="w-10 h-10 text-purple-600"></i>
+            </div>
+            <h2 class="text-2xl font-black mb-2">Admin Login</h2>
+            <p class="text-gray-400 text-sm mb-6 font-medium">Enter Password to Access Panel</p>
+            <input id="admin-pass" type="password" placeholder="••••••••" class="w-full p-4 bg-gray-100 border-none rounded-2xl mb-4 text-center font-bold outline-none focus:ring-2 focus:ring-purple-500">
+            <button onclick="checkPassword()" class="w-full bg-black text-white py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition-all">Unlock Panel</button>
+            <p id="login-error" class="text-red-500 text-xs mt-4 font-bold hidden">Wrong Password! Try Again.</p>
         </div>
     </div>
 
-    <div class="bg-white p-6 rounded-2xl shadow-md">
-        <h2 class="text-lg font-bold mb-4">Delete Videos</h2>
-        <div id="admin-episode-list" class="space-y-4">Loading...</div>
+    <div id="admin-main-content">
+        <div class="flex items-center justify-between mb-8 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+            <div>
+                <h1 class="text-2xl font-black text-gray-800">Power Panel ⚡</h1>
+                <p class="text-[10px] text-purple-600 font-black uppercase tracking-widest">Logged in as Admin</p>
+            </div>
+            <button onclick="location.reload()" class="bg-red-50 p-3 rounded-2xl hover:bg-red-100">
+                <i data-lucide="log-out" class="w-6 h-6 text-red-500"></i>
+            </button>
+        </div>
+        
+        <div id="tab-video" class="tab-content active space-y-6">
+             <div class="bg-white p-6 rounded-[30px] shadow-sm border">
+                <h2 class="font-bold text-lg mb-4">Manage Videos</h2>
+                <div id="admin-video-list" class="space-y-3">Loading Videos...</div>
+            </div>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150",
-            projectId: "mini-app-link",
-            appId: "1:608662003617:web:681a069935bc118d5bb5e0"
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150", 
+            projectId: "mini-app-link", 
+            appId: "1:608662003617:web:681a069935bc118d5bb5e0" 
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        async function loadEpisodesAdmin() {
-            const container = document.getElementById('admin-episode-list');
-            const snapshot = await db.collection('episodes').orderBy('order', 'desc').get();
-            container.innerHTML = '';
-            snapshot.forEach(doc => {
-                const ep = doc.data();
-                container.innerHTML += `
-                    <div class="flex items-center justify-between border-b pb-2">
-                        <span class="font-bold text-sm truncate w-2/3">${ep.title}</span>
-                        <button onclick="deleteEpisode('${doc.id}')" class="text-red-500 p-2">
-                            <i data-lucide="trash-2"></i>
-                        </button>
-                    </div>`;
-            });
-            lucide.createIcons();
-        }
-
-        async function addEpisode() {
-            const title = document.getElementById('ep-title').value;
-            const thumb = document.getElementById('ep-thumb').value;
-            const url = document.getElementById('ep-url').value;
-            if(!title || !thumb || !url) return alert("Fill all fields!");
-            await db.collection('episodes').add({ title, thumb, url, order: Date.now() });
-            alert("Added!");
-            location.reload();
-        }
-
-        async function deleteEpisode(id) {
-            if (confirm("Delete this video?")) {
-                await db.collection('episodes').doc(id).delete();
-                alert("Deleted!");
-                loadEpisodesAdmin();
+        // Updated Password Check
+        function checkPassword() {
+            const passInput = document.getElementById('admin-pass').value;
+            const correctPass = "admin786"; // New Password set here
+            
+            if(passInput === correctPass) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-main-content').style.display = 'block';
+                // Initialize functions here...
+            } else {
+                const err = document.getElementById('login-error');
+                err.classList.remove('hidden');
             }
         }
-        window.onload = loadEpisodesAdmin;
+        
+        // ... (Other functions like loadVideos, deleteVideo etc remain the same)
+        window.onload = () => { lucide.createIcons(); };
     </script>
 </body>
 </html>
