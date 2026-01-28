@@ -2,59 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Master Admin - Control Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Arohi Mim Link</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        body { background-color: #f0f2f5; font-family: 'Inter', sans-serif; }
-        .sidebar-link.active { background-color: #4f46e5; color: white; }
-    </style>
 </head>
-<body class="flex min-h-screen">
-    <div id="login-screen" class="fixed inset-0 bg-slate-900 z-[500] flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-3xl max-w-sm w-full text-center">
-            <h2 class="text-2xl font-bold mb-6">Admin Login</h2>
-            <input id="admin-pass" type="password" placeholder="Password" class="w-full p-3 border rounded-xl mb-4">
-            <button onclick="login()" class="w-full bg-indigo-600 text-white py-3 rounded-xl">Login</button>
+<body class="max-w-2xl mx-auto p-6 bg-gray-100">
+
+    <div class="flex items-center justify-between mb-8">
+        <h1 class="text-2xl font-bold">Admin Dashboard</h1>
+        <a href="index.html" class="text-blue-600 font-bold">Back to App</a>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl shadow-md mb-8">
+        <h2 class="text-lg font-bold mb-4">Add New Video</h2>
+        <div class="space-y-4">
+            <input id="ep-title" type="text" placeholder="Video Title" class="w-full p-3 border rounded-xl">
+            <input id="ep-thumb" type="text" placeholder="Thumbnail URL" class="w-full p-3 border rounded-xl">
+            <input id="ep-url" type="text" placeholder="Video URL" class="w-full p-3 border rounded-xl">
+            <button onclick="addEpisode()" class="w-full bg-black text-white py-4 rounded-xl font-bold">Upload</button>
         </div>
     </div>
 
-    <div id="main-ui" class="hidden flex w-full">
-        <div class="w-64 bg-slate-900 text-white p-4 space-y-4">
-            <h1 class="text-xl font-bold text-indigo-400 mb-8">Admin Master</h1>
-            <button onclick="showTab('tab-ep')" class="sidebar-link w-full flex items-center gap-3 p-3 rounded-xl active"><i data-lucide="play"></i> Episodes</button>
-            <button onclick="showTab('tab-set')" class="sidebar-link w-full flex items-center gap-3 p-3 rounded-xl"><i data-lucide="settings"></i> Settings</button>
-            <button onclick="showTab('tab-wit')" class="sidebar-link w-full flex items-center gap-3 p-3 rounded-xl"><i data-lucide="wallet"></i> Withdraws</button>
-        </div>
-
-        <div class="flex-grow p-8">
-            <div id="tab-ep" class="tab-content">
-                <div class="bg-white p-6 rounded-2xl shadow-sm mb-6">
-                    <h2 class="font-bold mb-4">Add Episode</h2>
-                    <input id="v-title" placeholder="Title" class="w-full p-2 border mb-2 rounded">
-                    <input id="v-order" type="number" placeholder="Order No" class="w-full p-2 border mb-2 rounded">
-                    <input id="v-url" placeholder="YouTube Embed URL" class="w-full p-2 border mb-2 rounded">
-                    <input id="v-thumb" placeholder="Thumbnail URL" class="w-full p-2 border mb-2 rounded">
-                    <input id="v-reward" type="number" placeholder="Reward (৳)" class="w-full p-2 border mb-4 rounded">
-                    <button onclick="addEpisode()" class="w-full bg-indigo-600 text-white py-2 rounded">Upload</button>
-                </div>
-                <div id="ep-list" class="bg-white p-6 rounded-2xl shadow-sm space-y-2"></div>
-            </div>
-
-            <div id="tab-set" class="tab-content hidden">
-                <div class="bg-white p-6 rounded-2xl shadow-sm">
-                    <h2 class="font-bold mb-4">App Settings</h2>
-                    <textarea id="s-earn" placeholder="Earn More Text" class="w-full p-2 border mb-2 rounded"></textarea>
-                    <textarea id="s-task" placeholder="Daily Task Text" class="w-full p-2 border mb-2 rounded"></textarea>
-                    <input id="s-min" type="number" placeholder="Min Withdraw" class="w-full p-2 border mb-4 rounded">
-                    <button onclick="saveSettings()" class="w-full bg-black text-white py-2 rounded">Save</button>
-                </div>
-            </div>
-
-            <div id="tab-wit" class="tab-content hidden">
-                <div id="wit-list" class="bg-white p-6 rounded-2xl shadow-sm space-y-4"></div>
-            </div>
-        </div>
+    <div class="bg-white p-6 rounded-2xl shadow-md">
+        <h2 class="text-lg font-bold mb-4">Delete Videos</h2>
+        <div id="admin-episode-list" class="space-y-4">Loading...</div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -68,66 +40,41 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        function login() {
-            if(document.getElementById('admin-pass').value === 'admin786') {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('main-ui').classList.remove('hidden');
-                loadAll();
-            } else alert("Wrong!");
-        }
-
-        function showTab(id) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-            document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active', 'bg-indigo-600'));
-            event.currentTarget.classList.add('active', 'bg-indigo-600');
+        async function loadEpisodesAdmin() {
+            const container = document.getElementById('admin-episode-list');
+            const snapshot = await db.collection('episodes').orderBy('order', 'desc').get();
+            container.innerHTML = '';
+            snapshot.forEach(doc => {
+                const ep = doc.data();
+                container.innerHTML += `
+                    <div class="flex items-center justify-between border-b pb-2">
+                        <span class="font-bold text-sm truncate w-2/3">${ep.title}</span>
+                        <button onclick="deleteEpisode('${doc.id}')" class="text-red-500 p-2">
+                            <i data-lucide="trash-2"></i>
+                        </button>
+                    </div>`;
+            });
+            lucide.createIcons();
         }
 
         async function addEpisode() {
-            await db.collection('episodes').add({
-                title: document.getElementById('v-title').value,
-                order: parseInt(document.getElementById('v-order').value),
-                url: document.getElementById('v-url').value,
-                thumb: document.getElementById('v-thumb').value,
-                reward: parseFloat(document.getElementById('v-reward').value),
-                createdAt: new Date()
-            });
-            alert("Added!"); loadAll();
+            const title = document.getElementById('ep-title').value;
+            const thumb = document.getElementById('ep-thumb').value;
+            const url = document.getElementById('ep-url').value;
+            if(!title || !thumb || !url) return alert("Fill all fields!");
+            await db.collection('episodes').add({ title, thumb, url, order: Date.now() });
+            alert("Added!");
+            location.reload();
         }
 
-        async function saveSettings() {
-            await db.collection('settings').doc('app_data').set({
-                earn_info: document.getElementById('s-earn').value,
-                task_info: document.getElementById('s-task').value,
-                min_withdraw: document.getElementById('s-min').value
-            });
-            alert("Saved!");
+        async function deleteEpisode(id) {
+            if (confirm("Delete this video?")) {
+                await db.collection('episodes').doc(id).delete();
+                alert("Deleted!");
+                loadEpisodesAdmin();
+            }
         }
-
-        async function loadAll() {
-            // Load Episodes
-            const epSnap = await db.collection('episodes').orderBy('order','desc').get();
-            const epList = document.getElementById('ep-list'); epList.innerHTML = '';
-            epSnap.forEach(doc => {
-                epList.innerHTML += `<div class="flex justify-between border-b pb-2"><span>${doc.data().title}</span><button onclick="del('episodes','${doc.id}')" class="text-red-500">Del</button></div>`;
-            });
-
-            // Load Withdraws
-            const witSnap = await db.collection('withdrawals').orderBy('createdAt','desc').get();
-            const witList = document.getElementById('wit-list'); witList.innerHTML = '';
-            witSnap.forEach(doc => {
-                const w = doc.data();
-                witList.innerHTML += `<div class="p-3 bg-gray-50 rounded border">
-                    <p><b>৳${w.amount}</b> - ${w.method}</p>
-                    <p>No: ${w.number}</p>
-                    <button onclick="del('withdrawals','${doc.id}')" class="text-green-600 text-xs font-bold">PAID/DELETE</button>
-                </div>`;
-            });
-        }
-
-        async function del(col, id) { if(confirm("Delete?")) { await db.collection(col).doc(id).delete(); loadAll(); } }
-
-        window.onload = () => lucide.createIcons();
+        window.onload = loadEpisodesAdmin;
     </script>
 </body>
 </html>
