@@ -3,191 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arohi Mim Link</title>
+    <title>Arohi Mim - Secure Earn & Play</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
-
+    
     <script src="//niphaumeenses.net/vignette.min.js" data-zone="10530857" data-sdk="show_10530857"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;800&display=swap');
-        body { background-color: #f8fafc; font-family: 'Urbanist', sans-serif; -webkit-tap-highlight-color: transparent; }
+        @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;700;900&display=swap');
+        body { font-family: 'Urbanist', sans-serif; background: #f4f7fe; user-select: none; }
         .sub-page { display: none; }
-        .sub-page.active { display: block; animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .nav-btn { transition: all 0.3s ease; position: relative; }
-        .nav-btn.nav-active { color: #7c3aed !important; transform: translateY(-2px); }
-        .nav-btn.nav-active::after {
-            content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
-            width: 6px; height: 6px; background: #7c3aed; border-radius: 50%; 
-            box-shadow: 0 0 10px #7c3aed; 
-        }
-        .method-card.active { border-color: #7c3aed; background: #f5f3ff; }
+        .sub-page.active { display: block; }
+        /* Disable Right Click Overlay */
+        #video-container { position: relative; }
     </style>
 </head>
-<body class="max-w-md mx-auto pb-32">
+<body class="max-w-md mx-auto pb-24" oncontextmenu="return false;">
 
-    <div class="bg-white/80 backdrop-blur-md p-4 shadow-sm border-b border-gray-100 sticky top-0 z-50">
-        <div class="text-center mb-3">
-            <h1 class="text-xl font-extrabold text-gray-900 tracking-tight">Arohi Mim Link 🔞</h1>
+    <div class="bg-white p-5 rounded-b-[40px] shadow-sm mb-4 border-b">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="font-black text-violet-600 text-2xl tracking-tighter">MIM PREMIUM</h1>
+            <div class="bg-gray-100 p-2 rounded-xl text-[10px] font-black uppercase"><span id="u-id">...</span></div>
         </div>
-        <div class="flex justify-between items-center">
-            <div class="bg-violet-100 px-4 py-2 rounded-2xl flex items-center gap-2 border border-violet-200">
-                <i data-lucide="wallet" class="w-5 h-5 text-violet-600"></i>
-                <div class="flex flex-col">
-                    <span class="text-[8px] font-bold text-violet-400 uppercase leading-none">Balance</span>
-                    <span class="text-sm font-black text-gray-800">৳<span id="display-balance">0.00</span></span>
-                </div>
+        
+        <div class="grid grid-cols-2 gap-3 mb-5">
+            <div class="bg-violet-600 p-5 rounded-3xl text-white shadow-lg shadow-violet-200">
+                <p class="text-[10px] font-bold opacity-70 uppercase">Balance</p>
+                <p class="text-2xl font-black">৳<span id="display-balance">0.00</span></p>
             </div>
-            <div class="text-[10px] font-bold text-gray-400 bg-gray-100 px-3 py-1 rounded-full">ID: 6969-USER</div>
+            <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
+                <p class="text-[10px] font-bold text-gray-400 uppercase">Ads Today</p>
+                <p class="text-2xl font-black text-gray-800"><span id="ad-count">0</span>/50</p>
+            </div>
+        </div>
+
+        <div class="relative">
+            <input type="text" id="search-bar" onkeyup="searchVideo()" placeholder="Search videos..." class="w-full p-4 bg-gray-100 rounded-2xl outline-none font-bold text-sm pl-12">
+            <i data-lucide="search" class="absolute left-4 top-4 text-gray-400 w-5 h-5"></i>
         </div>
     </div>
 
     <div id="pages-container" class="p-4">
-        
         <div id="home-page" class="sub-page active">
-            <div id="episode-list" class="space-y-4">
-                <div class="flex flex-col items-center py-20 text-gray-400">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600 mb-4"></div>
-                    <p class="font-bold text-sm">Fetching Episodes...</p>
-                </div>
-            </div>
-        </div>
-
-        <div id="task-page" class="sub-page">
-            <h2 class="text-xl font-black mb-4 px-2">Daily Tasks</h2>
-            <div class="space-y-3">
-                <div class="bg-white p-4 rounded-3xl flex justify-between items-center shadow-sm border border-gray-100">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center text-red-600"><i data-lucide="youtube"></i></div>
-                        <div><p class="font-black text-sm">Subscribe YouTube</p><p class="text-[10px] text-green-500 font-bold">+ ৳5.00</p></div>
-                    </div>
-                    <button onclick="window.open('https://youtube.com')" class="bg-gray-900 text-white px-5 py-2 rounded-xl text-[10px] font-black">Go</button>
-                </div>
-                <div class="bg-white p-4 rounded-3xl flex justify-between items-center shadow-sm border border-gray-100">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600"><i data-lucide="send"></i></div>
-                        <div><p class="font-black text-sm">Join Telegram</p><p class="text-[10px] text-green-500 font-bold">+ ৳2.00</p></div>
-                    </div>
-                    <button onclick="window.open('https://t.me')" class="bg-gray-900 text-white px-5 py-2 rounded-xl text-[10px] font-black">Join</button>
-                </div>
-            </div>
+            <h2 class="font-black mb-4 flex justify-between items-center">
+                New Videos 
+                <button onclick="openDirectLink()" class="text-[10px] bg-amber-400 px-3 py-1 rounded-full text-amber-900 font-black">🔥 Bonus Link</button>
+            </h2>
+            <div id="episode-list" class="space-y-4"></div>
         </div>
 
         <div id="earn-page" class="sub-page">
-            <div class="bg-white p-8 rounded-[40px] text-center shadow-sm border border-gray-100">
-                <div class="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i data-lucide="play-circle" class="text-amber-500 w-10 h-10"></i>
-                </div>
-                <h2 class="text-2xl font-black mb-2">Watch & Earn</h2>
-                <p class="text-gray-400 text-sm mb-8 px-4">Watch a short advertisement to earn ৳2.00 instantly in your wallet.</p>
-                <button onclick="earnRewardAd()" class="w-full bg-amber-500 text-white py-5 rounded-[28px] font-black shadow-xl shadow-amber-100">Watch Ad Now</button>
-            </div>
-        </div>
-
-        <div id="refer-page" class="sub-page">
-            <div class="bg-violet-600 p-8 rounded-[40px] text-center text-white shadow-xl relative overflow-hidden">
-                <h2 class="text-2xl font-black mb-2 text-white">Invite & Earn</h2>
-                <p class="text-violet-100 text-sm mb-8 px-4">Get ৳10.00 for every friend who joins using your code.</p>
-                <div class="bg-white/10 backdrop-blur-md p-5 rounded-3xl border border-white/20 mb-6">
-                    <p class="text-[10px] uppercase font-bold text-violet-200 tracking-widest mb-1">Your Referral Code</p>
-                    <h3 class="text-3xl font-black tracking-tighter">MIM69B</h3>
-                </div>
-                <button class="w-full bg-white text-violet-600 py-5 rounded-[28px] font-black">Copy Referral Link</button>
+            <div class="bg-white p-8 rounded-[40px] text-center shadow-lg border border-violet-50">
+                <div class="w-20 h-20 bg-violet-100 text-violet-600 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="zap" class="w-10 h-10"></i></div>
+                <h2 class="text-2xl font-black mb-2">Ad Mission</h2>
+                <p class="text-gray-400 text-sm mb-6">Watch 50 ads. Get ৳10 per ad.</p>
+                <button onclick="watchEarnAd()" class="w-full bg-violet-600 text-white py-5 rounded-[28px] font-black shadow-xl">Start Watching</button>
+                <button onclick="openDirectLink()" class="mt-4 w-full border-2 border-violet-100 py-4 rounded-[28px] font-black text-violet-600 text-sm">Special Task (৳5)</button>
             </div>
         </div>
 
         <div id="profile-page" class="sub-page">
-            <div class="bg-white p-6 rounded-[35px] shadow-sm border border-gray-100 mb-4 text-center">
-                <div class="w-20 h-20 bg-violet-100 rounded-full mx-auto mb-3 flex items-center justify-center">
-                    <i data-lucide="user" class="w-10 h-10 text-violet-600"></i>
+            <div class="bg-white p-6 rounded-[35px] shadow-sm mb-4">
+                <h2 class="text-xl font-black mb-2 text-violet-600">Refer (৳30)</h2>
+                <p class="text-xs font-bold text-gray-400 mb-4">Share code & earn big</p>
+                <div class="bg-gray-50 p-4 rounded-2xl border-dashed border-2 border-gray-200 text-center">
+                    <h3 class="text-2xl font-black tracking-widest" id="ref-code">...</h3>
                 </div>
-                <h3 class="font-black text-lg">My Profile</h3>
-                <p class="text-xs text-gray-400">User ID: #6969-MIM</p>
             </div>
-
-            <div class="bg-white p-6 rounded-[35px] shadow-sm border border-gray-100">
-                <h2 class="text-xl font-black mb-6">Withdraw Money</h2>
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div onclick="setMethod('Bkash', this)" class="method-card cursor-pointer p-5 border-2 border-gray-50 rounded-[30px] flex flex-col items-center gap-3">
-                        <img src="https://admin.f-pay.app/p_logo/bkash.png" class="w-12">
-                        <span class="text-xs font-black">Bkash</span>
-                    </div>
-                    <div onclick="setMethod('Nagad', this)" class="method-card cursor-pointer p-5 border-2 border-gray-50 rounded-[30px] flex flex-col items-center gap-3">
-                        <img src="https://freepnglogo.com/images/all_img/1701524320nagad-logo-png.png" class="w-12">
-                        <span class="text-xs font-black">Nagad</span>
-                    </div>
-                </div>
-                <div class="space-y-4">
-                    <input type="number" id="w-num" placeholder="Account Number" class="w-full p-5 bg-gray-50 rounded-2xl outline-none font-bold text-sm">
-                    <input type="number" id="w-amt" placeholder="Amount (Min 100)" class="w-full p-5 bg-gray-50 rounded-2xl outline-none font-bold text-sm">
-                    <button onclick="handleWithdraw()" class="w-full bg-gray-900 text-white py-5 rounded-[28px] font-black shadow-xl">Submit Request</button>
-                </div>
+            <div class="bg-white p-6 rounded-[35px] shadow-sm">
+                <h2 class="text-xl font-black mb-4">Withdrawal</h2>
+                <input type="number" id="w-num" placeholder="Account Number" class="w-full p-4 bg-gray-50 rounded-2xl mb-2 outline-none font-bold">
+                <input type="number" id="w-amt" placeholder="Amount (Min 500)" class="w-full p-4 bg-gray-50 rounded-2xl mb-4 outline-none font-bold">
+                <button onclick="handleWithdraw()" class="w-full bg-gray-900 text-white py-5 rounded-[28px] font-black">Withdraw Now</button>
             </div>
         </div>
-
     </div>
 
-    <nav class="fixed bottom-6 left-6 right-6 bg-white/90 backdrop-blur-xl flex justify-between items-center px-4 py-4 rounded-[40px] shadow-2xl border border-white/50 z-50">
-        <button onclick="changePage('home-page', this)" class="nav-btn nav-active flex flex-col items-center flex-1">
-            <i data-lucide="home" class="w-6 h-6 stroke-[2.5]"></i>
-        </button>
-        <button onclick="changePage('task-page', this)" class="nav-btn text-gray-300 flex flex-col items-center flex-1">
-            <i data-lucide="list-checks" class="w-6 h-6 stroke-[2.5]"></i>
-        </button>
-        <button onclick="changePage('earn-page', this)" class="nav-btn text-gray-300 flex flex-col items-center flex-1">
-            <i data-lucide="play" class="w-6 h-6 stroke-[2.5]"></i>
-        </button>
-        <button onclick="changePage('refer-page', this)" class="nav-btn text-gray-300 flex flex-col items-center flex-1">
-            <i data-lucide="users" class="w-6 h-6 stroke-[2.5]"></i>
-        </button>
-        <button onclick="changePage('profile-page', this)" class="nav-btn text-gray-300 flex flex-col items-center flex-1">
-            <i data-lucide="user-circle" class="w-6 h-6 stroke-[2.5]"></i>
-        </button>
+    <nav class="fixed bottom-6 left-6 right-6 bg-white flex justify-around p-4 rounded-[40px] shadow-2xl border">
+        <button onclick="changePage('home-page', this)" class="text-violet-600 nav-btn"><i data-lucide="home"></i></button>
+        <button onclick="changePage('earn-page', this)" class="text-gray-300 nav-btn"><i data-lucide="play"></i></button>
+        <button onclick="changePage('profile-page', this)" class="text-gray-300 nav-btn"><i data-lucide="user"></i></button>
     </nav>
 
     <script>
-        // Firebase Config
-        const firebaseConfig = {
-            apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150",
-            authDomain: "mini-app-link.firebaseapp.com",
-            databaseURL: "https://mini-app-link-default-rtdb.firebaseio.com",
-            projectId: "mini-app-link",
-            storageBucket: "mini-app-link.firebasestorage.app",
-            messagingSenderId: "608662003617",
-            appId: "1:608662003617:web:681a069935bc118d5bb5e0"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        const firebaseConfig = { apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150", authDomain: "mini-app-link.firebaseapp.com", databaseURL: "https://mini-app-link-default-rtdb.firebaseio.com", projectId: "mini-app-link", storageBucket: "mini-app-link.firebasestorage.app", messagingSenderId: "608662003617", appId: "1:608662003617:web:681a069935bc118d5bb5e0" };
+        firebase.initializeApp(firebaseConfig); const db = firebase.database();
 
-        let adCounter = {}; 
+        const adsterraLink = "https://www.effectivegatecpm.com/efwm6m38q?key=7d100726bda8d7676edf7789bd1e3140";
+        let userId = localStorage.getItem('mim_user_id') || "MIM" + Math.floor(1000 + Math.random() * 9000);
+        localStorage.setItem('mim_user_id', userId);
+        document.getElementById('u-id').innerText = userId;
+        document.getElementById('ref-code').innerText = userId;
 
-        // Fetch Content
-        db.ref('tasks').on('value', snap => {
-            const list = document.getElementById('episode-list');
-            list.innerHTML = "";
-            if(!snap.exists()) {
-                list.innerHTML = `<div class="text-center py-20 font-bold text-gray-400">No content available.</div>`;
-                return;
+        let balance = parseFloat(localStorage.getItem('mim_balance')) || 0;
+        let adsDone = parseInt(localStorage.getItem('mim_ads_done')) || 0;
+        let adCounter = {}; // For 5 ads per video
+
+        function updateStats() {
+            document.getElementById('display-balance').innerText = balance.toFixed(2);
+            document.getElementById('ad-count').innerText = adsDone;
+            localStorage.setItem('mim_balance', balance);
+            localStorage.setItem('mim_ads_done', adsDone);
+            db.ref('user_activity/' + userId).update({ balance, adsDone, lastSeen: Date.now() });
+        }
+        updateStats();
+
+        function openDirectLink() {
+            window.open(adsterraLink, '_blank');
+            balance += 5; updateStats();
+            alert("Reward added for special task!");
+        }
+
+        function watchEarnAd() {
+            if(adsDone >= 50) return alert("Daily 50 limit over!");
+            if(typeof show_10530857 === 'function') {
+                show_10530857().then(() => { adsDone++; balance += 10; updateStats(); });
             }
+        }
+
+        db.ref('tasks').on('value', snap => {
+            const list = document.getElementById('episode-list'); list.innerHTML = "";
             snap.forEach(child => {
-                const item = child.val();
-                const id = child.key;
+                const item = child.val(); const id = child.key;
                 if(!adCounter[id]) adCounter[id] = 0;
                 list.innerHTML += `
-                    <div class="bg-white p-3 rounded-[32px] flex gap-4 shadow-sm border border-gray-50">
-                        <img src="${item.image}" class="w-24 h-24 rounded-3xl object-cover shrink-0">
-                        <div class="flex flex-col justify-center flex-1">
-                            <h3 class="font-black text-gray-800 text-sm leading-tight mb-1">${item.title}</h3>
-                            <button id="btn-${id}" onclick="unlockStep('${id}', '${item.link}')" class="w-full bg-gray-900 text-white py-2.5 rounded-2xl text-[10px] font-black transition-all">
-                                <span id="lbl-${id}">Unlock (0/5)</span>
-                            </button>
-                        </div>
-                    </div>`;
+                <div class="video-card bg-white p-3 rounded-[32px] shadow-sm flex gap-4">
+                    <img src="${item.image}" class="w-20 h-20 rounded-2xl object-cover">
+                    <div class="flex-1 flex flex-col justify-center">
+                        <h3 class="font-black text-sm mb-2">${item.title}</h3>
+                        <button id="btn-${id}" onclick="unlockStep('${id}', '${item.link}')" class="bg-gray-900 text-white py-2 rounded-xl text-[10px] font-black transition-all">Unlock (${adCounter[id]}/5)</button>
+                    </div>
+                </div>`;
             });
             lucide.createIcons();
         });
@@ -196,59 +144,55 @@
             if(typeof show_10530857 === 'function') {
                 show_10530857().then(() => {
                     adCounter[id]++;
-                    const label = document.getElementById(`lbl-${id}`);
-                    const button = document.getElementById(`btn-${id}`);
+                    const btn = document.getElementById(`btn-${id}`);
                     if(adCounter[id] < 5) {
-                        label.innerText = `Unlock (${adCounter[id]}/5)`;
+                        btn.innerText = `Unlock (${adCounter[id]}/5)`;
                     } else {
-                        label.innerText = "Watch Full Video";
-                        button.classList.replace('bg-gray-900', 'bg-green-500');
-                        button.setAttribute('onclick', `finalPlay('${link}')`);
+                        btn.innerText = "Play Now";
+                        btn.classList.replace('bg-gray-900', 'bg-green-600');
+                        btn.setAttribute('onclick', `playFinal('${link}')`);
                     }
                 });
             }
         }
 
-        function finalPlay(link) {
-            if(typeof show_10530857 === 'function') {
-                show_10530857().then(() => { window.location.href = link; });
-            }
-        }
-
-        function earnRewardAd() {
+        function playFinal(link) {
             if(typeof show_10530857 === 'function') {
                 show_10530857().then(() => {
-                    let balNode = document.getElementById('display-balance');
-                    balNode.innerText = (parseFloat(balNode.innerText) + 2.00).toFixed(2);
-                    alert("৳2.00 Reward Added!");
+                    window.location.href = link;
                 });
             }
         }
 
-        let selectedMethod = "";
-        function setMethod(m, el) {
-            selectedMethod = m;
-            document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
-            el.classList.add('active');
+        function handleWithdraw() {
+            const amt = parseFloat(document.getElementById('w-amt').value);
+            if(amt < 500 || balance < amt) return alert("Insufficient Balance or Min 500!");
+            db.ref('withdrawals').push({ userId, number: document.getElementById('w-num').value, amount: amt, ads: adsDone, time: Date.now() });
+            balance -= amt; updateStats();
+            alert("Submitted!");
         }
 
-        function handleWithdraw() {
-            const num = document.getElementById('w-num').value;
-            const amt = document.getElementById('w-amt').value;
-            if(!selectedMethod || amt < 100) return alert("Complete all fields (Min 100)!");
-            db.ref('withdrawals').push({ method: selectedMethod, number: num, amount: amt, status: "Pending", time: Date.now() });
-            alert("Withdraw Success!");
+        function searchVideo() {
+            let filter = document.getElementById('search-bar').value.toUpperCase();
+            document.querySelectorAll('.video-card').forEach(card => {
+                let txt = card.querySelector('h3').innerText;
+                card.style.display = txt.toUpperCase().includes(filter) ? "" : "none";
+            });
         }
 
         function changePage(id, el) {
             document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active', 'text-gray-300'));
-            el.classList.add('nav-active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-violet-600', 'text-gray-300'));
+            el.classList.replace('text-gray-300', 'text-violet-600');
             lucide.createIcons();
         }
 
-        window.onload = () => lucide.createIcons();
+        // Prevent Right Click & Shortcuts
+        window.addEventListener('keydown', e => {
+            if(e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'i' || e.key === 'j')) e.preventDefault();
+        });
+        lucide.createIcons();
     </script>
 </body>
 </html>
