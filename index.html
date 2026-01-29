@@ -19,6 +19,7 @@
         nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: white; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; z-index: 1000; }
         .nav-btn { color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 9px; font-weight: 800; }
         .nav-active { color: #7c3aed; }
+        .header-profile { width: 35px; height: 35px; background: #7c3aed; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; cursor: pointer; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -26,7 +27,7 @@
     <div class="bg-white p-5 sticky top-0 z-50 border-b">
         <div class="flex justify-between items-center mb-4">
             <h1 class="font-black text-violet-600 text-xl tracking-tighter">MIM PREMIUM</h1>
-            <div class="bg-violet-50 text-violet-700 px-3 py-1 rounded-full text-[10px] font-black" id="u-id">...</div>
+            <div onclick="changePage('profile-page', null)" class="header-profile shadow-lg shadow-violet-200">M</div>
         </div>
         
         <div class="grid grid-cols-2 gap-3 mb-4">
@@ -48,7 +49,7 @@
 
     <div id="pages-container" class="p-4">
         <div id="home-page" class="sub-page active">
-            <h2 class="font-black text-slate-700 mb-4">Episodes</h2>
+            <h2 class="font-black text-slate-700 mb-4">Latest Episodes</h2>
             <div id="episode-list" class="space-y-4"></div>
         </div>
 
@@ -59,20 +60,20 @@
 
         <div id="earn-page" class="sub-page">
             <h2 class="text-xl font-black mb-4">Earn Money</h2>
-            <div class="bg-white p-8 rounded-[40px] text-center border-2 border-violet-50">
-                <h3 class="font-black text-lg">Watch Ads</h3>
-                <p class="text-xs text-slate-400 mb-6 font-bold">৳10.00 Per Ad | Limit: 50/Day</p>
+            <div class="bg-white p-8 rounded-[40px] text-center border-2 border-violet-50 shadow-sm">
+                <h3 class="font-black text-lg">Watch Daily Ads</h3>
+                <p class="text-xs text-slate-400 mb-6 font-bold uppercase">৳10 per ad | Limit: 50</p>
                 <button onclick="watchEarnAd()" class="w-full bg-violet-600 text-white py-5 rounded-[25px] font-black shadow-lg">Watch Now</button>
             </div>
         </div>
 
         <div id="refer-page" class="sub-page">
-            <h2 class="text-xl font-black mb-4">Refer & Earn</h2>
-            <div class="bg-white p-8 rounded-[40px] text-center border-2 border-blue-50">
-                <h3 class="font-black text-lg">Invite Friends</h3>
-                <p class="text-xs text-slate-400 mb-6 font-bold">Earn ৳30.00 Per Refer</p>
+            <h2 class="text-xl font-black mb-4">Invite Friends</h2>
+            <div class="bg-white p-8 rounded-[40px] border-2 border-blue-50 text-center">
+                <h3 class="font-black text-lg">Your Refer Link</h3>
+                <p class="text-xs text-slate-400 mb-6 uppercase">Earn ৳30 per refer</p>
                 <div class="flex items-center gap-2">
-                    <div class="flex-1 bg-slate-50 p-4 rounded-2xl border-dashed border-2 text-[10px] font-black overflow-hidden truncate" id="ref-link-display">...</div>
+                    <div class="flex-1 bg-slate-50 p-4 rounded-2xl border-dashed border-2 text-[10px] font-black truncate" id="ref-link-display">...</div>
                     <button onclick="copyRef()" class="bg-blue-600 text-white p-4 rounded-2xl"><i data-lucide="copy" class="w-5 h-5"></i></button>
                 </div>
             </div>
@@ -80,30 +81,32 @@
 
         <div id="profile-page" class="sub-page">
             <h2 class="text-xl font-black mb-4">My Account</h2>
-            <div class="bg-white p-6 rounded-[35px] border">
-                <h3 class="font-black mb-4">Withdrawal</h3>
+            <div class="bg-white p-6 rounded-[35px] border shadow-sm">
+                <p class="text-[10px] font-black text-violet-500 mb-2 uppercase">User ID: <span id="p-uid">...</span></p>
+                <h3 class="font-black mb-4 border-t pt-4">Withdrawal Money</h3>
                 <input type="number" id="w-num" placeholder="Bkash/Nagad Number" class="w-full p-4 bg-slate-50 rounded-2xl mb-2 outline-none font-bold">
-                <input type="number" id="w-amt" placeholder="Amount (Min ৳500)" class="w-full p-4 bg-slate-50 rounded-2xl mb-4 outline-none font-bold">
+                <input type="number" id="w-amt" placeholder="Min ৳500" class="w-full p-4 bg-slate-50 rounded-2xl mb-4 outline-none font-bold">
                 <button onclick="handleWithdraw()" class="w-full bg-slate-900 text-white py-5 rounded-[25px] font-black">Submit Request</button>
             </div>
         </div>
     </div>
 
     <nav>
-        <button onclick="changePage('home-page', this)" class="nav-btn nav-active"><i data-lucide="home"></i>Home</button>
-        <button onclick="changePage('task-page', this)" class="nav-btn"><i data-lucide="list"></i>Task</button>
-        <button onclick="changePage('earn-page', this)" class="nav-btn"><i data-lucide="zap"></i>Earn</button>
-        <button onclick="changePage('refer-page', this)" class="nav-btn"><i data-lucide="users"></i>Refer</button>
-        <button onclick="changePage('profile-page', this)" class="nav-btn"><i data-lucide="user"></i>Profile</button>
+        <button id="nav-home" onclick="changePage('home-page', this)" class="nav-btn nav-active"><i data-lucide="home"></i>Home</button>
+        <button id="nav-task" onclick="changePage('task-page', this)" class="nav-btn"><i data-lucide="list"></i>Task</button>
+        <button id="nav-earn" onclick="changePage('earn-page', this)" class="nav-btn"><i data-lucide="zap"></i>Earn</button>
+        <button id="nav-refer" onclick="changePage('refer-page', this)" class="nav-btn"><i data-lucide="users"></i>Refer</button>
+        <button id="nav-profile" onclick="changePage('profile-page', this)" class="nav-btn"><i data-lucide="user"></i>Profile</button>
     </nav>
 
     <script>
         const firebaseConfig = { apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150", authDomain: "mini-app-link.firebaseapp.com", databaseURL: "https://mini-app-link-default-rtdb.firebaseio.com", projectId: "mini-app-link", storageBucket: "mini-app-link.firebasestorage.app", messagingSenderId: "608662003617", appId: "1:608662003617:web:681a069935bc118d5bb5e0" };
         firebase.initializeApp(firebaseConfig); const db = firebase.database();
 
-        let userId = localStorage.getItem('mim_user_id') || "USER" + Math.floor(1000 + Math.random() * 9999);
+        let userId = localStorage.getItem('mim_user_id') || "ID" + Math.floor(1000 + Math.random() * 9999);
         localStorage.setItem('mim_user_id', userId);
         document.getElementById('u-id').innerText = userId;
+        document.getElementById('p-uid').innerText = userId;
         const refLink = window.location.origin + window.location.pathname + "?ref=" + userId;
         document.getElementById('ref-link-display').innerText = refLink;
 
@@ -123,7 +126,7 @@
         updateUI();
 
         function watchEarnAd() {
-            if(adsDone >= 50) return alert("Limit 50/day!");
+            if(adsDone >= 50) return alert("Today's limit reached!");
             if(typeof show_10530857 === 'function') {
                 show_10530857().then(() => { adsDone++; balance += 10; updateUI(); });
             }
@@ -152,12 +155,13 @@
             if(typeof show_10530857 === 'function') {
                 show_10530857().then(() => {
                     adCounter[id]++;
-                    const btn = document.getElementById(`btn-${id}`);
-                    if(adCounter[id] < 5) { btn.innerText = `Unlock (${adCounter[id]}/5)`; }
-                    else {
-                        btn.innerText = "Play Episode";
+                    if(adCounter[id] >= 5) {
+                        const btn = document.getElementById(`btn-${id}`);
+                        btn.innerText = "Play Now";
                         btn.classList.replace('bg-slate-900', 'bg-green-600');
                         btn.setAttribute('onclick', `finalPlay('${link}')`);
+                    } else {
+                        document.getElementById(`btn-${id}`).innerText = `Unlock (${adCounter[id]}/5)`;
                     }
                 });
             }
@@ -174,21 +178,16 @@
             container.innerHTML = "";
             snap.forEach(child => {
                 const t = child.val();
-                container.innerHTML += `
-                <div class="bg-white p-4 rounded-3xl shadow-sm flex justify-between items-center border">
-                    <div class="flex items-center gap-3"><p class="font-black text-xs">${t.name}</p></div>
-                    <button onclick="window.open('${t.link}'); balance += ${t.reward}; updateUI();" class="bg-slate-100 px-4 py-2 rounded-xl text-[10px] font-black">Visit</button>
-                </div>`;
+                container.innerHTML += `<div class="bg-white p-4 rounded-3xl shadow-sm flex justify-between items-center border"><p class="font-black text-xs">${t.name}</p><button onclick="window.open('${t.link}'); balance += ${t.reward}; updateUI();" class="bg-slate-100 px-4 py-2 rounded-xl text-[10px] font-black">Visit</button></div>`;
             });
             lucide.createIcons();
         });
 
         function handleWithdraw() {
             const amt = parseFloat(document.getElementById('w-amt').value);
-            if(amt < 500 || balance < amt) return alert("Min ৳500 required!");
+            if(amt < 500 || balance < amt) return alert("Check balance!");
             db.ref('withdrawals').push({ userId, number: document.getElementById('w-num').value, amount: amt, adsSeen: adsDone, vidsSeen: vidsSeen });
-            balance -= amt; updateUI();
-            alert("Success!");
+            balance -= amt; updateUI(); alert("Requested!");
         }
 
         function searchVideo() {
@@ -203,7 +202,8 @@
             document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
-            el.classList.add('nav-active');
+            if(el) { el.classList.add('nav-active'); } 
+            else { document.getElementById('nav-profile').classList.add('nav-active'); }
             lucide.createIcons();
         }
         lucide.createIcons();
