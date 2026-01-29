@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mim Premium - Profile Update</title>
+    <title>Mim Premium - Complete Final</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
@@ -35,12 +35,12 @@
     <div class="p-4 bg-white border-b">
         <div class="grid grid-cols-2 gap-3 mb-4">
             <div class="bg-violet-600 p-4 rounded-3xl text-white shadow-lg">
-                <p class="text-[9px] font-bold opacity-80 uppercase italic">Current Balance</p>
+                <p class="text-[9px] font-bold opacity-80 uppercase italic">Balance</p>
                 <p class="text-xl font-black">৳<span id="display-balance">0.00</span></p>
             </div>
             <div class="bg-slate-50 border p-4 rounded-3xl text-center">
-                <p class="text-[9px] font-bold text-slate-400 uppercase italic">Ads Done</p>
-                <p class="text-xl font-black text-slate-800"><span id="ad-count">0</span>/50</p>
+                <p class="text-[9px] font-bold text-slate-400 uppercase italic">Refers</p>
+                <p class="text-xl font-black text-slate-800"><span id="display-ref-count">0</span>/20</p>
             </div>
         </div>
         <div class="relative">
@@ -51,7 +51,7 @@
 
     <div id="pages-container" class="p-4">
         <div id="home-page" class="sub-page active">
-            <h2 class="font-black text-slate-700 mb-4">Latest Episodes</h2>
+            <h2 class="font-black text-slate-700 mb-4">Episodes</h2>
             <div id="episode-list" class="space-y-4"></div>
         </div>
 
@@ -61,41 +61,40 @@
         </div>
 
         <div id="earn-page" class="sub-page">
-            <h2 class="text-xl font-black mb-4">Work Zone</h2>
+            <h2 class="text-xl font-black mb-4">Daily Work</h2>
             <div class="bg-white p-10 rounded-[40px] text-center border-2 border-violet-50">
-                <h3 class="font-black text-lg">Watch Daily Ads</h3>
-                <p class="text-xs text-slate-400 mb-6 font-bold uppercase">Earn ৳10 per ad</p>
-                <button onclick="watchEarnAd()" class="w-full bg-violet-600 text-white py-5 rounded-[25px] font-black">Watch Now</button>
+                <h3 class="font-black text-lg">Watch Ads (৳10)</h3>
+                <p class="text-xs text-slate-400 mb-6 font-bold uppercase" id="ad-limit-text">Done: 0/50</p>
+                <button onclick="watchEarnAd()" class="w-full bg-violet-600 text-white py-5 rounded-[25px] font-black">Watch Ad</button>
             </div>
         </div>
 
         <div id="refer-page" class="sub-page">
-            <h2 class="text-xl font-black mb-4">Referrals</h2>
+            <h2 class="text-xl font-black mb-4">Invite & Earn ৳30</h2>
             <div class="bg-white p-8 rounded-[40px] border-2 border-blue-50 text-center">
-                <p class="text-xs text-slate-400 mb-6 font-bold">Earn ৳30 per refer</p>
+                <p class="text-xs text-slate-400 mb-6 font-bold uppercase">Invite 20 friends to withdraw</p>
                 <div class="bg-slate-50 p-4 rounded-2xl border-dashed border-2 text-[10px] font-black mb-4 truncate" id="ref-link-display">...</div>
                 <button onclick="copyRef()" class="bg-blue-600 text-white w-full py-4 rounded-2xl font-black">Copy Link</button>
             </div>
         </div>
 
         <div id="profile-page" class="sub-page">
-            <h2 class="text-xl font-black mb-4">User Profile</h2>
+            <h2 class="text-xl font-black mb-4">Profile Settings</h2>
             <div class="bg-white p-6 rounded-[35px] border shadow-sm mb-6">
-                <div class="mb-6">
-                    <label class="text-[10px] font-black text-slate-400 uppercase">Your Telegram/Name</label>
-                    <div class="flex gap-2 mt-1">
-                        <input type="text" id="user-name-input" placeholder="@username" class="flex-1 p-3 bg-slate-50 rounded-xl outline-none font-bold text-sm border">
-                        <button onclick="saveName()" class="bg-violet-600 text-white px-4 rounded-xl font-bold text-xs">Save</button>
-                    </div>
+                <label class="text-[10px] font-black text-slate-400 uppercase">Telegram / Name</label>
+                <div class="flex gap-2 mt-1 mb-4">
+                    <input type="text" id="user-name-input" placeholder="@username" class="flex-1 p-3 bg-slate-50 rounded-xl outline-none font-bold text-sm border">
+                    <button onclick="saveName()" class="bg-violet-600 text-white px-4 rounded-xl font-bold text-xs">Save</button>
                 </div>
-                <p class="text-[10px] font-black text-slate-400 uppercase">User ID: <span id="p-uid" class="text-violet-600">...</span></p>
+                <p class="text-[10px] font-black text-slate-400 uppercase">User ID: <span id="p-uid">...</span></p>
             </div>
 
             <div class="bg-white p-6 rounded-[35px] border shadow-sm">
-                <h3 class="font-black mb-4">Withdrawal</h3>
+                <h3 class="font-black mb-2">Withdrawal</h3>
+                <p id="ref-warning" class="text-red-500 text-[10px] font-bold mb-4 uppercase italic">⚠️ 20 Refers Required!</p>
                 <input type="number" id="w-num" placeholder="Bkash/Nagad Number" class="w-full p-4 bg-slate-50 rounded-2xl mb-2 outline-none font-bold">
-                <input type="number" id="w-amt" placeholder="Amount" class="w-full p-4 bg-slate-50 rounded-2xl mb-4 outline-none font-bold">
-                <button onclick="handleWithdraw()" class="w-full bg-slate-900 text-white py-5 rounded-[25px] font-black">Withdraw</button>
+                <input type="number" id="w-amt" placeholder="Amount (Min 500)" class="w-full p-4 bg-slate-50 rounded-2xl mb-4 outline-none font-bold">
+                <button id="withdraw-btn" onclick="handleWithdraw()" class="w-full bg-slate-300 text-white py-5 rounded-[25px] font-black cursor-not-allowed">Locked</button>
             </div>
         </div>
     </div>
@@ -115,40 +114,60 @@
         let userId = localStorage.getItem('mim_user_id') || "ID" + Math.floor(1000 + Math.random() * 9999);
         localStorage.setItem('mim_user_id', userId);
         
-        // Initial Name Setup
-        let userName = localStorage.getItem('mim_user_name') || "Guest";
-        
-        function updateProfileUI() {
-            document.getElementById('top-username').innerText = "Welcome, " + userName;
-            document.getElementById('top-p-icon').innerText = userName.charAt(0).toUpperCase();
-            document.getElementById('user-name-input').value = userName === "Guest" ? "" : userName;
-            document.getElementById('p-uid').innerText = userId;
-        }
-
-        function saveName() {
-            const newName = document.getElementById('user-name-input').value.trim();
-            if(newName) {
-                userName = newName;
-                localStorage.setItem('mim_user_name', newName);
-                updateProfileUI();
-                db.ref('user_activity/' + userId).update({ name: userName });
-                alert("Name Updated!");
-            }
-        }
-
         let balance = parseFloat(localStorage.getItem('mim_bal')) || 0;
         let adsDone = parseInt(localStorage.getItem('mim_ads')) || 0;
-        let vidsSeen = parseInt(localStorage.getItem('mim_vids')) || 0;
+        let refCount = parseInt(localStorage.getItem('mim_ref_count')) || 0;
+        let userName = localStorage.getItem('mim_user_name') || "Guest";
         let adCounter = {};
+
+        // Referral System Logic
+        const urlParams = new URLSearchParams(window.location.search);
+        const refBy = urlParams.get('ref');
+        if(refBy && refBy !== userId && !localStorage.getItem('ref_done')) {
+            db.ref('user_activity/' + refBy).transaction(data => {
+                if(data) {
+                    data.balance = (data.balance || 0) + 30;
+                    data.refCount = (data.refCount || 0) + 1;
+                }
+                return data;
+            });
+            localStorage.setItem('ref_done', 'true');
+        }
 
         function updateUI() {
             document.getElementById('display-balance').innerText = balance.toFixed(2);
-            document.getElementById('ad-count').innerText = adsDone;
+            document.getElementById('display-ref-count').innerText = refCount;
+            document.getElementById('ad-limit-text').innerText = "Done: " + adsDone + "/50";
+            document.getElementById('top-username').innerText = "Welcome, " + userName;
+            document.getElementById('top-p-icon').innerText = userName.charAt(0).toUpperCase();
+            document.getElementById('p-uid').innerText = userId;
+            document.getElementById('ref-link-display').innerText = window.location.origin + window.location.pathname + "?ref=" + userId;
+
+            // Withdrawal Lock Logic
+            const wBtn = document.getElementById('withdraw-btn');
+            const wWarn = document.getElementById('ref-warning');
+            if(refCount >= 20) {
+                wBtn.classList.replace('bg-slate-300', 'bg-slate-900');
+                wBtn.innerText = "Submit Request";
+                wBtn.style.cursor = "pointer";
+                wWarn.style.display = "none";
+            }
+
             localStorage.setItem('mim_bal', balance);
             localStorage.setItem('mim_ads', adsDone);
-            localStorage.setItem('mim_vids', vidsSeen);
-            db.ref('user_activity/' + userId).update({ balance, adsDone, vidsSeen, name: userName });
+            localStorage.setItem('mim_ref_count', refCount);
+            db.ref('user_activity/' + userId).update({ balance, adsDone, refCount, name: userName });
         }
+
+        // Live Data Sync for Refers
+        db.ref('user_activity/' + userId).on('value', snap => {
+            if(snap.exists()) {
+                const data = snap.val();
+                balance = data.balance || 0;
+                refCount = data.refCount || 0;
+                updateUI();
+            }
+        });
 
         function watchEarnAd() {
             if(adsDone >= 50) return alert("Limit 50 reached!");
@@ -157,13 +176,17 @@
             }
         }
 
-        function copyRef() {
-            navigator.clipboard.writeText(window.location.origin + window.location.pathname + "?ref=" + userId);
-            alert("Copied!");
+        function saveName() {
+            const val = document.getElementById('user-name-input').value.trim();
+            if(val) { userName = val; localStorage.setItem('mim_user_name', val); updateUI(); alert("Saved!"); }
         }
 
-        function openProfile() {
-            changePage('profile-page', document.getElementById('nav-profile'));
+        function handleWithdraw() {
+            if(refCount < 20) return alert("You need 20 refers first!");
+            const amt = document.getElementById('w-amt').value;
+            if(amt < 500 || balance < amt) return alert("Check balance (Min 500)");
+            db.ref('withdrawals').push({ userId, name: userName, number: document.getElementById('w-num').value, amount: amt, ref: refCount });
+            balance -= amt; updateUI(); alert("Request Sent!");
         }
 
         db.ref('tasks').on('value', snap => {
@@ -187,15 +210,32 @@
             if(typeof show_10530857 === 'function') {
                 show_10530857().then(() => {
                     adCounter[id]++;
-                    const btn = document.getElementById(`btn-${id}`);
                     if(adCounter[id] >= 5) {
-                        btn.innerText = "Play Now"; btn.classList.replace('bg-slate-900', 'bg-green-600');
-                        btn.setAttribute('onclick', `window.location.href='${link}'; vidsSeen++; updateUI();`);
+                        const btn = document.getElementById(`btn-${id}`);
+                        btn.innerText = "Play Episode"; btn.classList.replace('bg-slate-900', 'bg-green-600');
+                        btn.setAttribute('onclick', `window.location.href='${link}'`);
                     } else {
-                        btn.innerText = `Unlock (${adCounter[id]}/5)`;
+                        document.getElementById(`btn-${id}`).innerText = `Unlock (${adCounter[id]}/5)`;
                     }
                 });
             }
+        }
+
+        function copyRef() { navigator.clipboard.writeText(document.getElementById('ref-link-display').innerText); alert("Copied!"); }
+        function openProfile() { changePage('profile-page', document.getElementById('nav-profile')); }
+        function searchVideo() {
+            let filter = document.getElementById('search-bar').value.toUpperCase();
+            document.querySelectorAll('.video-card').forEach(card => {
+                let txt = card.querySelector('h3').innerText;
+                card.style.display = txt.toUpperCase().includes(filter) ? "" : "none";
+            });
+        }
+        function changePage(id, el) {
+            document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
+            if(el) el.classList.add('nav-active');
+            lucide.createIcons();
         }
 
         db.ref('social_tasks').on('value', snap => {
@@ -205,33 +245,10 @@
                 const t = child.val();
                 container.innerHTML += `<div class="bg-white p-4 rounded-3xl shadow-sm flex justify-between items-center border"><p class="font-black text-xs">${t.name}</p><button onclick="window.open('${t.link}'); balance += ${t.reward}; updateUI();" class="bg-slate-50 px-4 py-2 rounded-xl text-[10px] font-black">Visit</button></div>`;
             });
-            lucide.createIcons();
         });
 
-        function handleWithdraw() {
-            const amt = document.getElementById('w-amt').value;
-            if(amt < 500 || balance < amt) return alert("Check balance!");
-            db.ref('withdrawals').push({ userId, name: userName, number: document.getElementById('w-num').value, amount: amt, ads: adsDone });
-            balance -= amt; updateUI(); alert("Success!");
-        }
-
-        function changePage(id, el) {
-            document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
-            if(el) el.classList.add('nav-active');
-            lucide.createIcons();
-        }
-
-        function searchVideo() {
-            let filter = document.getElementById('search-bar').value.toUpperCase();
-            document.querySelectorAll('.video-card').forEach(card => {
-                let txt = card.querySelector('h3').innerText;
-                card.style.display = txt.toUpperCase().includes(filter) ? "" : "none";
-            });
-        }
-
-        updateUI(); updateProfileUI(); lucide.createIcons();
+        updateUI(); lucide.createIcons();
     </script>
 </body>
-</html>
+    </html>
+    
