@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mim Premium - Final Version</title>
+    <title>Mim Premium - Full Pro Version</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
@@ -13,158 +13,297 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;700;900&display=swap');
-        body { font-family: 'Urbanist', sans-serif; background: #000; color: white; user-select: none; margin: 0; }
-        .sub-page { display: none; padding-bottom: 100px; }
-        .sub-page.active { display: block; }
-        nav { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background: #111; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #222; z-index: 1000; }
-        .nav-btn { color: #666; display: flex; flex-direction: column; align-items: center; font-size: 10px; font-weight: 800; }
-        .nav-active { color: #7c3aed; }
-        .header-profile { width: 35px; height: 35px; background: #7c3aed; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; }
+        body { font-family: 'Urbanist', sans-serif; background: #f8fafc; color: #1e293b; user-select: none; margin: 0; overflow-x: hidden; }
+        
+        /* Navigation (Fixed Black) */
+        nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: #000000; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #222; z-index: 1000; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); }
+        .nav-btn { color: #64748b; display: flex; flex-direction: column; align-items: center; font-size: 10px; font-weight: 800; gap: 4px; }
+        .nav-active { color: #ffffff; }
+
+        /* Pages logic */
+        .sub-page { display: none; min-height: 100vh; padding-bottom: 100px; }
+        .active-page { display: block; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Profile & Header */
+        .header-main { background: white; padding: 20px; position: sticky; top: 0; z-index: 500; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .profile-btn { width: 40px; height: 40px; background: #7c3aed; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; border: 3px solid #fff; box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3); cursor: pointer; }
+
+        /* Locked Player UI (Dark) */
+        #player-section { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; color: white; }
+        #player-section.open { display: block; }
+        .lock-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; text-align: center; padding: 20px; }
     </style>
 </head>
 <body>
 
-    <div class="p-4 flex justify-between items-center bg-[#0a0a0a] border-b border-zinc-800 sticky top-0 z-50">
-        <h1 class="font-black text-violet-500 text-lg italic">MIM PREMIUM</h1>
-        <div onclick="openPage('profile-page')" class="header-profile" id="top-p-icon">?</div>
+    <div class="header-main" id="main-header">
+        <div>
+            <h1 class="font-black text-violet-600 text-2xl tracking-tighter italic">MIM PREMIUM</h1>
+            <p id="top-name" class="text-[10px] font-bold text-slate-400 uppercase">Welcome, User</p>
+        </div>
+        <div onclick="showPage('profile-page', 'nav-profile')" class="profile-btn" id="p-icon">M</div>
     </div>
 
-    <div id="pages-container" class="p-4">
+    <div id="pages-content">
+
+        <div id="home-page" class="sub-page active-page p-4">
+            <div class="bg-violet-600 p-6 rounded-[35px] text-white shadow-xl mb-6 relative overflow-hidden">
+                <div class="relative z-10">
+                    <p class="text-[10px] font-bold opacity-70 uppercase tracking-widest">Available Balance</p>
+                    <h2 class="text-3xl font-black mt-1">৳<span id="bal-val">0.00</span></h2>
+                </div>
+                <div class="absolute -right-4 -bottom-4 opacity-10"><i data-lucide="wallet" class="w-24 h-24"></i></div>
+            </div>
+            
+            <h3 class="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
+                <i data-lucide="play-circle" class="text-violet-600"></i> Latest Episodes
+            </h3>
+            <div id="video-list" class="space-y-4">
+                </div>
+        </div>
+
+        <div id="task-page" class="sub-page p-4 text-center">
+            <h2 class="text-xl font-black mb-6">Social Missions</h2>
+            <div id="social-list" class="space-y-3">
+                </div>
+        </div>
+
+        <div id="earn-page" class="sub-page p-4">
+            <h2 class="text-xl font-black mb-6">Money Station</h2>
+            <div class="bg-white p-10 rounded-[45px] border-2 border-violet-50 text-center shadow-sm">
+                <div class="w-16 h-16 bg-violet-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="tv" class="text-violet-600"></i>
+                </div>
+                <h3 class="font-black text-xl mb-2">Watch Premium Ads</h3>
+                <p class="text-xs text-slate-400 font-bold mb-8 uppercase">Earn ৳10 per ad | Limit 50/day</p>
+                <button onclick="watchAdsMain()" class="w-full bg-violet-600 text-white py-5 rounded-[25px] font-black shadow-lg shadow-violet-200">Watch Now</button>
+            </div>
+        </div>
+
+        <div id="refer-page" class="sub-page p-4 text-center">
+            <h2 class="text-xl font-black mb-6">Refer & Earn ৳30</h2>
+            <div class="bg-white p-8 rounded-[40px] border-2 border-blue-50 shadow-sm mb-6">
+                <p class="text-xs text-slate-500 font-bold mb-6">Invite 20 people to unlock withdrawal</p>
+                <div class="bg-slate-50 p-4 rounded-2xl border-dashed border-2 border-slate-200 text-[11px] font-black text-blue-600 mb-6 truncate" id="my-ref-link">...</div>
+                <button onclick="copyRefLink()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black">Copy Referral Link</button>
+            </div>
+            <div class="bg-white p-4 rounded-3xl border text-center">
+                <p class="text-xs font-bold text-slate-400">Total Successful Refers</p>
+                <p class="text-2xl font-black text-slate-800" id="ref-count-val">0</p>
+            </div>
+        </div>
+
+        <div id="profile-page" class="sub-page p-4">
+            <h2 class="text-xl font-black mb-6">User Account</h2>
+            <div class="bg-white p-6 rounded-[35px] border-2 border-slate-50 shadow-sm mb-6">
+                <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Display Name / Telegram</label>
+                <div class="flex gap-2 mt-2">
+                    <input type="text" id="name-input" placeholder="@username" class="flex-1 p-4 bg-slate-50 rounded-2xl outline-none font-bold text-sm border">
+                    <button onclick="saveProfileName()" class="bg-slate-900 text-white px-6 rounded-2xl font-black text-xs">Save</button>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-[35px] border-2 border-red-50">
+                <h3 class="font-black text-lg mb-4">Cash Out</h3>
+                <div id="withdraw-lock-msg" class="bg-red-50 p-4 rounded-2xl mb-4">
+                    <p class="text-red-600 text-[11px] font-bold italic">⚠️ LOCKED: You must refer 20 active users to withdraw. (Progress: <span id="prog-val">0</span>/20)</p>
+                </div>
+                <input type="number" id="w-number" placeholder="Bkash/Nagad Number" class="w-full p-4 bg-slate-50 rounded-2xl mb-3 outline-none font-bold border">
+                <input type="number" id="w-amount" placeholder="Minimum 500" class="w-full p-4 bg-slate-50 rounded-2xl mb-6 outline-none font-bold border">
+                <button id="w-btn-main" disabled class="w-full bg-slate-200 text-slate-400 py-5 rounded-[25px] font-black cursor-not-allowed italic">Withdraw Locked</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="player-section">
+        <div class="p-4 flex justify-between items-center border-b border-zinc-800">
+            <button onclick="closeVideoPlayer()" class="text-white"><i data-lucide="arrow-left"></i></button>
+            <span class="text-[10px] font-black text-zinc-500 uppercase">Premium Video Content</span>
+        </div>
         
-        <div id="home-page" class="sub-page active">
-            <div class="bg-zinc-900 p-4 rounded-3xl mb-6 border border-zinc-800">
-                <p class="text-[10px] font-bold text-zinc-500 uppercase">Your Balance</p>
-                <h2 class="text-2xl font-black">৳<span id="bal">0.00</span></h2>
-            </div>
-            <h3 class="font-black mb-4">Latest Episodes</h3>
-            <div id="episode-list" class="space-y-4"></div>
-        </div>
+        <div class="relative w-full aspect-video bg-zinc-900 mt-10">
+            <video id="v-player" class="w-full h-full" onseeking="triggerAdLock()" ontimeupdate="watchTimeCheck()">
+                <source src="" id="v-source" type="video/mp4">
+            </video>
 
-        <div id="player-page" class="sub-page">
-            <div class="relative bg-black rounded-2xl overflow-hidden border border-zinc-800 aspect-video">
-                <video id="main-video" class="w-full h-full" onseeking="handleLock()" ontimeupdate="checkTime()">
-                    <source src="" id="video-src" type="video/mp4">
-                </video>
-                
-                <div id="lock-screen" class="hidden absolute inset-0 bg-black/95 z-50 flex flex-col items-center justify-center p-6 text-center">
-                    <div class="w-14 h-14 bg-red-600 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-red-500/30">
-                        <i data-lucide="lock" class="text-white"></i>
-                    </div>
-                    <h2 class="text-white text-xl font-black mb-2">CONTENT LOCKED</h2>
-                    <p class="text-zinc-500 text-[11px] mb-6">You cannot skip. Watch an ad to unlock this part.</p>
-                    <button onclick="unlockVideoAd()" class="bg-red-600 text-white px-8 py-3 rounded-full font-black text-sm">Unlock & Play</button>
+            <div id="video-lock-ui" class="hidden lock-overlay">
+                <div class="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center mb-6 shadow-2xl shadow-red-500/40 animate-pulse">
+                    <i data-lucide="lock" class="text-white w-10 h-10"></i>
                 </div>
-            </div>
-            <div class="mt-4 p-4">
-                <h2 id="playing-title" class="font-black text-lg">Episode Title</h2>
-                <div class="mt-4 p-4 bg-zinc-900 rounded-2xl border border-zinc-800">
-                    <p class="text-[10px] text-zinc-500 mb-2">Referral Link</p>
-                    <div class="flex gap-2">
-                        <input id="ref-link" readonly class="bg-black text-[10px] p-2 rounded flex-1 outline-none text-zinc-400">
-                        <button onclick="copyRef()" class="bg-zinc-800 p-2 rounded"><i data-lucide="copy" class="w-4 h-4"></i></button>
-                    </div>
-                </div>
+                <h2 class="text-2xl font-black mb-2 uppercase tracking-tighter">Content Locked</h2>
+                <p class="text-zinc-500 text-sm mb-8 px-10">You're trying to skip or have reached a limit. Watch a short ad to continue.</p>
+                <button onclick="unlockContent()" class="bg-red-600 text-white px-12 py-4 rounded-full font-black text-lg shadow-xl">Unlock & Resume</button>
             </div>
         </div>
-
-        <div id="profile-page" class="sub-page">
-            <h2 class="font-black text-xl mb-6">My Account</h2>
-            <div class="bg-zinc-900 p-6 rounded-[30px] border border-zinc-800 mb-4">
-                <input type="text" id="user-name" placeholder="Enter Telegram Username" class="w-full p-4 bg-black rounded-2xl mb-4 outline-none text-sm font-bold border border-zinc-800">
-                <button onclick="saveName()" class="w-full bg-violet-600 py-3 rounded-2xl font-black text-sm">Update Profile</button>
-            </div>
-            <div class="bg-zinc-900 p-6 rounded-[30px] border border-zinc-800">
-                <h3 class="font-black mb-2">Withdraw</h3>
-                <p id="ref-status" class="text-red-500 text-[10px] font-bold mb-4">⚠️ 20 REFERS REQUIRED (Current: 0)</p>
-                <input type="number" id="w-num" placeholder="Bkash/Nagad Number" class="w-full p-4 bg-black rounded-xl mb-2 outline-none text-sm">
-                <button id="w-btn" disabled class="w-full bg-zinc-800 text-zinc-500 py-4 rounded-xl font-black cursor-not-allowed">Locked</button>
+        
+        <div class="p-6">
+            <h2 id="v-title-display" class="text-2xl font-black text-white mb-2">Episode Title</h2>
+            <div class="flex items-center gap-2 text-violet-500 text-xs font-bold uppercase">
+                <i data-lucide="shield-check" class="w-4 h-4"></i> Secured By Mim Premium
             </div>
         </div>
-
     </div>
 
     <nav>
-        <button onclick="openPage('home-page')" class="nav-btn nav-active"><i data-lucide="home"></i>Home</button>
-        <button onclick="openPage('profile-page')" class="nav-btn"><i data-lucide="user"></i>Profile</button>
+        <button id="nav-home" onclick="showPage('home-page', this)" class="nav-btn nav-active"><i data-lucide="home"></i>Home</button>
+        <button id="nav-task" onclick="showPage('task-page', this)" class="nav-btn"><i data-lucide="layout-list"></i>Task</button>
+        <button id="nav-earn" onclick="showPage('earn-page', this)" class="nav-btn"><i data-lucide="zap"></i>Earn</button>
+        <button id="nav-refer" onclick="showPage('refer-page', this)" class="nav-btn"><i data-lucide="users"></i>Refer</button>
+        <button id="nav-profile" onclick="showPage('profile-page', this)" class="nav-btn"><i data-lucide="user-circle"></i>Profile</button>
     </nav>
 
     <script>
+        // Firebase Configuration
         const firebaseConfig = { apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150", authDomain: "mini-app-link.firebaseapp.com", databaseURL: "https://mini-app-link-default-rtdb.firebaseio.com", projectId: "mini-app-link", storageBucket: "mini-app-link.firebasestorage.app", messagingSenderId: "608662003617", appId: "1:608662003617:web:681a069935bc118d5bb5e0" };
-        firebase.initializeApp(firebaseConfig); const db = firebase.database();
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        let userId = localStorage.getItem('mim_uid') || "ID" + Math.floor(Math.random()*9000);
-        localStorage.setItem('mim_uid', userId);
-        let balance = 0, refCount = 0, adsToday = 0, lastSafeTime = 0;
+        // User Setup
+        let uID = localStorage.getItem('mim_pro_id') || "USER" + Math.floor(1000 + Math.random() * 8999);
+        localStorage.setItem('mim_pro_id', uID);
+        
+        let uName = localStorage.getItem('mim_pro_name') || "Guest";
+        let uBal = 0, uRef = 0, uAds = 0, safeTime = 0, localAdCounter = {};
 
-        function updateData() {
-            db.ref('user_activity/'+userId).on('value', snap => {
-                const d = snap.val() || {};
-                balance = d.balance || 0;
-                refCount = d.refCount || 0;
-                document.getElementById('bal').innerText = balance.toFixed(2);
-                document.getElementById('ref-status').innerText = refCount >= 20 ? "✅ Ready to Withdraw" : `⚠️ 20 REFERS REQUIRED (Current: ${refCount})`;
-                if(refCount >= 20) {
-                    const btn = document.getElementById('w-btn');
-                    btn.disabled = false; btn.classList.replace('bg-zinc-800', 'bg-violet-600');
-                    btn.classList.replace('text-zinc-500', 'text-white');
-                    btn.innerText = "Withdraw Now"; btn.style.cursor = "pointer";
+        // 1. Live Sync & UI Updates
+        function syncData() {
+            db.ref('user_activity/' + uID).on('value', (snap) => {
+                const data = snap.val() || {};
+                uBal = data.balance || 0;
+                uRef = data.refCount || 0;
+                uAds = data.adsDone || 0;
+                
+                document.getElementById('bal-val').innerText = uBal.toFixed(2);
+                document.getElementById('ref-count-val').innerText = uRef;
+                document.getElementById('prog-val').innerText = uRef;
+                document.getElementById('top-name').innerText = "Welcome, " + uName;
+                document.getElementById('p-icon').innerText = uName.charAt(0).toUpperCase();
+                document.getElementById('name-input').value = uName === "Guest" ? "" : uName;
+
+                // Withdrawal Check (20 Refers)
+                const wBtn = document.getElementById('w-btn-main');
+                const wMsg = document.getElementById('withdraw-lock-msg');
+                if(uRef >= 20) {
+                    wBtn.disabled = false;
+                    wBtn.innerText = "Send Request";
+                    wBtn.classList.replace('bg-slate-200', 'bg-slate-900');
+                    wBtn.classList.replace('text-slate-400', 'text-white');
+                    wBtn.style.cursor = "pointer";
+                    wMsg.style.display = "none";
                 }
             });
         }
 
-        function openVideo(title, link) {
-            document.getElementById('video-src').src = link;
-            document.getElementById('main-video').load();
-            document.getElementById('playing-title').innerText = title;
-            openPage('player-page');
+        // 2. Navigation Control
+        function showPage(pID, btn) {
+            document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active-page'));
+            document.getElementById(pID).classList.add('active-page');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
+            if(btn) btn.classList.add('nav-active');
+            window.scrollTo(0,0);
+            lucide.createIcons();
         }
 
-        // Mid-roll Ad Lock Logic
-        function checkTime() {
-            const v = document.getElementById('main-video');
-            if(v.currentTime > 60 && lastSafeTime < 60) { lockVid(); }
+        // 3. Video Player Logic (Dark Mode + Lock)
+        function startEpisode(title, link) {
+            document.getElementById('v-source').src = link;
+            document.getElementById('v-player').load();
+            document.getElementById('v-title-display').innerText = title;
+            document.getElementById('player-section').classList.add('open');
+            document.getElementById('main-header').style.display = 'none';
         }
-        function handleLock() {
-            const v = document.getElementById('main-video');
-            if(v.currentTime > lastSafeTime + 5) { lockVid(); }
+
+        function closeVideoPlayer() {
+            document.getElementById('v-player').pause();
+            document.getElementById('player-section').classList.remove('open');
+            document.getElementById('main-header').style.display = 'flex';
         }
-        function lockVid() {
-            const v = document.getElementById('main-video');
-            v.pause();
-            document.getElementById('lock-screen').classList.remove('hidden');
+
+        function triggerAdLock() {
+            const v = document.getElementById('v-player');
+            if(v.currentTime > safeTime + 7) { 
+                v.pause(); document.getElementById('video-lock-ui').classList.remove('hidden'); 
+            }
         }
-        function unlockVideoAd() {
+
+        function watchTimeCheck() {
+            const v = document.getElementById('v-player');
+            if(v.currentTime > 60 && safeTime < 60) {
+                v.pause(); document.getElementById('video-lock-ui').classList.remove('hidden');
+            }
+        }
+
+        function unlockContent() {
             if(typeof show_10530857 === 'function') {
                 show_10530857().then(() => {
-                    document.getElementById('lock-screen').classList.add('hidden');
-                    const v = document.getElementById('main-video');
-                    lastSafeTime = v.currentTime;
+                    document.getElementById('video-lock-ui').classList.add('hidden');
+                    const v = document.getElementById('v-player');
+                    safeTime = v.currentTime;
                     v.play();
                 });
             }
         }
 
-        function openPage(id) {
-            document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
+        // 4. Earn & Tasks
+        function watchAdsMain() {
+            if(uAds >= 50) return alert("Daily limit reached!");
+            if(typeof show_10530857 === 'function') {
+                show_10530857().then(() => {
+                    uAds++;
+                    db.ref('user_activity/'+uID).update({ balance: uBal + 10, adsDone: uAds });
+                    alert("৳10 Added!");
+                });
+            }
         }
 
+        function saveProfileName() {
+            const val = document.getElementById('name-input').value.trim();
+            if(val) {
+                uName = val;
+                localStorage.setItem('mim_pro_name', val);
+                db.ref('user_activity/'+uID).update({ name: val });
+                syncData(); alert("Updated!");
+            }
+        }
+
+        // 5. Database Fetching
         db.ref('tasks').on('value', snap => {
-            const list = document.getElementById('episode-list'); list.innerHTML = "";
-            snap.forEach(c => {
-                const item = c.val();
+            const list = document.getElementById('video-list'); list.innerHTML = "";
+            snap.forEach(child => {
+                const item = child.val();
                 list.innerHTML += `
-                <div onclick="openVideo('${item.title}', '${item.link}')" class="bg-zinc-900 p-3 rounded-2xl flex items-center gap-4 border border-zinc-800">
-                    <img src="${item.image}" class="w-16 h-16 rounded-xl object-cover">
-                    <div class="flex-1"><h4 class="text-sm font-bold">${item.title}</h4><p class="text-[10px] text-zinc-500">Click to Play</p></div>
-                    <i data-lucide="play-circle" class="text-violet-500"></i>
+                <div onclick="startEpisode('${item.title}', '${item.link}')" class="bg-white p-4 rounded-[30px] flex items-center gap-4 border shadow-sm active:scale-95 transition">
+                    <img src="${item.image}" class="w-20 h-20 rounded-2xl object-cover bg-slate-50">
+                    <div class="flex-1"><h4 class="font-black text-slate-800 text-sm mb-1">${item.title}</h4><p class="text-[10px] text-violet-600 font-bold uppercase tracking-wider">Premium Video</p></div>
+                    <div class="bg-slate-50 p-2 rounded-full"><i data-lucide="play" class="w-4 h-4 text-slate-400"></i></div>
                 </div>`;
             });
             lucide.createIcons();
         });
 
-        document.getElementById('ref-link').value = window.location.origin + window.location.pathname + "?ref=" + userId;
-        updateData(); lucide.createIcons();
+        db.ref('social_tasks').on('value', snap => {
+            const list = document.getElementById('social-list'); list.innerHTML = "";
+            snap.forEach(c => {
+                const t = c.val();
+                list.innerHTML += `<div class="bg-white p-4 rounded-3xl flex justify-between items-center border shadow-sm">
+                    <span class="font-black text-xs">${t.name}</span>
+                    <button onclick="window.open('${t.link}'); db.ref('user_activity/'+uID).update({balance: uBal + ${t.reward}})" class="bg-violet-50 text-violet-600 px-5 py-2 rounded-xl text-[10px] font-black italic">Claim ৳${t.reward}</button>
+                </div>`;
+            });
+        });
+
+        // 6. Referral & Copy
+        document.getElementById('my-ref-link').innerText = window.location.origin + window.location.pathname + "?ref=" + uID;
+        function copyRefLink() {
+            navigator.clipboard.writeText(document.getElementById('my-ref-link').innerText);
+            alert("Referral Link Copied!");
+        }
+
+        // Initialize Everything
+        syncData();
+        lucide.createIcons();
     </script>
 </body>
 </html>
