@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mim Premium - Watch & Earn</title>
+    <title>Mim Premium - Profile Update</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
@@ -19,28 +19,30 @@
         nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: white; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; z-index: 1000; }
         .nav-btn { color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 9px; font-weight: 800; }
         .nav-active { color: #7c3aed; }
-        .header-profile { width: 35px; height: 35px; background: #7c3aed; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; cursor: pointer; }
+        .header-profile { width: 40px; height: 40px; background: #7c3aed; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; cursor: pointer; border: 3px solid white; box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3); }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
-    <div class="bg-white p-5 sticky top-0 z-50 border-b">
-        <div class="flex justify-between items-center mb-4">
+    <div class="bg-white p-5 sticky top-0 z-50 border-b flex justify-between items-center">
+        <div>
             <h1 class="font-black text-violet-600 text-xl tracking-tighter">MIM PREMIUM</h1>
-            <div onclick="changePage('profile-page', null)" class="header-profile shadow-lg shadow-violet-200">M</div>
+            <p class="text-[9px] font-bold text-slate-400 uppercase" id="top-username">Welcome, Guest</p>
         </div>
-        
+        <div onclick="openProfile()" class="header-profile" id="top-p-icon">?</div>
+    </div>
+
+    <div class="p-4 bg-white border-b">
         <div class="grid grid-cols-2 gap-3 mb-4">
             <div class="bg-violet-600 p-4 rounded-3xl text-white shadow-lg">
-                <p class="text-[9px] font-bold opacity-80 uppercase">Balance</p>
+                <p class="text-[9px] font-bold opacity-80 uppercase italic">Current Balance</p>
                 <p class="text-xl font-black">৳<span id="display-balance">0.00</span></p>
             </div>
-            <div class="bg-white border p-4 rounded-3xl text-center">
-                <p class="text-[9px] font-bold text-slate-400 uppercase">Daily Ads</p>
+            <div class="bg-slate-50 border p-4 rounded-3xl text-center">
+                <p class="text-[9px] font-bold text-slate-400 uppercase italic">Ads Done</p>
                 <p class="text-xl font-black text-slate-800"><span id="ad-count">0</span>/50</p>
             </div>
         </div>
-
         <div class="relative">
             <input type="text" id="search-bar" onkeyup="searchVideo()" placeholder="Search videos..." class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold text-sm pl-12">
             <i data-lucide="search" class="absolute left-4 top-4 text-slate-300 w-5 h-5"></i>
@@ -59,34 +61,41 @@
         </div>
 
         <div id="earn-page" class="sub-page">
-            <h2 class="text-xl font-black mb-4">Earn Money</h2>
-            <div class="bg-white p-8 rounded-[40px] text-center border-2 border-violet-50 shadow-sm">
+            <h2 class="text-xl font-black mb-4">Work Zone</h2>
+            <div class="bg-white p-10 rounded-[40px] text-center border-2 border-violet-50">
                 <h3 class="font-black text-lg">Watch Daily Ads</h3>
-                <p class="text-xs text-slate-400 mb-6 font-bold uppercase">৳10 per ad | Limit: 50</p>
-                <button onclick="watchEarnAd()" class="w-full bg-violet-600 text-white py-5 rounded-[25px] font-black shadow-lg">Watch Now</button>
+                <p class="text-xs text-slate-400 mb-6 font-bold uppercase">Earn ৳10 per ad</p>
+                <button onclick="watchEarnAd()" class="w-full bg-violet-600 text-white py-5 rounded-[25px] font-black">Watch Now</button>
             </div>
         </div>
 
         <div id="refer-page" class="sub-page">
-            <h2 class="text-xl font-black mb-4">Invite Friends</h2>
+            <h2 class="text-xl font-black mb-4">Referrals</h2>
             <div class="bg-white p-8 rounded-[40px] border-2 border-blue-50 text-center">
-                <h3 class="font-black text-lg">Your Refer Link</h3>
-                <p class="text-xs text-slate-400 mb-6 uppercase">Earn ৳30 per refer</p>
-                <div class="flex items-center gap-2">
-                    <div class="flex-1 bg-slate-50 p-4 rounded-2xl border-dashed border-2 text-[10px] font-black truncate" id="ref-link-display">...</div>
-                    <button onclick="copyRef()" class="bg-blue-600 text-white p-4 rounded-2xl"><i data-lucide="copy" class="w-5 h-5"></i></button>
-                </div>
+                <p class="text-xs text-slate-400 mb-6 font-bold">Earn ৳30 per refer</p>
+                <div class="bg-slate-50 p-4 rounded-2xl border-dashed border-2 text-[10px] font-black mb-4 truncate" id="ref-link-display">...</div>
+                <button onclick="copyRef()" class="bg-blue-600 text-white w-full py-4 rounded-2xl font-black">Copy Link</button>
             </div>
         </div>
 
         <div id="profile-page" class="sub-page">
-            <h2 class="text-xl font-black mb-4">My Account</h2>
+            <h2 class="text-xl font-black mb-4">User Profile</h2>
+            <div class="bg-white p-6 rounded-[35px] border shadow-sm mb-6">
+                <div class="mb-6">
+                    <label class="text-[10px] font-black text-slate-400 uppercase">Your Telegram/Name</label>
+                    <div class="flex gap-2 mt-1">
+                        <input type="text" id="user-name-input" placeholder="@username" class="flex-1 p-3 bg-slate-50 rounded-xl outline-none font-bold text-sm border">
+                        <button onclick="saveName()" class="bg-violet-600 text-white px-4 rounded-xl font-bold text-xs">Save</button>
+                    </div>
+                </div>
+                <p class="text-[10px] font-black text-slate-400 uppercase">User ID: <span id="p-uid" class="text-violet-600">...</span></p>
+            </div>
+
             <div class="bg-white p-6 rounded-[35px] border shadow-sm">
-                <p class="text-[10px] font-black text-violet-500 mb-2 uppercase">User ID: <span id="p-uid">...</span></p>
-                <h3 class="font-black mb-4 border-t pt-4">Withdrawal Money</h3>
+                <h3 class="font-black mb-4">Withdrawal</h3>
                 <input type="number" id="w-num" placeholder="Bkash/Nagad Number" class="w-full p-4 bg-slate-50 rounded-2xl mb-2 outline-none font-bold">
-                <input type="number" id="w-amt" placeholder="Min ৳500" class="w-full p-4 bg-slate-50 rounded-2xl mb-4 outline-none font-bold">
-                <button onclick="handleWithdraw()" class="w-full bg-slate-900 text-white py-5 rounded-[25px] font-black">Submit Request</button>
+                <input type="number" id="w-amt" placeholder="Amount" class="w-full p-4 bg-slate-50 rounded-2xl mb-4 outline-none font-bold">
+                <button onclick="handleWithdraw()" class="w-full bg-slate-900 text-white py-5 rounded-[25px] font-black">Withdraw</button>
             </div>
         </div>
     </div>
@@ -105,10 +114,27 @@
 
         let userId = localStorage.getItem('mim_user_id') || "ID" + Math.floor(1000 + Math.random() * 9999);
         localStorage.setItem('mim_user_id', userId);
-        document.getElementById('u-id').innerText = userId;
-        document.getElementById('p-uid').innerText = userId;
-        const refLink = window.location.origin + window.location.pathname + "?ref=" + userId;
-        document.getElementById('ref-link-display').innerText = refLink;
+        
+        // Initial Name Setup
+        let userName = localStorage.getItem('mim_user_name') || "Guest";
+        
+        function updateProfileUI() {
+            document.getElementById('top-username').innerText = "Welcome, " + userName;
+            document.getElementById('top-p-icon').innerText = userName.charAt(0).toUpperCase();
+            document.getElementById('user-name-input').value = userName === "Guest" ? "" : userName;
+            document.getElementById('p-uid').innerText = userId;
+        }
+
+        function saveName() {
+            const newName = document.getElementById('user-name-input').value.trim();
+            if(newName) {
+                userName = newName;
+                localStorage.setItem('mim_user_name', newName);
+                updateProfileUI();
+                db.ref('user_activity/' + userId).update({ name: userName });
+                alert("Name Updated!");
+            }
+        }
 
         let balance = parseFloat(localStorage.getItem('mim_bal')) || 0;
         let adsDone = parseInt(localStorage.getItem('mim_ads')) || 0;
@@ -121,18 +147,24 @@
             localStorage.setItem('mim_bal', balance);
             localStorage.setItem('mim_ads', adsDone);
             localStorage.setItem('mim_vids', vidsSeen);
-            db.ref('user_activity/' + userId).update({ balance, adsDone, vidsSeen, lastSeen: Date.now() });
+            db.ref('user_activity/' + userId).update({ balance, adsDone, vidsSeen, name: userName });
         }
-        updateUI();
 
         function watchEarnAd() {
-            if(adsDone >= 50) return alert("Today's limit reached!");
+            if(adsDone >= 50) return alert("Limit 50 reached!");
             if(typeof show_10530857 === 'function') {
                 show_10530857().then(() => { adsDone++; balance += 10; updateUI(); });
             }
         }
 
-        function copyRef() { navigator.clipboard.writeText(refLink); alert("Copied!"); }
+        function copyRef() {
+            navigator.clipboard.writeText(window.location.origin + window.location.pathname + "?ref=" + userId);
+            alert("Copied!");
+        }
+
+        function openProfile() {
+            changePage('profile-page', document.getElementById('nav-profile'));
+        }
 
         db.ref('tasks').on('value', snap => {
             const list = document.getElementById('episode-list'); list.innerHTML = "";
@@ -141,7 +173,7 @@
                 if(!adCounter[id]) adCounter[id] = 0;
                 list.innerHTML += `
                 <div class="video-card bg-white p-3 rounded-[35px] shadow-sm flex gap-4 items-center border">
-                    <img src="${item.image}" class="w-24 h-20 rounded-2xl object-cover bg-slate-100">
+                    <img src="${item.image}" class="w-24 h-20 rounded-2xl object-cover">
                     <div class="flex-1">
                         <h3 class="font-black text-xs text-slate-800 mb-2">${item.title}</h3>
                         <button id="btn-${id}" onclick="unlockProcess('${id}', '${item.link}')" class="bg-slate-900 text-white w-full py-2.5 rounded-xl text-[10px] font-black uppercase">Unlock (${adCounter[id]}/5)</button>
@@ -155,21 +187,14 @@
             if(typeof show_10530857 === 'function') {
                 show_10530857().then(() => {
                     adCounter[id]++;
+                    const btn = document.getElementById(`btn-${id}`);
                     if(adCounter[id] >= 5) {
-                        const btn = document.getElementById(`btn-${id}`);
-                        btn.innerText = "Play Now";
-                        btn.classList.replace('bg-slate-900', 'bg-green-600');
-                        btn.setAttribute('onclick', `finalPlay('${link}')`);
+                        btn.innerText = "Play Now"; btn.classList.replace('bg-slate-900', 'bg-green-600');
+                        btn.setAttribute('onclick', `window.location.href='${link}'; vidsSeen++; updateUI();`);
                     } else {
-                        document.getElementById(`btn-${id}`).innerText = `Unlock (${adCounter[id]}/5)`;
+                        btn.innerText = `Unlock (${adCounter[id]}/5)`;
                     }
                 });
-            }
-        }
-
-        function finalPlay(link) {
-            if(typeof show_10530857 === 'function') {
-                show_10530857().then(() => { vidsSeen++; updateUI(); window.location.href = link; });
             }
         }
 
@@ -178,16 +203,24 @@
             container.innerHTML = "";
             snap.forEach(child => {
                 const t = child.val();
-                container.innerHTML += `<div class="bg-white p-4 rounded-3xl shadow-sm flex justify-between items-center border"><p class="font-black text-xs">${t.name}</p><button onclick="window.open('${t.link}'); balance += ${t.reward}; updateUI();" class="bg-slate-100 px-4 py-2 rounded-xl text-[10px] font-black">Visit</button></div>`;
+                container.innerHTML += `<div class="bg-white p-4 rounded-3xl shadow-sm flex justify-between items-center border"><p class="font-black text-xs">${t.name}</p><button onclick="window.open('${t.link}'); balance += ${t.reward}; updateUI();" class="bg-slate-50 px-4 py-2 rounded-xl text-[10px] font-black">Visit</button></div>`;
             });
             lucide.createIcons();
         });
 
         function handleWithdraw() {
-            const amt = parseFloat(document.getElementById('w-amt').value);
+            const amt = document.getElementById('w-amt').value;
             if(amt < 500 || balance < amt) return alert("Check balance!");
-            db.ref('withdrawals').push({ userId, number: document.getElementById('w-num').value, amount: amt, adsSeen: adsDone, vidsSeen: vidsSeen });
-            balance -= amt; updateUI(); alert("Requested!");
+            db.ref('withdrawals').push({ userId, name: userName, number: document.getElementById('w-num').value, amount: amt, ads: adsDone });
+            balance -= amt; updateUI(); alert("Success!");
+        }
+
+        function changePage(id, el) {
+            document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
+            if(el) el.classList.add('nav-active');
+            lucide.createIcons();
         }
 
         function searchVideo() {
@@ -198,15 +231,7 @@
             });
         }
 
-        function changePage(id, el) {
-            document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
-            if(el) { el.classList.add('nav-active'); } 
-            else { document.getElementById('nav-profile').classList.add('nav-active'); }
-            lucide.createIcons();
-        }
-        lucide.createIcons();
+        updateUI(); updateProfileUI(); lucide.createIcons();
     </script>
 </body>
 </html>
