@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arohi Mim - Official App</title>
+    <title>MIM PREMIUM - Final Fix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
@@ -12,88 +12,72 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;700;900&display=swap');
-        body { font-family: 'Urbanist', sans-serif; background: #f4f7fe; user-select: none; margin: 0; padding: 0; }
-        .sub-page { display: none; padding-bottom: 100px; animation: fadeIn 0.3s ease; }
-        .sub-page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        body { font-family: 'Urbanist', sans-serif; background: #ffffff; user-select: none; margin: 0; }
+        .sub-page { display: none; padding-bottom: 100px; }
+        .active { display: block; }
         
-        /* Black Navigation */
-        nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: #000; display: flex; justify-content: space-around; align-items: center; z-index: 1000; border-top: 1px solid #222; }
-        .nav-btn { color: #64748b; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        /* Navigation (Black) */
+        nav { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background: #000; display: flex; justify-content: space-around; align-items: center; z-index: 1000; }
+        .nav-btn { color: #64748b; display: flex; flex-direction: column; align-items: center; font-size: 10px; font-weight: 800; }
         .nav-active { color: #fff; }
 
         /* Dark Video Player */
         #player-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; color: white; }
         #player-overlay.open { display: block; }
-        .lock-screen { position: absolute; inset: 0; background: rgba(0,0,0,0.96); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; text-align: center; padding: 20px; }
-        .lock-btn-red { background: #e11d48; color: white; padding: 12px 30px; border-radius: 99px; font-weight: 900; display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+        
+        /* Lock UI */
+        .lock-box { position: absolute; inset: 0; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
+        .btn-red { background: #e11d48; color: white; padding: 12px 30px; border-radius: 99px; font-weight: 900; display: flex; align-items: center; gap: 8px; margin-top: 15px; }
     </style>
 </head>
-<body oncontextmenu="return false;">
+<body>
 
-    <div class="bg-white p-5 shadow-sm border-b sticky top-0 z-50" id="main-header">
+    <div class="p-5 border-b sticky top-0 bg-white z-50 shadow-sm" id="top-bar">
         <div class="flex justify-between items-center mb-4">
-            <h1 class="font-black text-violet-600 text-xl italic tracking-tighter">MIM PREMIUM</h1>
-            <div class="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-[10px] font-black uppercase" id="u-id">...</div>
+            <div>
+                <h1 class="font-black text-violet-600 text-xl italic tracking-tighter">MIM PREMIUM</h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Hi, <span id="user-name-top">User</span></p>
+            </div>
+            <div class="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-[10px] font-black" id="user-id-top">...</div>
         </div>
         <div class="grid grid-cols-2 gap-3">
             <div class="bg-violet-600 p-4 rounded-2xl text-white shadow-lg">
                 <p class="text-[9px] font-bold opacity-70 uppercase tracking-widest">Balance</p>
-                <p class="text-xl font-black">৳<span id="display-balance">0.00</span></p>
+                <p class="text-xl font-black">৳<span id="bal-disp">0.00</span></p>
             </div>
-            <div class="bg-gray-100 p-4 rounded-2xl border">
-                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Refer Count</p>
-                <p class="text-xl font-black text-gray-800"><span id="ref-count-top">0</span>/20</p>
+            <div class="bg-slate-100 p-4 rounded-2xl border">
+                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Refers</p>
+                <p class="text-xl font-black text-slate-800"><span id="ref-disp">0</span>/20</p>
             </div>
         </div>
     </div>
 
-    <div id="pages-container" class="p-4">
-        
+    <div class="p-4" id="main-ui">
         <div id="home-page" class="sub-page active">
-            <div class="relative mb-6">
-                <input type="text" id="search-bar" onkeyup="searchVideo()" placeholder="Search video..." class="w-full p-4 bg-white rounded-2xl border shadow-sm outline-none font-bold text-sm pl-12">
-                <i data-lucide="search" class="absolute left-4 top-4 text-gray-300 w-5 h-5"></i>
-            </div>
-            <h2 class="font-black text-gray-700 mb-4 text-xs uppercase tracking-widest">Latest Episodes</h2>
-            <div id="episode-list" class="space-y-4"></div>
-        </div>
-
-        <div id="task-page" class="sub-page">
-            <h2 class="text-xl font-black mb-5">Reward Center</h2>
-            <div class="bg-white p-6 rounded-[35px] border shadow-sm text-center mb-5">
-                <div class="w-14 h-14 bg-violet-100 text-violet-600 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="zap"></i></div>
-                <h3 class="font-black text-lg">Watch Ads (৳10)</h3>
-                <p class="text-[10px] text-gray-400 font-bold mb-6 uppercase">Daily Limit: 50 Ads</p>
-                <button onclick="watchEarnAd()" class="w-full bg-violet-600 text-white py-4 rounded-2xl font-black shadow-lg">Start Watching</button>
-            </div>
-            
-            <div class="bg-white p-6 rounded-[35px] border shadow-sm text-center">
-                <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="gift"></i></div>
-                <h3 class="font-black text-lg">Bonus Reward</h3>
-                <p class="text-[10px] text-gray-400 font-bold mb-6 uppercase">Instant ৳10 Reward</p>
-                <button onclick="openBonus()" class="w-full bg-amber-500 text-white py-4 rounded-2xl font-black">Get Bonus</button>
-            </div>
+            <div id="video-feed" class="space-y-4"></div>
         </div>
 
         <div id="profile-page" class="sub-page">
-            <h2 class="text-xl font-black mb-5">My Account</h2>
-            
-            <div class="bg-white p-6 rounded-[35px] border shadow-sm mb-6 text-center">
-                <h3 class="font-black text-violet-600 mb-2">Referral Link</h3>
-                <p class="text-[10px] font-bold text-gray-400 mb-4 tracking-widest uppercase">Earn ৳30 Per Active Refer</p>
-                <div class="bg-slate-50 p-4 rounded-xl text-[10px] font-black text-blue-600 break-all mb-4 border border-dashed border-blue-200" id="ref-link-display">...</div>
-                <button onclick="copyRef()" class="w-full bg-blue-600 text-white py-3 rounded-2xl font-black text-xs shadow-md shadow-blue-100">Copy Invitation Link</button>
+            <div class="bg-white p-6 rounded-[35px] border shadow-sm mb-6">
+                <h3 class="font-black text-slate-700 mb-3 text-sm">Update Username</h3>
+                <div class="flex gap-2">
+                    <input type="text" id="name-field" placeholder="Enter Name" class="flex-1 p-3 bg-slate-50 border rounded-xl outline-none font-bold text-sm">
+                    <button onclick="saveName()" class="bg-violet-600 text-white px-5 rounded-xl font-black text-xs">Save</button>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-[35px] border shadow-sm mb-6">
+                <h3 class="font-black text-violet-600 mb-1 uppercase text-xs">Your Refer Link</h3>
+                <div class="bg-slate-50 p-4 rounded-xl text-[10px] font-black text-blue-600 break-all mb-4" id="ref-url">...</div>
+                <button onclick="copyRef()" class="w-full bg-blue-600 text-white py-3 rounded-2xl font-black text-xs">Copy Link</button>
             </div>
 
             <div class="bg-white p-6 rounded-[35px] border shadow-sm">
                 <h3 class="font-black mb-4">Cash Out</h3>
-                <div id="lock-notice" class="bg-red-50 p-4 rounded-2xl mb-5 border border-red-100">
-                    <p class="text-red-600 text-[10px] font-black italic">⚠️ LOCKED: Need 20 refers to withdraw. (Current: <span id="ref-prog">0</span>/20)</p>
+                <div id="withdraw-lock-ui" class="bg-red-50 p-4 rounded-2xl mb-5 border border-red-100">
+                    <p class="text-red-600 text-[10px] font-black italic">⚠️ 20 REFERS NEEDED (<span id="ref-p">0</span>/20)</p>
                 </div>
-                <input type="number" id="w-num" placeholder="Bkash/Nagad Number" class="w-full p-4 bg-gray-50 rounded-xl mb-3 outline-none font-bold border text-sm">
-                <input type="number" id="w-amt" placeholder="Amount (Min ৳500)" class="w-full p-4 bg-gray-50 rounded-xl mb-5 outline-none font-bold border text-sm">
-                <button id="withdraw-btn" disabled class="w-full bg-gray-200 text-gray-400 py-4 rounded-2xl font-black cursor-not-allowed uppercase text-sm">Locked</button>
+                <button id="withdraw-btn" disabled class="w-full bg-slate-200 text-slate-400 py-4 rounded-2xl font-black cursor-not-allowed">LOCKED</button>
             </div>
         </div>
     </div>
@@ -101,101 +85,91 @@
     <div id="player-overlay">
         <div class="p-4 flex justify-between items-center"><button onclick="closePlayer()"><i data-lucide="chevron-left"></i></button></div>
         <div class="relative w-full aspect-video bg-black mt-10 shadow-2xl">
-            <video id="main-v" class="w-full h-full" onseeking="handleSeek()" ontimeupdate="handleTime()">
-                <source src="" id="v-src">
-            </video>
-            <div id="mid-lock" class="hidden lock-screen">
-                <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mb-4"><i data-lucide="lock" class="text-white"></i></div>
+            <video id="vid" class="w-full h-full" onseeking="checkLock()" ontimeupdate="checkTime()"><source src="" id="vsrc"></video>
+            <div id="vid-lock" class="hidden lock-box">
+                <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mb-4 shadow-xl"><i data-lucide="lock" class="text-white"></i></div>
                 <h3 class="text-xl font-black text-white italic">CONTENT LOCKED</h3>
-                <p class="text-zinc-500 text-[11px] mb-6">Watching ad is required to continue.</p>
-                <button onclick="unlockMid()" class="lock-btn-red shadow-lg shadow-red-500/30"><i data-lucide="play"></i> Unlock Now</button>
+                <p class="text-zinc-500 text-[11px] mb-6">Watch ad to unlock.</p>
+                <button onclick="unlockAdMid()" class="btn-red"><i data-lucide="play"></i> Unlock Now</button>
             </div>
         </div>
-        <div class="p-8"><h2 id="v-title" class="text-2xl font-black italic">...</h2></div>
+        <div class="p-8"><h2 id="v-title-text" class="text-2xl font-black italic">...</h2></div>
     </div>
 
     <nav>
-        <button onclick="changePage('home-page', this)" class="nav-btn nav-active"><i data-lucide="home"></i><span class="text-[9px] font-bold">Home</span></button>
-        <button onclick="changePage('task-page', this)" class="nav-btn"><i data-lucide="zap"></i><span class="text-[9px] font-bold">Earn</span></button>
-        <button onclick="changePage('profile-page', this)" class="nav-btn"><i data-lucide="user"></i><span class="text-[9px] font-bold">Profile</span></button>
+        <button onclick="tab('home-page', this)" class="nav-btn nav-active"><i data-lucide="home"></i><span>Home</span></button>
+        <button onclick="tab('profile-page', this)" class="nav-btn"><i data-lucide="user"></i><span>Profile</span></button>
     </nav>
 
     <script>
-        const firebaseConfig = { apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150", authDomain: "mini-app-link.firebaseapp.com", databaseURL: "https://mini-app-link-default-rtdb.firebaseio.com", projectId: "mini-app-link", storageBucket: "mini-app-link.firebasestorage.app", messagingSenderId: "608662003617", appId: "1:608662003617:web:681a069935bc118d5bb5e0" };
+        const firebaseConfig = { apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150", authDomain: "mini-app-link.firebaseapp.com", databaseURL: "https://mini-app-link-default-rtdb.firebaseio.com", projectId: "mini-app-link" };
         firebase.initializeApp(firebaseConfig); const db = firebase.database();
+        
+        let uid = localStorage.getItem('mim_uid') || "MIM" + Math.floor(Math.random() * 9000);
+        localStorage.setItem('mim_uid', uid);
+        document.getElementById('user-id-top').innerText = uid;
 
-        let userId = localStorage.getItem('mim_user_id') || "MIM" + Math.floor(Math.random() * 9000);
-        localStorage.setItem('mim_user_id', userId);
-        document.getElementById('u-id').innerText = userId;
+        let b = 0, r = 0, safe = 0, track = {};
 
-        let balance = 0, refers = 0, adsDone = 0, safeT = 0, homeUnlocks = {};
-
-        function sync() {
-            db.ref('user_activity/' + userId).on('value', snap => {
-                const d = snap.val() || {}; balance = d.balance || 0; refers = d.refCount || 0; adsDone = d.adsDone || 0;
-                document.getElementById('display-balance').innerText = balance.toFixed(2);
-                document.getElementById('ref-count-top').innerText = refers;
-                document.getElementById('ref-prog').innerText = refers;
-                
-                const wBtn = document.getElementById('withdraw-btn');
-                const lockMsg = document.getElementById('lock-notice');
-                if(refers >= 20) {
-                    wBtn.disabled = false; wBtn.innerText = "Confirm Withdrawal";
-                    wBtn.className = "w-full bg-violet-600 text-white py-4 rounded-2xl font-black shadow-lg";
-                    lockMsg.style.display = "none";
+        function syncData() {
+            db.ref('user_activity/'+uid).on('value', s => {
+                const d = s.val() || {}; b = d.balance || 0; r = d.refCount || 0;
+                document.getElementById('bal-disp').innerText = b.toFixed(2);
+                document.getElementById('ref-disp').innerText = r;
+                document.getElementById('ref-p').innerText = r;
+                document.getElementById('user-name-top').innerText = d.name || "User";
+                if(r >= 20) {
+                    const btn = document.getElementById('withdraw-btn');
+                    btn.disabled = false; btn.innerText = "Cash Out Now";
+                    btn.className = "w-full bg-violet-600 text-white py-4 rounded-2xl font-black";
+                    document.getElementById('withdraw-lock-ui').style.display = 'none';
                 }
             });
         }
 
-        db.ref('tasks').on('value', snap => {
-            const list = document.getElementById('episode-list'); list.innerHTML = "";
-            snap.forEach(c => {
-                const item = c.val(); const id = c.key; if(!homeUnlocks[id]) homeUnlocks[id] = 0;
-                list.innerHTML += `
-                <div class="video-card bg-white p-3 rounded-2xl shadow-sm flex gap-4 border border-gray-50">
+        db.ref('tasks').on('value', s => {
+            const feed = document.getElementById('video-feed'); feed.innerHTML = "";
+            s.forEach(c => {
+                const item = c.val(); const id = c.key; if(!track[id]) track[id] = 0;
+                feed.innerHTML += `
+                <div class="bg-white p-3 rounded-2xl shadow-sm flex gap-4 border border-slate-50">
                     <img src="${item.image}" class="w-20 h-20 rounded-xl object-cover">
-                    <div class="flex-1"><h3 class="font-black text-sm mb-2 text-gray-700">${item.title}</h3>
-                    <button id="btn-${id}" onclick="unlockHome('${id}', '${item.title}', '${item.link}')" class="bg-gray-900 text-white w-full py-2 rounded-lg text-[10px] font-black uppercase italic">Unlock (${homeUnlocks[id]}/5)</button></div>
+                    <div class="flex-1"><h3 class="font-black text-sm mb-2 text-slate-700">${item.title}</h3>
+                    <button id="btn-${id}" onclick="unlockH('${id}','${item.title}','${item.link}')" class="bg-slate-900 text-white w-full py-2 rounded-lg text-[10px] font-black uppercase italic">Unlock (${track[id]}/5)</button></div>
                 </div>`;
             });
             lucide.createIcons();
         });
 
-        function unlockHome(id, title, link) {
-            if(homeUnlocks[id] >= 5) { openPlayer(title, link); return; }
+        function unlockH(id, t, l) {
+            if(track[id] >= 5) { openVideo(t, l); return; }
             if(typeof show_10530857 === 'function') {
                 show_10530857().then(() => {
-                    homeUnlocks[id]++; const b = document.getElementById(`btn-${id}`);
-                    if(homeUnlocks[id] < 5) b.innerText = `Unlock (${homeUnlocks[id]}/5)`;
-                    else { b.innerText = "Play Now"; b.classList.replace('bg-gray-900', 'bg-green-600'); }
+                    track[id]++; const btn = document.getElementById('btn-'+id);
+                    if(track[id] < 5) btn.innerText = `Unlock (${track[id]}/5)`;
+                    else { btn.innerText = "Play Now"; btn.classList.replace('bg-slate-900', 'bg-green-600'); }
                 });
             }
         }
 
-        function openPlayer(t, l) {
-            document.getElementById('v-src').src = l; document.getElementById('main-v').load();
-            document.getElementById('v-title').innerText = t;
+        function openVideo(t, l) {
+            document.getElementById('vsrc').src = l; document.getElementById('vid').load();
+            document.getElementById('v-title-text').innerText = t;
             document.getElementById('player-overlay').classList.add('open');
-            document.getElementById('main-header').style.display = 'none';
+            document.getElementById('top-bar').style.display = 'none';
         }
 
-        function closePlayer() { document.getElementById('main-v').pause(); document.getElementById('player-overlay').classList.remove('open'); document.getElementById('main-header').style.display = 'block'; }
-        function handleSeek() { if(document.getElementById('main-v').currentTime > safeT + 7) { document.getElementById('main-v').pause(); document.getElementById('mid-lock').classList.remove('hidden'); } }
-        function handleTime() { const v = document.getElementById('main-v'); if(v.currentTime > 60 && safeT < 60) { v.pause(); document.getElementById('mid-lock').classList.remove('hidden'); } if(!v.paused) safeT = v.currentTime; }
-        function unlockMid() { if(typeof show_10530857 === 'function') { show_10530857().then(() => { document.getElementById('mid-lock').classList.add('hidden'); safeT = document.getElementById('main-v').currentTime; document.getElementById('main-v').play(); }); } }
+        function closePlayer() { document.getElementById('vid').pause(); document.getElementById('player-overlay').classList.remove('open'); document.getElementById('top-bar').style.display = 'block'; }
+        function checkLock() { if(document.getElementById('vid').currentTime > safe + 7) { document.getElementById('vid').pause(); document.getElementById('vid-lock').classList.remove('hidden'); } }
+        function checkTime() { const v = document.getElementById('vid'); if(v.currentTime > 60 && safe < 60) { v.pause(); document.getElementById('vid-lock').classList.remove('hidden'); } if(!v.paused) safe = v.currentTime; }
+        function unlockAdMid() { if(typeof show_10530857 === 'function') { show_10530857().then(() => { document.getElementById('vid-lock').classList.add('hidden'); safe = document.getElementById('vid').currentTime; document.getElementById('vid').play(); }); } }
 
-        function watchEarnAd() {
-            if(adsDone >= 50) return alert("Limit reached!");
-            if(typeof show_10530857 === 'function') { show_10530857().then(() => { db.ref('user_activity/'+userId).update({ balance: balance + 10, adsDone: adsDone + 1 }); }); }
-        }
+        function saveName() { const n = document.getElementById('name-field').value; if(n) db.ref('user_activity/'+uid).update({ name: n }); }
+        function copyRef() { navigator.clipboard.writeText(document.getElementById('ref-url').innerText); alert("Copied!"); }
+        function tab(id, el) { document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active')); el.classList.add('nav-active'); lucide.createIcons(); }
 
-        function openBonus() { window.open("https://www.effectivegatecpm.com/efwm6m38q?key=7d100726bda8d7676edf7789bd1e3140", "_blank"); db.ref('user_activity/'+userId).update({ balance: balance + 10 }); alert("৳10 Added!"); }
-        function copyRef() { navigator.clipboard.writeText(document.getElementById('ref-link-display').innerText); alert("Link Copied!"); }
-        function changePage(id, el) { document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active')); el.classList.add('nav-active'); lucide.createIcons(); }
-        function searchVideo() { let f = document.getElementById('search-bar').value.toUpperCase(); document.querySelectorAll('.video-card').forEach(c => { c.style.display = c.querySelector('h3').innerText.toUpperCase().includes(f) ? "" : "none"; }); }
-
-        document.getElementById('ref-link-display').innerText = window.location.origin + window.location.pathname + "?ref=" + userId;
-        sync(); lucide.createIcons();
+        document.getElementById('ref-url').innerText = window.location.origin + window.location.pathname + "?ref=" + uid;
+        syncData(); lucide.createIcons();
     </script>
 </body>
 </html>
