@@ -2,43 +2,61 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Mim Master Admin</title>
+    <title>Mim Admin - Master Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
 </head>
-<body class="bg-slate-50 p-6">
+<body class="bg-gray-50 p-6">
     <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-black mb-8 text-violet-700">Mim Admin Control</h1>
+        <h1 class="text-3xl font-black mb-8 text-violet-700">Mim Admin Master</h1>
 
-        <div class="bg-white p-6 rounded-3xl shadow-sm mb-6 border-2 border-blue-100">
-            <h2 class="font-black mb-4">Add Social/Web Task</h2>
+        <div class="bg-white p-6 rounded-3xl shadow-sm mb-6 border-2 border-violet-100">
+            <h2 class="font-black mb-4">Post New Video Episode</h2>
+            <div class="grid grid-cols-1 gap-3">
+                <input type="text" id="v-title" placeholder="Title (e.g. Episode 01)" class="p-4 bg-gray-50 rounded-xl outline-none font-bold">
+                <input type="text" id="v-img" placeholder="Thumbnail URL" class="p-4 bg-gray-50 rounded-xl outline-none font-bold">
+                <input type="text" id="v-link" placeholder="Video Link (Doodstream)" class="p-4 bg-gray-50 rounded-xl outline-none font-bold">
+                <button onclick="addVideo()" class="bg-violet-600 text-white py-4 rounded-xl font-black">Publish Video</button>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-3xl shadow-sm mb-8 border-2 border-blue-100">
+            <h2 class="font-black mb-4">Add Social Media Task</h2>
             <div class="grid grid-cols-3 gap-3">
                 <input type="text" id="s-name" placeholder="Task Name" class="p-3 bg-gray-50 rounded-xl outline-none">
-                <input type="text" id="s-link" placeholder="Task Link" class="p-3 bg-gray-50 rounded-xl outline-none">
+                <input type="text" id="s-link" placeholder="Link" class="p-3 bg-gray-50 rounded-xl outline-none">
                 <input type="number" id="s-reward" placeholder="Reward (৳)" class="p-3 bg-gray-50 rounded-xl outline-none">
             </div>
-            <button onclick="addSocial()" class="mt-4 w-full bg-blue-600 text-white py-4 rounded-xl font-bold">Add Social Task</button>
+            <button onclick="addSocial()" class="mt-4 w-full bg-blue-600 text-white py-4 rounded-xl font-black">Add Social Task</button>
         </div>
 
         <div class="bg-white p-6 rounded-3xl shadow-sm">
-            <h2 class="font-black mb-6">Withdrawal Requests (Anti-Cheat)</h2>
-            <div id="request-list" class="space-y-4"></div>
+            <h2 class="font-black mb-6">Withdrawals (Track Activities)</h2>
+            <div id="request-list" class="space-y-4 font-bold"></div>
         </div>
     </div>
 
     <script>
-        const pass = prompt("Enter Password:");
+        const pass = prompt("Admin Password:");
         if(pass !== "admin786") window.location.href="index.html";
 
         const firebaseConfig = { apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150", authDomain: "mini-app-link.firebaseapp.com", databaseURL: "https://mini-app-link-default-rtdb.firebaseio.com", projectId: "mini-app-link", storageBucket: "mini-app-link.firebasestorage.app", messagingSenderId: "608662003617", appId: "1:608662003617:web:681a069935bc118d5bb5e0" };
         firebase.initializeApp(firebaseConfig); const db = firebase.database();
 
+        function addVideo() {
+            const title = document.getElementById('v-title').value;
+            const image = document.getElementById('v-img').value;
+            const link = document.getElementById('v-link').value;
+            if(title && image && link) db.ref('tasks').push({ title, image, link });
+            alert("Video Added!");
+        }
+
         function addSocial() {
             const name = document.getElementById('s-name').value;
             const link = document.getElementById('s-link').value;
             const reward = document.getElementById('s-reward').value;
-            db.ref('social_tasks').push({ name, link, reward });
+            if(name && link && reward) db.ref('social_tasks').push({ name, link, reward });
             alert("Social Task Added!");
         }
 
@@ -46,20 +64,17 @@
             const list = document.getElementById('request-list'); list.innerHTML = "";
             snap.forEach(child => {
                 const req = child.val();
-                const statusColor = (req.adsSeen < 10) ? 'border-red-400 bg-red-50' : 'border-green-400 bg-green-50';
                 list.innerHTML += `
-                <div class="p-6 border-2 ${statusColor} rounded-3xl">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h3 class="font-black text-gray-800">User ID: ${req.userId}</h3>
-                            <p class="font-bold text-violet-600 text-lg">Amount: ৳${req.amount} | Num: ${req.number}</p>
-                            <div class="mt-2 flex gap-4">
-                                <span class="bg-white px-3 py-1 rounded-lg text-xs font-black">Ads Today: ${req.adsSeen} / 50</span>
-                                <span class="bg-white px-3 py-1 rounded-lg text-xs font-black">Vids Seen: ${req.vidsSeen}</span>
-                            </div>
+                <div class="p-5 border-2 border-gray-100 rounded-3xl bg-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="flex-1">
+                        <p class="text-violet-600">User: ${req.userId}</p>
+                        <p class="text-xl">৳${req.amount} | To: ${req.number}</p>
+                        <div class="mt-2 flex gap-3 text-[10px] uppercase">
+                            <span class="bg-white px-2 py-1 rounded">Ads Watch: ${req.adsSeen}/50</span>
+                            <span class="bg-white px-2 py-1 rounded">Videos Unlocked: ${req.vidsSeen}</span>
                         </div>
-                        <button onclick="db.ref('withdrawals').child('${child.key}').remove()" class="bg-red-600 text-white px-6 py-2 rounded-xl text-xs font-bold">Clear Request</button>
                     </div>
+                    <button onclick="db.ref('withdrawals').child('${child.key}').remove()" class="bg-red-600 text-white px-6 py-2 rounded-xl text-xs font-bold uppercase">Clear Request</button>
                 </div>`;
             });
         });
