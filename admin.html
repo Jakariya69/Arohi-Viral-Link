@@ -10,7 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;700;900&display=swap');
-        body { font-family: 'Urbanist', sans-serif; background: #f1f5f9; display: none; } /* Initially hidden for security */
+        body { font-family: 'Urbanist', sans-serif; background: #f1f5f9; display: none; }
         .card { background: white; border-radius: 24px; padding: 20px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
     </style>
 </head>
@@ -19,22 +19,39 @@
     <header class="flex justify-between items-center mb-8 pt-4">
         <div>
             <h1 class="text-3xl font-black text-gray-900">Admin Control</h1>
-            <p class="text-gray-500 font-bold text-sm">Manage Your Application</p>
+            <p class="text-gray-500 font-bold text-sm">Manage Video & Tasks</p>
         </div>
         <button onclick="location.reload()" class="bg-violet-600 p-3 rounded-2xl text-white shadow-lg">
             <i data-lucide="refresh-cw"></i>
         </button>
     </header>
 
+    <section class="card mb-8 border-2 border-blue-100">
+        <h2 class="text-lg font-black mb-4 flex items-center gap-2 text-blue-700">
+            <i data-lucide="list-checks"></i> Manage Daily Tasks
+        </h2>
+        <div class="space-y-4">
+            <div>
+                <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">YouTube Link</label>
+                <input type="text" id="yt-link" placeholder="Enter YT Channel Link" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-xl outline-none font-bold">
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-gray-400 uppercase ml-2">Telegram Link</label>
+                <input type="text" id="tg-link" placeholder="Enter Telegram Link" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-xl outline-none font-bold">
+            </div>
+            <button onclick="updateLinks()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black shadow-lg">Update All Links</button>
+        </div>
+    </section>
+
     <section class="card mb-8 border-2 border-violet-100">
         <h2 class="text-lg font-black mb-4 flex items-center gap-2 text-violet-700">
-            <i data-lucide="plus-circle"></i> Add New Content
+            <i data-lucide="plus-circle"></i> Add New Video
         </h2>
         <div class="space-y-4">
             <input type="text" id="v-title" placeholder="Video Title" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-xl outline-none font-bold">
             <input type="text" id="v-img" placeholder="Thumbnail Image URL" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-xl outline-none font-bold">
             <input type="text" id="v-link" placeholder="Final Video Link" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-xl outline-none font-bold">
-            <button onclick="uploadVideo()" class="w-full bg-violet-600 text-white py-4 rounded-xl font-black shadow-lg">Publish Now</button>
+            <button onclick="uploadVideo()" class="w-full bg-violet-600 text-white py-4 rounded-xl font-black shadow-lg">Publish Video</button>
         </div>
     </section>
 
@@ -48,16 +65,15 @@
     </section>
 
     <script>
-        // --- Password Security ---
+        // Password Security
         const pass = prompt("Enter Admin Password:");
         if (pass === "admin786") {
             document.getElementById('admin-body').style.display = "block";
         } else {
-            alert("Wrong Password! Access Denied.");
-            window.location.href = "index.html"; // Redirect to home if wrong
+            alert("Wrong Password!");
+            window.location.href = "index.html";
         }
 
-        // --- Firebase Config ---
         const firebaseConfig = {
             apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150",
             authDomain: "mini-app-link.firebaseapp.com",
@@ -70,12 +86,25 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Upload Logic
+        // New Task Links Update Logic
+        function updateLinks() {
+            const yt = document.getElementById('yt-link').value;
+            const tg = document.getElementById('tg-link').value;
+            if(!yt || !tg) return alert("Please fill both links!");
+
+            db.ref('app_settings/links').set({
+                youtube: yt,
+                telegram: tg
+            }).then(() => {
+                alert("Links Updated Successfully!");
+            });
+        }
+
+        // Upload Video Logic
         function uploadVideo() {
             const title = document.getElementById('v-title').value;
             const img = document.getElementById('v-img').value;
             const link = document.getElementById('v-link').value;
-
             if(!title || !img || !link) return alert("Fill all fields!");
 
             db.ref('tasks').push({
@@ -84,7 +113,7 @@
                 link: link,
                 time: Date.now()
             }).then(() => {
-                alert("Success! Video added to app.");
+                alert("Video Published!");
                 document.getElementById('v-title').value = "";
                 document.getElementById('v-img').value = "";
                 document.getElementById('v-link').value = "";
@@ -95,35 +124,27 @@
         db.ref('withdrawals').on('value', snap => {
             const list = document.getElementById('withdraw-list');
             list.innerHTML = "";
-            
             if(!snap.exists()) {
                 list.innerHTML = `<p class="text-center text-gray-400 py-10 font-bold">No requests found.</p>`;
                 return;
             }
-
             snap.forEach(child => {
                 const data = child.val();
                 const id = child.key;
-
                 list.innerHTML += `
                     <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex justify-between items-center">
                         <div>
                             <p class="font-black text-gray-800">${data.method}: ${data.number}</p>
                             <p class="text-xs font-bold text-green-600">Amount: ৳${data.amount}</p>
-                            <p class="text-[10px] text-gray-400 font-black">${new Date(data.time).toLocaleString()}</p>
                         </div>
-                        <button onclick="deleteReq('${id}')" class="bg-red-100 text-red-600 p-3 rounded-xl">
-                            <i data-lucide="check-circle" class="w-5 h-5"></i>
-                        </button>
+                        <button onclick="deleteReq('${id}')" class="bg-red-100 text-red-600 p-3 rounded-xl"><i data-lucide="check-circle" class="w-5 h-5"></i></button>
                     </div>`;
             });
             lucide.createIcons();
         });
 
         function deleteReq(id) {
-            if(confirm("Mark as Paid and Delete?")) {
-                db.ref('withdrawals').child(id).remove();
-            }
+            if(confirm("Confirm payment finished?")) db.ref('withdrawals').child(id).remove();
         }
 
         lucide.createIcons();
