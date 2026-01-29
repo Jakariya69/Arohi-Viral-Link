@@ -3,99 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Admin - Full Control</title>
+    <title>Mim Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;700;900&display=swap');
-        body { font-family: 'Urbanist', sans-serif; background: #f8fafc; overflow: hidden; }
-        .section { display: none; height: 100%; overflow-y: auto; padding-bottom: 100px; }
-        .section.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .sidebar-item.active { background: #7c3aed; color: white; }
+        body { font-family: 'Urbanist', sans-serif; background: #f1f5f9; display: none; } /* Initially hidden for security */
+        .card { background: white; border-radius: 24px; padding: 20px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
     </style>
 </head>
-<body class="flex h-screen">
+<body class="max-w-2xl mx-auto p-4 pb-20" id="admin-body">
 
-    <aside class="w-64 bg-white border-r flex flex-col p-6 hidden md:flex">
-        <h1 class="text-2xl font-black mb-10 tracking-tighter">MASTER<span class="text-violet-600">PRO</span></h1>
-        <nav class="space-y-2">
-            <button onclick="showSection('dash', this)" class="sidebar-item active w-full flex items-center gap-3 p-3 rounded-xl font-bold text-gray-500 transition-all">
-                <i data-lucide="layout-grid"></i> Dashboard
-            </button>
-            <button onclick="showSection('episodes', this)" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-xl font-bold text-gray-500 transition-all">
-                <i data-lucide="video"></i> Episodes
-            </button>
-            <button onclick="showSection('earn-tasks', this)" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-xl font-bold text-gray-500 transition-all">
-                <i data-lucide="coins"></i> Earn & Tasks
-            </button>
-            <button onclick="showSection('withdraws', this)" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-xl font-bold text-gray-500 transition-all">
-                <i data-lucide="banknote"></i> Withdraws
-            </button>
-        </nav>
-    </aside>
-
-    <main class="flex-1 p-6 md:p-10 h-full">
-        
-        <div id="dash" class="section active">
-            <h2 class="text-3xl font-black mb-8">Overview</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                    <p class="text-gray-400 text-xs font-bold uppercase">Live Episodes</p>
-                    <h3 id="stat-ep" class="text-3xl font-black">0</h3>
-                </div>
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                    <p class="text-gray-400 text-xs font-bold uppercase">Active Tasks</p>
-                    <h3 id="stat-tasks" class="text-3xl font-black">0</h3>
-                </div>
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                    <p class="text-gray-400 text-xs font-bold uppercase">Pending Payouts</p>
-                    <h3 id="stat-wd" class="text-3xl font-black text-violet-600">0</h3>
-                </div>
-            </div>
+    <header class="flex justify-between items-center mb-8 pt-4">
+        <div>
+            <h1 class="text-3xl font-black text-gray-900">Admin Control</h1>
+            <p class="text-gray-500 font-bold text-sm">Manage Your Application</p>
         </div>
+        <button onclick="location.reload()" class="bg-violet-600 p-3 rounded-2xl text-white shadow-lg">
+            <i data-lucide="refresh-cw"></i>
+        </button>
+    </header>
 
-        <div id="episodes" class="section">
-            <h2 class="text-3xl font-black mb-6">Manage Episodes</h2>
-            <div class="bg-white p-6 rounded-3xl border border-gray-100 mb-8 max-w-xl">
-                <p class="font-bold mb-4">Add New Video</p>
-                <div class="space-y-3">
-                    <input type="text" id="ep-title" placeholder="Episode Title" class="w-full p-3 bg-gray-50 rounded-xl outline-none border focus:border-violet-500">
-                    <input type="text" id="ep-img" placeholder="Thumbnail URL" class="w-full p-3 bg-gray-50 rounded-xl outline-none border focus:border-violet-500">
-                    <input type="text" id="ep-link" placeholder="Video URL" class="w-full p-3 bg-gray-50 rounded-xl outline-none border focus:border-violet-500">
-                    <button onclick="addEpisode()" class="w-full bg-violet-600 text-white py-3 rounded-xl font-black">Publish Video</button>
-                </div>
-            </div>
-            <div id="ep-list" class="space-y-3 max-w-xl"></div>
+    <section class="card mb-8 border-2 border-violet-100">
+        <h2 class="text-lg font-black mb-4 flex items-center gap-2 text-violet-700">
+            <i data-lucide="plus-circle"></i> Add New Content
+        </h2>
+        <div class="space-y-4">
+            <input type="text" id="v-title" placeholder="Video Title" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-xl outline-none font-bold">
+            <input type="text" id="v-img" placeholder="Thumbnail Image URL" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-xl outline-none font-bold">
+            <input type="text" id="v-link" placeholder="Final Video Link" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-xl outline-none font-bold">
+            <button onclick="uploadVideo()" class="w-full bg-violet-600 text-white py-4 rounded-xl font-black shadow-lg">Publish Now</button>
         </div>
+    </section>
 
-        <div id="earn-tasks" class="section">
-            <h2 class="text-3xl font-black mb-6">Daily Earn & Social Tasks</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="bg-white p-6 rounded-3xl border border-gray-100">
-                    <p class="font-bold mb-4 text-violet-600">Add Social Task (Youtube/Telegram)</p>
-                    <div class="space-y-3">
-                        <input type="text" id="task-name" placeholder="Task Name (e.g. Subscribe Channel)" class="w-full p-3 bg-gray-50 rounded-xl outline-none border">
-                        <input type="text" id="task-url" placeholder="Social Link" class="w-full p-3 bg-gray-50 rounded-xl outline-none border">
-                        <input type="number" id="task-reward" placeholder="Reward Amount (৳)" class="w-full p-3 bg-gray-50 rounded-xl outline-none border">
-                        <button onclick="addTask()" class="w-full bg-gray-900 text-white py-3 rounded-xl font-black">Add Task</button>
-                    </div>
-                </div>
-                <div id="task-list" class="space-y-3"></div>
-            </div>
+    <section class="card">
+        <h2 class="text-lg font-black mb-4 flex items-center gap-2 text-green-600">
+            <i data-lucide="wallet"></i> Pending Withdrawals
+        </h2>
+        <div id="withdraw-list" class="space-y-3">
+            <p class="text-center text-gray-400 py-10 font-bold">Checking requests...</p>
         </div>
-
-        <div id="withdraws" class="section">
-            <h2 class="text-3xl font-black mb-6">Pending Withdrawals</h2>
-            <div id="wd-list" class="space-y-4 max-w-2xl"></div>
-        </div>
-
-    </main>
+    </section>
 
     <script>
-        // Firebase Config (Your data)
+        // --- Password Security ---
+        const pass = prompt("Enter Admin Password:");
+        if (pass === "admin786") {
+            document.getElementById('admin-body').style.display = "block";
+        } else {
+            alert("Wrong Password! Access Denied.");
+            window.location.href = "index.html"; // Redirect to home if wrong
+        }
+
+        // --- Firebase Config ---
         const firebaseConfig = {
             apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150",
             authDomain: "mini-app-link.firebaseapp.com",
@@ -108,79 +70,61 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        function showSection(id, btn) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-            btn.classList.add('active');
-            lucide.createIcons();
-        }
+        // Upload Logic
+        function uploadVideo() {
+            const title = document.getElementById('v-title').value;
+            const img = document.getElementById('v-img').value;
+            const link = document.getElementById('v-link').value;
 
-        // Episodes Logic
-        function addEpisode() {
-            const title = document.getElementById('ep-title').value;
-            const img = document.getElementById('ep-img').value;
-            const link = document.getElementById('ep-link').value;
-            if(!title || !link) return alert("Fill fields!");
-            db.ref('tasks').push({ title, image: img || "https://via.placeholder.com/150", link, reward: 5 });
-            alert("Episode Added!");
-        }
+            if(!title || !img || !link) return alert("Fill all fields!");
 
-        db.ref('tasks').on('value', snap => {
-            document.getElementById('stat-ep').innerText = snap.numChildren();
-            const list = document.getElementById('ep-list');
-            list.innerHTML = "";
-            snap.forEach(child => {
-                const data = child.val();
-                list.innerHTML += `<div class="bg-white p-3 rounded-2xl flex justify-between items-center shadow-sm border border-gray-100">
-                    <span class="font-bold text-sm text-gray-700">${data.title}</span>
-                    <button onclick="db.ref('tasks/${child.key}').remove()" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                </div>`;
+            db.ref('tasks').push({
+                title: title,
+                image: img,
+                link: link,
+                time: Date.now()
+            }).then(() => {
+                alert("Success! Video added to app.");
+                document.getElementById('v-title').value = "";
+                document.getElementById('v-img').value = "";
+                document.getElementById('v-link').value = "";
             });
-            lucide.createIcons();
-        });
-
-        // Social Tasks Logic
-        function addTask() {
-            const name = document.getElementById('task-name').value;
-            const url = document.getElementById('task-url').value;
-            const reward = document.getElementById('task-reward').value;
-            if(!name || !url) return alert("Fill data!");
-            db.ref('social_tasks').push({ name, url, reward: parseFloat(reward) });
-            alert("Social Task Added!");
         }
 
-        db.ref('social_tasks').on('value', snap => {
-            document.getElementById('stat-tasks').innerText = snap.numChildren();
-            const list = document.getElementById('task-list');
-            list.innerHTML = "";
-            snap.forEach(child => {
-                const data = child.val();
-                list.innerHTML += `<div class="bg-white p-4 rounded-2xl flex justify-between items-center border border-gray-100">
-                    <div><p class="font-bold text-sm">${data.name}</p><p class="text-[10px] text-green-500">Reward: ৳${data.reward}</p></div>
-                    <button onclick="db.ref('social_tasks/${child.key}').remove()" class="text-red-400"><i data-lucide="trash"></i></button>
-                </div>`;
-            });
-            lucide.createIcons();
-        });
-
-        // Withdraw Logic
+        // Fetch Withdrawals
         db.ref('withdrawals').on('value', snap => {
-            document.getElementById('stat-wd').innerText = snap.numChildren();
-            const list = document.getElementById('wd-list');
-            list.innerHTML = snap.exists() ? "" : `<p class="text-gray-400 text-center font-bold">No requests.</p>`;
+            const list = document.getElementById('withdraw-list');
+            list.innerHTML = "";
+            
+            if(!snap.exists()) {
+                list.innerHTML = `<p class="text-center text-gray-400 py-10 font-bold">No requests found.</p>`;
+                return;
+            }
+
             snap.forEach(child => {
-                const w = child.val();
-                list.innerHTML += `<div class="bg-white p-6 rounded-[30px] border border-violet-100 flex justify-between items-center">
-                    <div><p class="text-lg font-black">${w.method}</p><p class="text-gray-500 font-bold tracking-tighter">${w.number}</p></div>
-                    <div class="text-right">
-                        <p class="text-2xl font-black text-gray-900">৳${w.amount}</p>
-                        <button onclick="db.ref('withdrawals/${child.key}').remove()" class="mt-2 bg-gray-900 text-white px-4 py-1.5 rounded-xl text-xs font-bold">Mark Paid</button>
-                    </div>
-                </div>`;
+                const data = child.val();
+                const id = child.key;
+
+                list.innerHTML += `
+                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex justify-between items-center">
+                        <div>
+                            <p class="font-black text-gray-800">${data.method}: ${data.number}</p>
+                            <p class="text-xs font-bold text-green-600">Amount: ৳${data.amount}</p>
+                            <p class="text-[10px] text-gray-400 font-black">${new Date(data.time).toLocaleString()}</p>
+                        </div>
+                        <button onclick="deleteReq('${id}')" class="bg-red-100 text-red-600 p-3 rounded-xl">
+                            <i data-lucide="check-circle" class="w-5 h-5"></i>
+                        </button>
+                    </div>`;
             });
             lucide.createIcons();
         });
+
+        function deleteReq(id) {
+            if(confirm("Mark as Paid and Delete?")) {
+                db.ref('withdrawals').child(id).remove();
+            }
+        }
 
         lucide.createIcons();
     </script>
