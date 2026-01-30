@@ -2,107 +2,250 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Mim Admin - Delete System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mim Premium | Elite Admin Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0b0e14; color: #e2e8f0; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+        .gradient-text { background: linear-gradient(135deg, #a78bfa, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #4c1d95; border-radius: 10px; }
+        .input-box { background: rgba(15, 23, 42, 0.8) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
+        .btn-primary { background: linear-gradient(135deg, #6d28d9, #4f46e5); transition: all 0.3s ease; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -10px #4f46e5; }
+    </style>
 </head>
-<body class="bg-slate-50 p-6">
-    <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-black mb-8 text-violet-700">Admin Control</h1>
+<body class="p-4 md:p-8">
 
-        <div class="bg-white p-6 rounded-[35px] shadow-sm mb-6 border-2">
-            <h2 class="font-black mb-4">Post Video</h2>
-            <div class="space-y-3">
-                <input type="text" id="v-title" placeholder="Episode Title" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold">
-                <input type="text" id="v-img" placeholder="Thumbnail Link" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold">
-                <input type="text" id="v-link" placeholder="Doodstream Link" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold">
-                <button onclick="addVideo()" class="w-full bg-violet-600 text-white py-4 rounded-2xl font-black">Publish Video</button>
+    <div class="max-w-6xl mx-auto">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
+            <div>
+                <h1 class="text-3xl font-extrabold gradient-text leading-none">ELITE DASHBOARD PRO</h1>
+                <p class="text-slate-500 text-[10px] font-bold tracking-[0.2em] uppercase mt-2">Mim Premium - Ultimate Control</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="toggleSettings()" class="glass p-3 rounded-2xl text-violet-400 hover:bg-violet-500/10 transition-all">
+                    <i data-lucide="settings"></i>
+                </button>
+                <div class="glass px-4 py-2 rounded-2xl flex items-center gap-3">
+                    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    <span class="text-[10px] font-bold text-slate-300 uppercase">System Online</span>
+                </div>
             </div>
         </div>
 
-        <div class="bg-white p-6 rounded-[35px] shadow-sm mb-6 border">
-            <h2 class="font-black mb-4">Manage Videos (Delete)</h2>
-            <div id="admin-video-list" class="space-y-2"></div>
-        </div>
-
-        <div class="bg-white p-6 rounded-[35px] shadow-sm mb-6 border-2">
-            <h2 class="font-black mb-4">Add Social Task</h2>
-            <div class="grid grid-cols-3 gap-3">
-                <input type="text" id="s-name" placeholder="Name" class="p-4 bg-slate-50 rounded-xl outline-none font-bold">
-                <input type="text" id="s-link" placeholder="URL" class="p-4 bg-slate-50 rounded-xl outline-none font-bold">
-                <input type="number" id="s-reward" placeholder="৳" class="p-4 bg-slate-50 rounded-xl outline-none font-bold">
+        <div id="settings-panel" class="hidden mb-10 glass p-8 rounded-[2.5rem] border-t border-blue-500/30">
+            <h2 class="text-lg font-extrabold mb-6 flex items-center gap-3 text-blue-400">
+                <i data-lucide="bell"></i> APP ANNOUNCEMENT (NOTICE)
+            </h2>
+            <div class="flex gap-4">
+                <input id="app-notice" type="text" placeholder="Enter notice text here..." class="input-box flex-1 p-4 rounded-2xl outline-none text-sm font-bold">
+                <button onclick="updateNotice()" class="bg-blue-600 px-8 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-700">Update</button>
             </div>
-            <button onclick="addSocial()" class="mt-4 w-full bg-blue-600 text-white py-4 rounded-2xl font-black">Add Task</button>
         </div>
 
-        <div class="bg-white p-6 rounded-[35px] shadow-sm mb-6 border">
-            <h2 class="font-black mb-4">Manage Social Tasks (Delete)</h2>
-            <div id="admin-social-list" class="space-y-2"></div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+            <div class="glass p-5 rounded-[2rem]">
+                <p class="text-slate-400 text-[10px] font-bold uppercase mb-1 italic">Total Users</p>
+                <h3 id="stat-users" class="text-2xl font-black text-white">0</h3>
+            </div>
+            <div class="glass p-5 rounded-[2rem]">
+                <p class="text-slate-400 text-[10px] font-bold uppercase mb-1 italic">Pending Pay</p>
+                <h3 id="stat-withdraw" class="text-2xl font-black text-pink-500">0</h3>
+            </div>
+            <div class="glass p-5 rounded-[2rem]">
+                <p class="text-slate-400 text-[10px] font-bold uppercase mb-1 italic">Live Content</p>
+                <h3 id="stat-tasks" class="text-2xl font-black text-violet-400">0</h3>
+            </div>
+            <div class="glass p-5 rounded-[2rem]">
+                <p class="text-slate-400 text-[10px] font-bold uppercase mb-1 italic">Cheaters Log</p>
+                <h3 id="stat-cheaters" class="text-2xl font-black text-red-500">0</h3>
+            </div>
         </div>
 
-        <div class="bg-white p-6 rounded-[35px] shadow-sm border">
-            <h2 class="font-black mb-4">Withdrawal Requests</h2>
-            <div id="request-list" class="space-y-4 font-bold"></div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <div class="lg:col-span-5 space-y-6">
+                <div class="glass p-8 rounded-[2.5rem] border-t border-violet-500/30">
+                    <h2 class="text-lg font-extrabold mb-6 flex items-center gap-3 italic text-violet-400">
+                        <i data-lucide="plus-circle"></i> ADD CONTENT
+                    </h2>
+                    <div class="space-y-4">
+                        <input id="adm-title" type="text" placeholder="Title (e.g. Video 01)" class="input-box w-full p-4 rounded-2xl outline-none text-sm font-bold">
+                        <input id="adm-url" type="text" placeholder="Link / URL" class="input-box w-full p-4 rounded-2xl outline-none text-sm font-bold">
+                        <input id="adm-thumb" type="text" placeholder="Thumbnail URL (Image Link)" class="input-box w-full p-4 rounded-2xl outline-none text-sm font-bold">
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <select id="adm-type" class="input-box w-full p-4 rounded-2xl outline-none text-sm font-bold">
+                                <option value="tasks">Video Page</option>
+                                <option value="social_tasks">Social Task</option>
+                            </select>
+                            <input id="adm-reward" type="number" value="5" placeholder="Reward" class="input-box w-full p-4 rounded-2xl outline-none text-sm font-bold">
+                        </div>
+                        <button onclick="addContent()" class="w-full btn-primary py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg active:scale-95">Publish to App</button>
+                    </div>
+                </div>
+
+                <div class="glass p-8 rounded-[2.5rem] border-t border-green-500/30">
+                    <h2 class="text-lg font-extrabold mb-6 flex items-center gap-3 italic text-green-400">
+                        <i data-lucide="user-plus"></i> BALANCE MODIFIER
+                    </h2>
+                    <div class="space-y-4">
+                        <input id="edit-uid" type="text" placeholder="TG-User ID (TG-0000)" class="input-box w-full p-4 rounded-2xl outline-none text-sm font-bold">
+                        <input id="edit-amt" type="number" placeholder="Set Amount" class="input-box w-full p-4 rounded-2xl outline-none text-sm font-bold">
+                        <button onclick="updateBalance()" class="w-full bg-green-600/20 text-green-400 border border-green-500/30 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-green-600 hover:text-white transition-all">Apply Balance</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-7 space-y-8">
+                
+                <div class="glass p-8 rounded-[2.5rem]">
+                    <h2 class="text-lg font-extrabold mb-6 flex items-center gap-3 italic text-pink-500">
+                        <i data-lucide="wallet"></i> WITHDRAWAL REQUESTS
+                    </h2>
+                    <div id="adm-withdraw-list" class="space-y-4 max-h-[350px] overflow-y-auto pr-2"></div>
+                </div>
+
+                <div class="glass p-8 rounded-[2.5rem]">
+                    <h2 class="text-lg font-extrabold mb-6 flex items-center gap-3 italic text-blue-400">
+                        <i data-lucide="layout"></i> MANAGE APP CONTENT
+                    </h2>
+                    <div id="adm-manage-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[350px] overflow-y-auto pr-2"></div>
+                </div>
+
+                <div class="glass p-8 rounded-[2.5rem] border border-red-500/10">
+                    <h2 class="text-lg font-extrabold mb-6 flex items-center gap-3 italic text-red-500">
+                        <i data-lucide="shield-off"></i> CHEATER ALERT LOGS
+                    </h2>
+                    <div id="adm-cheater-list" class="space-y-3 max-h-[200px] overflow-y-auto pr-2"></div>
+                </div>
+
+            </div>
         </div>
     </div>
 
     <script>
-        const firebaseConfig = { apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150", authDomain: "mini-app-link.firebaseapp.com", databaseURL: "https://mini-app-link-default-rtdb.firebaseio.com", projectId: "mini-app-link", storageBucket: "mini-app-link.firebasestorage.app", messagingSenderId: "608662003617", appId: "1:608662003617:web:681a069935bc118d5bb5e0" };
-        firebase.initializeApp(firebaseConfig); const db = firebase.database();
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150", 
+            databaseURL: "https://mini-app-link-default-rtdb.firebaseio.com" 
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        function addVideo() {
-            const title = document.getElementById('v-title').value;
-            const image = document.getElementById('v-img').value;
-            const link = document.getElementById('v-link').value;
-            if(title && image && link) db.ref('tasks').push({ title, image, link });
-            alert("Added!");
+        // Settings Toggle
+        function toggleSettings() {
+            const panel = document.getElementById('settings-panel');
+            panel.classList.toggle('hidden');
         }
 
-        function addSocial() {
-            const name = document.getElementById('s-name').value;
-            const link = document.getElementById('s-link').value;
-            const reward = document.getElementById('s-reward').value;
-            if(name && link && reward) db.ref('social_tasks').push({ name, link, reward });
-            alert("Added!");
+        // Notice System
+        function updateNotice() {
+            const txt = document.getElementById('app-notice').value;
+            db.ref('notice').set(txt).then(() => alert("Notice Updated Successfully!"));
         }
 
-        // Fetch & Show Videos with Delete
-        db.ref('tasks').on('value', snap => {
-            const list = document.getElementById('admin-video-list'); list.innerHTML = "";
-            snap.forEach(child => {
-                list.innerHTML += `<div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border">
-                    <span class="text-xs font-black">${child.val().title}</span>
-                    <button onclick="db.ref('tasks/${child.key}').remove()" class="text-red-500"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
-                </div>`;
-            });
-            lucide.createIcons();
-        });
+        // Add Content with Thumbnail
+        function addContent() {
+            const title = document.getElementById('adm-title').value;
+            const url = document.getElementById('adm-url').value;
+            const thumb = document.getElementById('adm-thumb').value;
+            const type = document.getElementById('adm-type').value;
+            const reward = document.getElementById('adm-reward').value;
+            
+            if(!title || !url) return alert("Title and URL are required!");
 
-        // Fetch & Show Social Tasks with Delete
-        db.ref('social_tasks').on('value', snap => {
-            const list = document.getElementById('admin-social-list'); list.innerHTML = "";
-            snap.forEach(child => {
-                list.innerHTML += `<div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border">
-                    <span class="text-xs font-black">${child.val().name}</span>
-                    <button onclick="db.ref('social_tasks/${child.key}').remove()" class="text-red-500"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
-                </div>`;
+            const payload = { 
+                title, 
+                name: title, 
+                url, 
+                link: url, 
+                image: thumb || "https://cdn-icons-png.flaticon.com/512/1179/1179069.png", 
+                reward: parseFloat(reward) 
+            };
+            
+            db.ref(type).push(payload).then(() => {
+                alert("Published Successfully!");
+                document.getElementById('adm-title').value = "";
+                document.getElementById('adm-url').value = "";
+                document.getElementById('adm-thumb').value = "";
             });
-            lucide.createIcons();
-        });
+        }
 
+        function updateBalance() {
+            const uid = document.getElementById('edit-uid').value;
+            const amt = document.getElementById('edit-amt').value;
+            if(!uid || !amt) return alert("Fill ID and Amount!");
+            db.ref('user_activity/' + uid).update({ balance: parseFloat(amt) })
+            .then(() => alert("User balance updated!"));
+        }
+
+        db.ref('user_activity').on('value', s => document.getElementById('stat-users').innerText = s.numChildren());
+        db.ref('cheaters').on('value', s => document.getElementById('stat-cheaters').innerText = s.numChildren());
+        
         db.ref('withdrawals').on('value', snap => {
-            const list = document.getElementById('request-list'); list.innerHTML = "";
+            const list = document.getElementById('adm-withdraw-list');
+            list.innerHTML = "";
+            document.getElementById('stat-withdraw').innerText = snap.numChildren();
             snap.forEach(child => {
-                const req = child.val();
-                list.innerHTML += `<div class="p-4 border rounded-2xl bg-slate-50 flex justify-between items-center">
-                    <div><p class="text-violet-600 uppercase text-[10px]">User: ${req.userId}</p><p class="text-sm">৳${req.amount} | To: ${req.number}</p></div>
-                    <button onclick="db.ref('withdrawals/${child.key}').remove()" class="bg-red-500 text-white px-4 py-2 rounded-lg text-xs">Clear</button>
+                const w = child.val();
+                list.innerHTML += `
+                    <div class="flex items-center justify-between p-4 bg-slate-900/40 rounded-2xl border border-white/5">
+                        <div>
+                            <p class="text-xs font-black">৳${w.amount} → ${w.number}</p>
+                            <p class="text-[8px] text-slate-500 font-bold uppercase select-all">${w.userId}</p>
+                        </div>
+                        <button onclick="confirmPay('${child.key}')" class="text-green-500 font-black text-[10px] uppercase hover:bg-green-500/10 px-3 py-2 rounded-lg transition-all">Paid</button>
+                    </div>`;
+            });
+            lucide.createIcons();
+        });
+
+        function syncManager() {
+            const list = document.getElementById('adm-manage-list');
+            db.ref('tasks').on('value', s1 => {
+                list.innerHTML = "";
+                s1.forEach(c => renderRow(list, c.val().title, 'tasks/'+c.key, 'Video'));
+                db.ref('social_tasks').on('value', s2 => {
+                    s2.forEach(c => renderRow(list, c.val().name, 'social_tasks/'+c.key, 'Social'));
+                    document.getElementById('stat-tasks').innerText = (s1.numChildren() + s2.numChildren());
+                });
+            });
+        }
+
+        function renderRow(container, title, path, tag) {
+            container.innerHTML += `
+                <div class="p-4 bg-slate-900/30 rounded-2xl border border-white/5 flex flex-col gap-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[7px] text-violet-400 font-bold uppercase px-2 py-0.5 bg-violet-400/10 rounded-full">${tag}</span>
+                        <button onclick="removeItem('${path}')" class="p-1.5 hover:bg-red-500/10 rounded-lg text-red-400 transition-all"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                    </div>
+                    <p class="text-[10px] font-bold truncate">${title}</p>
+                </div>`;
+            lucide.createIcons();
+        }
+
+        db.ref('cheaters').on('value', snap => {
+            const list = document.getElementById('adm-cheater-list');
+            list.innerHTML = "";
+            snap.forEach(c => {
+                list.innerHTML += `<div class="p-3 bg-red-500/5 rounded-xl border border-red-500/10 text-[9px] flex justify-between items-center">
+                    <span class="truncate">${c.val().name} | ${c.key}</span>
+                    <button onclick="removeItem('cheaters/${c.key}')" class="text-red-400 font-bold uppercase text-[8px] ml-2">Clear</button>
                 </div>`;
             });
         });
+
+        function confirmPay(id) { if(confirm("Mark as Paid and remove from list?")) db.ref('withdrawals/'+id).remove(); }
+        function removeItem(path) { if(confirm("Confirm Delete?")) db.ref(path).remove(); }
+
+        syncManager();
         lucide.createIcons();
     </script>
 </body>
-</html>
+                    </html>
