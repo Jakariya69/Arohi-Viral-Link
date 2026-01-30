@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mim Premium - Complete Final</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mim Premium - Official</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
@@ -13,241 +14,290 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;700;900&display=swap');
-        body { font-family: 'Urbanist', sans-serif; background: #f8fafc; user-select: none; margin: 0; }
-        .sub-page { display: none; padding-bottom: 100px; }
+        body { font-family: 'Urbanist', sans-serif; background: #f8fafc; user-select: none; margin: 0; overflow-x: hidden; }
+        .sub-page { display: none; padding-bottom: 110px; }
         .sub-page.active { display: block; }
-        nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: white; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; z-index: 1000; }
-        .nav-btn { color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 9px; font-weight: 800; }
+        nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: white; display: flex; border-top: 1px solid #f1f5f9; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-btn { color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 10px; font-weight: 800; gap: 4px; border: none; background: none; flex: 1; }
         .nav-active { color: #7c3aed; }
-        .header-profile { width: 40px; height: 40px; background: #7c3aed; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 16px; cursor: pointer; border: 3px solid white; box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3); }
+        .video-container { position: relative; width: 100%; background: #000; border-radius: 15px; overflow: hidden; aspect-ratio: 16/9; }
+        video { width: 100%; height: 100%; }
+        #seeking-warning { display: none; position: absolute; inset: 0; background: rgba(0, 0, 0, 0.98); color: white; flex-direction: column; justify-content: center; align-items: center; z-index: 2000; text-align: center; padding: 20px; }
+        .ad-banner-container { width: 100%; display: flex; justify-content: center; margin-top: 10px; background: white; padding: 5px 0; border-radius: 10px; }
     </style>
 </head>
-<body oncontextmenu="return false;">
+<body>
 
-    <div class="bg-white p-5 sticky top-0 z-50 border-b flex justify-between items-center">
-        <div>
-            <h1 class="font-black text-violet-600 text-xl tracking-tighter">MIM PREMIUM</h1>
-            <p class="text-[9px] font-bold text-slate-400 uppercase" id="top-username">Welcome, Guest</p>
-        </div>
-        <div onclick="openProfile()" class="header-profile" id="top-p-icon">?</div>
+    <div id="notice-board" class="hidden bg-indigo-600 text-white py-1 px-4 text-[9px] font-bold text-center">
+        <marquee id="notice-text"></marquee>
     </div>
 
-    <div class="p-4 bg-white border-b">
-        <div class="grid grid-cols-2 gap-3 mb-4">
-            <div class="bg-violet-600 p-4 rounded-3xl text-white shadow-lg">
-                <p class="text-[9px] font-bold opacity-80 uppercase italic">Balance</p>
-                <p class="text-xl font-black">৳<span id="display-balance">0.00</span></p>
-            </div>
-            <div class="bg-slate-50 border p-4 rounded-3xl text-center">
-                <p class="text-[9px] font-bold text-slate-400 uppercase italic">Refers</p>
-                <p class="text-xl font-black text-slate-800"><span id="display-ref-count">0</span>/20</p>
+    <div class="bg-white/90 backdrop-blur-md p-4 sticky top-0 z-50 border-b flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <img id="u-photo" src="" class="hidden w-10 h-10 rounded-xl border-2 border-violet-600 object-cover">
+            <div id="u-initial-box" class="w-10 h-10 bg-violet-600 rounded-xl flex items-center justify-center text-white font-black">?</div>
+            <div>
+                <h1 class="font-black text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-600 text-xl italic leading-none">MIM PREMIUM</h1>
+                <p id="top-username" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Loading...</p>
             </div>
         </div>
-        <div class="relative">
-            <input type="text" id="search-bar" onkeyup="searchVideo()" placeholder="Search videos..." class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold text-sm pl-12">
-            <i data-lucide="search" class="absolute left-4 top-4 text-slate-300 w-5 h-5"></i>
+    </div>
+
+    <div class="ad-banner-container">
+        <script type="text/javascript">
+            atOptions = {'key' : '68d64b420fe4aeee18352cb08543fd7e','format' : 'iframe','height' : 50,'width' : 320,'params' : {}};
+        </script>
+        <script type="text/javascript" src="https://www.highperformanceformat.com/68d64b420fe4aeee18352cb08543fd7e/invoke.js"></script>
+    </div>
+
+    <div class="p-4 bg-white border-b flex gap-3">
+        <div class="flex-1 bg-indigo-600 p-4 rounded-2xl text-white shadow-lg">
+            <p class="text-[9px] font-bold opacity-70">BALANCE</p>
+            <p class="text-xl font-black">৳<span id="display-balance">0.00</span></p>
+        </div>
+        <div class="flex-1 bg-slate-50 border p-4 rounded-2xl text-center">
+            <p class="text-[9px] font-bold text-slate-400 uppercase">Status</p>
+            <p class="text-[11px] font-black text-slate-800"><span id="vid-watch-count">0</span>/10 Videos</p>
         </div>
     </div>
 
     <div id="pages-container" class="p-4">
         <div id="home-page" class="sub-page active">
-            <h2 class="font-black text-slate-700 mb-4">Episodes</h2>
-            <div id="episode-list" class="space-y-4"></div>
+            <div id="video-player-section" class="mb-6 hidden">
+                <div class="video-container shadow-2xl">
+                    <video id="main-video" controlsList="nodownload"></video>
+                    <div id="seeking-warning">
+                        <i data-lucide="lock" class="w-12 h-12 mb-2 text-red-500"></i>
+                        <h2 class="font-black text-lg text-red-500">VIDEO LOCKED!</h2>
+                        <p class="text-[10px] mb-4 uppercase">ভিডিও টানা নিষেধ। ৬০ সেকেন্ড অপেক্ষা করুন।</p>
+                        <div id="lock-timer" class="text-3xl font-black mb-4">60s</div>
+                        <button onclick="show_10530857()" class="bg-white text-black px-8 py-3 rounded-2xl font-black text-xs uppercase shadow-xl">Watch Ad to Unlock</button>
+                    </div>
+                </div>
+                <button onclick="closeVideo()" class="mt-2 text-slate-400 text-[10px] font-bold uppercase flex items-center gap-1"><i data-lucide="x" class="w-3 h-3"></i> Close Player</button>
+            </div>
+            <div id="episode-list" class="space-y-3"></div>
         </div>
 
         <div id="task-page" class="sub-page">
-            <h2 class="text-xl font-black mb-4">Social Tasks</h2>
-            <div id="social-tasks-container" class="space-y-3"></div>
+            <h2 class="text-center font-black text-slate-400 text-[10px] uppercase mb-4 tracking-widest text-violet-600">Complete Tasks & Earn</h2>
+            <div onclick="window.open('https://otieu.com/4/10535907', '_blank')" class="bg-fuchsia-600 p-4 rounded-2xl mb-4 text-center text-white font-black text-xs uppercase shadow-lg">
+                 🚀 Click to Get Bonus Point (AD)
+            </div>
+            <div id="social-list" class="space-y-3"></div>
         </div>
 
-        <div id="earn-page" class="sub-page">
-            <h2 class="text-xl font-black mb-4">Daily Work</h2>
-            <div class="bg-white p-10 rounded-[40px] text-center border-2 border-violet-50">
-                <h3 class="font-black text-lg">Watch Ads (৳10)</h3>
-                <p class="text-xs text-slate-400 mb-6 font-bold uppercase" id="ad-limit-text">Done: 0/50</p>
-                <button onclick="watchEarnAd()" class="w-full bg-violet-600 text-white py-5 rounded-[25px] font-black">Watch Ad</button>
-            </div>
+        <div id="leader-page" class="sub-page">
+            <h2 class="text-center font-black text-slate-400 text-[10px] uppercase mb-4 tracking-widest text-violet-600">Top 10 Referral Leaders</h2>
+            <div id="leader-list-box" class="bg-white rounded-[30px] border overflow-hidden shadow-sm"></div>
         </div>
 
         <div id="refer-page" class="sub-page">
-            <h2 class="text-xl font-black mb-4">Invite & Earn ৳30</h2>
-            <div class="bg-white p-8 rounded-[40px] border-2 border-blue-50 text-center">
-                <p class="text-xs text-slate-400 mb-6 font-bold uppercase">Invite 20 friends to withdraw</p>
-                <div class="bg-slate-50 p-4 rounded-2xl border-dashed border-2 text-[10px] font-black mb-4 truncate" id="ref-link-display">...</div>
-                <button onclick="copyRef()" class="bg-blue-600 text-white w-full py-4 rounded-2xl font-black">Copy Link</button>
+            <div class="bg-blue-600 p-8 rounded-[30px] text-center text-white shadow-xl">
+                <p class="font-black text-4xl mb-1">৳30</p>
+                <p class="text-[10px] opacity-80 mb-6 uppercase">Per Referral</p>
+                <div id="ref-link-display" class="bg-black/20 p-4 rounded-xl text-[9px] font-mono mb-4 break-all select-all">Loading...</div>
+                <button onclick="copyRef()" class="w-full bg-white text-blue-700 py-4 rounded-2xl font-black text-xs uppercase">Copy Link</button>
+                <p class="mt-4 text-[9px] font-bold opacity-60">Total Refer: <span id="display-ref-count">0</span>/20</p>
             </div>
         </div>
 
         <div id="profile-page" class="sub-page">
-            <h2 class="text-xl font-black mb-4">Profile Settings</h2>
-            <div class="bg-white p-6 rounded-[35px] border shadow-sm mb-6">
-                <label class="text-[10px] font-black text-slate-400 uppercase">Telegram / Name</label>
-                <div class="flex gap-2 mt-1 mb-4">
-                    <input type="text" id="user-name-input" placeholder="@username" class="flex-1 p-3 bg-slate-50 rounded-xl outline-none font-bold text-sm border">
-                    <button onclick="saveName()" class="bg-violet-600 text-white px-4 rounded-xl font-bold text-xs">Save</button>
+            <div class="bg-white p-6 rounded-[30px] border">
+                <h3 class="font-black text-slate-800 text-sm mb-4 uppercase italic">Withdraw Balance</h3>
+                <div id="ref-warning" class="bg-red-50 p-4 rounded-2xl mb-4 text-red-600 text-[10px] font-black uppercase">
+                    🔒 LOCK: Need 20 Refers & 10 Videos Watched.
                 </div>
-                <p class="text-[10px] font-black text-slate-400 uppercase">User ID: <span id="p-uid">...</span></p>
+                <input type="number" id="w-amt" placeholder="Amount (Min 500)" class="w-full p-4 bg-slate-50 rounded-2xl mb-3 outline-none font-bold">
+                <input type="number" id="w-num" placeholder="Bkash/Nagad Number" class="w-full p-4 bg-slate-50 rounded-2xl mb-4 outline-none font-bold">
+                <button id="withdraw-btn" onclick="handleWithdraw()" class="w-full bg-slate-200 text-slate-400 py-4 rounded-2xl font-black uppercase disabled" disabled>Withdraw Locked</button>
             </div>
-
-            <div class="bg-white p-6 rounded-[35px] border shadow-sm">
-                <h3 class="font-black mb-2">Withdrawal</h3>
-                <p id="ref-warning" class="text-red-500 text-[10px] font-bold mb-4 uppercase italic">⚠️ 20 Refers Required!</p>
-                <input type="number" id="w-num" placeholder="Bkash/Nagad Number" class="w-full p-4 bg-slate-50 rounded-2xl mb-2 outline-none font-bold">
-                <input type="number" id="w-amt" placeholder="Amount (Min 500)" class="w-full p-4 bg-slate-50 rounded-2xl mb-4 outline-none font-bold">
-                <button id="withdraw-btn" onclick="handleWithdraw()" class="w-full bg-slate-300 text-white py-5 rounded-[25px] font-black cursor-not-allowed">Locked</button>
-            </div>
+            <button onclick="window.open('https://www.effectivegatecpm.com/gvba3wxs5?key=d80de39c9032cf5e382f716cf561e240', '_blank')" class="w-full mt-4 text-[9px] font-bold text-slate-400 uppercase">Privacy Policy & Support</button>
         </div>
     </div>
 
     <nav>
-        <button id="nav-home" onclick="changePage('home-page', this)" class="nav-btn nav-active"><i data-lucide="home"></i>Home</button>
-        <button id="nav-task" onclick="changePage('task-page', this)" class="nav-btn"><i data-lucide="list"></i>Task</button>
-        <button id="nav-earn" onclick="changePage('earn-page', this)" class="nav-btn"><i data-lucide="zap"></i>Earn</button>
-        <button id="nav-refer" onclick="changePage('refer-page', this)" class="nav-btn"><i data-lucide="users"></i>Refer</button>
-        <button id="nav-profile" onclick="changePage('profile-page', this)" class="nav-btn"><i data-lucide="user"></i>Profile</button>
+        <button onclick="changePage('home-page', this)" class="nav-btn nav-active"><i data-lucide="play"></i>Videos</button>
+        <button onclick="changePage('task-page', this)" class="nav-btn"><i data-lucide="globe"></i>Tasks</button>
+        <button onclick="changePage('leader-page', this)" class="nav-btn"><i data-lucide="trophy"></i>Leaders</button>
+        <button onclick="changePage('refer-page', this)" class="nav-btn"><i data-lucide="users"></i>Refer</button>
+        <button onclick="changePage('profile-page', this)" class="nav-btn"><i data-lucide="wallet"></i>Wallet</button>
     </nav>
 
     <script>
-        const firebaseConfig = { apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150", authDomain: "mini-app-link.firebaseapp.com", databaseURL: "https://mini-app-link-default-rtdb.firebaseio.com", projectId: "mini-app-link", storageBucket: "mini-app-link.firebasestorage.app", messagingSenderId: "608662003617", appId: "1:608662003617:web:681a069935bc118d5bb5e0" };
-        firebase.initializeApp(firebaseConfig); const db = firebase.database();
+        const tg = window.Telegram.WebApp; tg.expand();
+        const firebaseConfig = { apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150", databaseURL: "https://mini-app-link-default-rtdb.firebaseio.com" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        let userId = localStorage.getItem('mim_user_id') || "ID" + Math.floor(1000 + Math.random() * 9999);
-        localStorage.setItem('mim_user_id', userId);
-        
-        let balance = parseFloat(localStorage.getItem('mim_bal')) || 0;
-        let adsDone = parseInt(localStorage.getItem('mim_ads')) || 0;
-        let refCount = parseInt(localStorage.getItem('mim_ref_count')) || 0;
-        let userName = localStorage.getItem('mim_user_name') || "Guest";
+        const user = tg.initDataUnsafe?.user || { id: "0000", first_name: "Guest" };
+        const userId = "TG-" + user.id;
+        let userData = { balance: 0, refCount: 0, videosWatched: 0 };
         let adCounter = {};
+        let lastTime = 0;
+        let isLocked = false;
 
-        // Referral System Logic
-        const urlParams = new URLSearchParams(window.location.search);
-        const refBy = urlParams.get('ref');
-        if(refBy && refBy !== userId && !localStorage.getItem('ref_done')) {
-            db.ref('user_activity/' + refBy).transaction(data => {
-                if(data) {
-                    data.balance = (data.balance || 0) + 30;
-                    data.refCount = (data.refCount || 0) + 1;
+        function init() {
+            // Profile Sync
+            document.getElementById('top-username').innerText = user.first_name + (user.username ? " (@" + user.username + ")" : "");
+            if(user.photo_url) {
+                document.getElementById('u-photo').src = user.photo_url;
+                document.getElementById('u-photo').classList.remove('hidden');
+                document.getElementById('u-initial-box').classList.add('hidden');
+            } else { document.getElementById('u-initial-box').innerText = user.first_name[0]; }
+
+            // Notice Sync
+            db.ref('notice').on('value', s => {
+                if(s.val()) {
+                    document.getElementById('notice-board').classList.remove('hidden');
+                    document.getElementById('notice-text').innerText = s.val();
                 }
-                return data;
             });
-            localStorage.setItem('ref_done', 'true');
+
+            // User Data Sync
+            db.ref('user_activity/' + userId).on('value', snap => {
+                userData = snap.val() || { balance: 0, refCount: 0, videosWatched: 0, name: user.first_name };
+                if(!snap.exists()) db.ref('user_activity/'+userId).set({...userData, username: user.username || ""});
+                updateUI();
+            });
+
+            loadContent(); loadLeaderboard();
+            
+            // Video Security
+            const v = document.getElementById('main-video');
+            v.ontimeupdate = () => {
+                if (!isLocked && !v.seeking && (v.currentTime > lastTime + 2.1)) {
+                    v.pause(); triggerBlock();
+                } else if (!v.seeking) { lastTime = v.currentTime; }
+            };
+            v.onended = () => {
+                db.ref('user_activity/' + userId).update({ 
+                    videosWatched: (userData.videosWatched || 0) + 1,
+                    balance: (userData.balance || 0) + 5
+                });
+                tg.showAlert("Video Completed! ৳5 Added.");
+            };
+        }
+
+        function triggerBlock() {
+            isLocked = true;
+            document.getElementById('seeking-warning').style.display = "flex";
+            let timeLeft = 60;
+            const timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('lock-timer').innerText = timeLeft + "s";
+                if(timeLeft <= 0) {
+                    clearInterval(timer); isLocked = false;
+                    document.getElementById('seeking-warning').style.display = "none";
+                    document.getElementById('main-video').currentTime = lastTime;
+                }
+            }, 1000);
+            db.ref('cheaters/'+userId).set({ name: user.first_name, time: new Date().toLocaleString() });
         }
 
         function updateUI() {
-            document.getElementById('display-balance').innerText = balance.toFixed(2);
-            document.getElementById('display-ref-count').innerText = refCount;
-            document.getElementById('ad-limit-text').innerText = "Done: " + adsDone + "/50";
-            document.getElementById('top-username').innerText = "Welcome, " + userName;
-            document.getElementById('top-p-icon').innerText = userName.charAt(0).toUpperCase();
-            document.getElementById('p-uid').innerText = userId;
-            document.getElementById('ref-link-display').innerText = window.location.origin + window.location.pathname + "?ref=" + userId;
-
-            // Withdrawal Lock Logic
+            document.getElementById('display-balance').innerText = (userData.balance || 0).toFixed(2);
+            document.getElementById('display-ref-count').innerText = userData.refCount || 0;
+            document.getElementById('vid-watch-count').innerText = userData.videosWatched || 0;
+            document.getElementById('ref-link-display').innerText = `https://t.me/arohimimvirallinkjk_bot?start=${user.id}`;
             const wBtn = document.getElementById('withdraw-btn');
-            const wWarn = document.getElementById('ref-warning');
-            if(refCount >= 20) {
-                wBtn.classList.replace('bg-slate-300', 'bg-slate-900');
-                wBtn.innerText = "Submit Request";
-                wBtn.style.cursor = "pointer";
-                wWarn.style.display = "none";
-            }
-
-            localStorage.setItem('mim_bal', balance);
-            localStorage.setItem('mim_ads', adsDone);
-            localStorage.setItem('mim_ref_count', refCount);
-            db.ref('user_activity/' + userId).update({ balance, adsDone, refCount, name: userName });
-        }
-
-        // Live Data Sync for Refers
-        db.ref('user_activity/' + userId).on('value', snap => {
-            if(snap.exists()) {
-                const data = snap.val();
-                balance = data.balance || 0;
-                refCount = data.refCount || 0;
-                updateUI();
-            }
-        });
-
-        function watchEarnAd() {
-            if(adsDone >= 50) return alert("Limit 50 reached!");
-            if(typeof show_10530857 === 'function') {
-                show_10530857().then(() => { adsDone++; balance += 10; updateUI(); });
+            if(userData.refCount >= 20 && (userData.videosWatched || 0) >= 10) {
+                wBtn.disabled = false; wBtn.className = "w-full bg-violet-600 text-white py-4 rounded-2xl font-black uppercase shadow-lg";
+                wBtn.innerText = "Send Request";
+                document.getElementById('ref-warning').classList.add('hidden');
             }
         }
 
-        function saveName() {
-            const val = document.getElementById('user-name-input').value.trim();
-            if(val) { userName = val; localStorage.setItem('mim_user_name', val); updateUI(); alert("Saved!"); }
-        }
-
-        function handleWithdraw() {
-            if(refCount < 20) return alert("You need 20 refers first!");
-            const amt = document.getElementById('w-amt').value;
-            if(amt < 500 || balance < amt) return alert("Check balance (Min 500)");
-            db.ref('withdrawals').push({ userId, name: userName, number: document.getElementById('w-num').value, amount: amt, ref: refCount });
-            balance -= amt; updateUI(); alert("Request Sent!");
-        }
-
-        db.ref('tasks').on('value', snap => {
-            const list = document.getElementById('episode-list'); list.innerHTML = "";
-            snap.forEach(child => {
-                const item = child.val(); const id = child.key;
-                if(!adCounter[id]) adCounter[id] = 0;
-                list.innerHTML += `
-                <div class="video-card bg-white p-3 rounded-[35px] shadow-sm flex gap-4 items-center border">
-                    <img src="${item.image}" class="w-24 h-20 rounded-2xl object-cover">
-                    <div class="flex-1">
-                        <h3 class="font-black text-xs text-slate-800 mb-2">${item.title}</h3>
-                        <button id="btn-${id}" onclick="unlockProcess('${id}', '${item.link}')" class="bg-slate-900 text-white w-full py-2.5 rounded-xl text-[10px] font-black uppercase">Unlock (${adCounter[id]}/5)</button>
-                    </div>
-                </div>`;
-            });
-            lucide.createIcons();
-        });
-
-        function unlockProcess(id, link) {
-            if(typeof show_10530857 === 'function') {
-                show_10530857().then(() => {
-                    adCounter[id]++;
-                    if(adCounter[id] >= 5) {
-                        const btn = document.getElementById(`btn-${id}`);
-                        btn.innerText = "Play Episode"; btn.classList.replace('bg-slate-900', 'bg-green-600');
-                        btn.setAttribute('onclick', `window.location.href='${link}'`);
-                    } else {
-                        document.getElementById(`btn-${id}`).innerText = `Unlock (${adCounter[id]}/5)`;
-                    }
+        function loadLeaderboard() {
+            db.ref('user_activity').orderByChild('refCount').limitToLast(10).on('value', s => {
+                const box = document.getElementById('leader-list-box'); box.innerHTML = "";
+                let arr = []; s.forEach(c => arr.push(c.val()));
+                arr.reverse().forEach((u, i) => {
+                    box.innerHTML += `<div class="p-4 flex justify-between border-b last:border-0 items-center">
+                        <span class="text-xs font-black text-slate-300">#${i+1}</span>
+                        <span class="flex-1 ml-4 text-[11px] font-bold text-slate-700">${u.name}</span>
+                        <span class="bg-violet-50 text-violet-600 px-3 py-1 rounded-full text-[9px] font-black">${u.refCount || 0} Ref</span>
+                    </div>`;
                 });
+            });
+        }
+
+        function loadContent() {
+            db.ref('tasks').on('value', snap => {
+                const list = document.getElementById('episode-list'); list.innerHTML = "";
+                snap.forEach(child => {
+                    const v = child.val(); const k = child.key;
+                    if(!adCounter[k]) adCounter[k] = 0;
+                    list.innerHTML += `
+                    <div class="bg-white p-3 rounded-2xl flex items-center gap-3 border shadow-sm">
+                        <img src="${v.image || 'https://via.placeholder.com/150'}" class="w-16 h-12 rounded-lg object-cover">
+                        <div class="flex-1">
+                            <h4 class="text-[10px] font-black text-slate-800 uppercase">${v.title}</h4>
+                            <button onclick="unlockStep('${k}', '${v.url}')" class="mt-1 w-full bg-indigo-50 text-indigo-600 py-1.5 rounded-lg text-[9px] font-black uppercase">
+                                ${adCounter[k] >= 5 ? 'Play Now' : 'Unlock ('+adCounter[k]+'/5 Ads)'}
+                            </button>
+                        </div>
+                    </div>`;
+                });
+            });
+
+            db.ref('social_tasks').on('value', snap => {
+                const list = document.getElementById('social-list'); list.innerHTML = "";
+                snap.forEach(child => {
+                    const t = child.val();
+                    list.innerHTML += `
+                    <div class="bg-white p-4 rounded-2xl flex justify-between items-center border">
+                        <div>
+                            <p class="text-[10px] font-black text-slate-800 uppercase">${t.name}</p>
+                            <p class="text-[9px] text-green-500 font-bold">Reward: ৳${t.reward || 0}</p>
+                        </div>
+                        <button onclick="doSocialTask('${child.key}', '${t.link}', ${t.reward})" class="bg-slate-900 text-white px-5 py-2 rounded-xl text-[10px] font-black uppercase">Visit</button>
+                    </div>`;
+                });
+            });
+        }
+
+        function unlockStep(k, url) {
+            if (adCounter[k] < 5) {
+                if (typeof show_10530857 === 'function') {
+                    show_10530857().then(() => { adCounter[k]++; loadContent(); });
+                } else { adCounter[k]++; loadContent(); }
+            } else {
+                window.open('https://otieu.com/4/10535907', '_blank');
+                document.getElementById('video-player-section').classList.remove('hidden');
+                const v = document.getElementById('main-video'); v.src = url; v.play();
+                window.scrollTo({top: 0, behavior: 'smooth'});
             }
         }
 
-        function copyRef() { navigator.clipboard.writeText(document.getElementById('ref-link-display').innerText); alert("Copied!"); }
-        function openProfile() { changePage('profile-page', document.getElementById('nav-profile')); }
-        function searchVideo() {
-            let filter = document.getElementById('search-bar').value.toUpperCase();
-            document.querySelectorAll('.video-card').forEach(card => {
-                let txt = card.querySelector('h3').innerText;
-                card.style.display = txt.toUpperCase().includes(filter) ? "" : "none";
+        function doSocialTask(k, link, reward) {
+            window.open(link, '_blank');
+            db.ref('user_activity/'+userId).transaction(d => {
+                if(d) d.balance = (d.balance || 0) + parseFloat(reward);
+                return d;
             });
+            tg.showAlert("Task Completed!");
         }
+
+        function closeVideo() { document.getElementById('main-video').pause(); document.getElementById('video-player-section').classList.add('hidden'); lastTime = 0; }
+        
         function changePage(id, el) {
             document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
-            if(el) el.classList.add('nav-active');
-            lucide.createIcons();
+            if(el) el.classList.add('nav-active'); lucide.createIcons();
         }
 
-        db.ref('social_tasks').on('value', snap => {
-            const container = document.getElementById('social-tasks-container');
-            container.innerHTML = "";
-            snap.forEach(child => {
-                const t = child.val();
-                container.innerHTML += `<div class="bg-white p-4 rounded-3xl shadow-sm flex justify-between items-center border"><p class="font-black text-xs">${t.name}</p><button onclick="window.open('${t.link}'); balance += ${t.reward}; updateUI();" class="bg-slate-50 px-4 py-2 rounded-xl text-[10px] font-black">Visit</button></div>`;
-            });
-        });
+        function copyRef() { navigator.clipboard.writeText(document.getElementById('ref-link-display').innerText); tg.showAlert("Copied!"); }
+        
+        function handleWithdraw() {
+            const amt = document.getElementById('w-amt').value, num = document.getElementById('w-num').value;
+            if(amt < 500) return tg.showAlert("Min 500!");
+            db.ref('withdrawals').push({ userId, amount: amt, number: num, timestamp: Date.now() });
+            tg.showAlert("Request Sent!");
+        }
 
-        updateUI(); lucide.createIcons();
+        init(); lucide.createIcons();
     </script>
 </body>
-</html>
+    </html>
