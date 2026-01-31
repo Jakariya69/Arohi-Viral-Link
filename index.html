@@ -21,26 +21,47 @@
         .nav-btn { color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 10px; font-weight: 800; gap: 4px; border: none; background: none; flex: 1; }
         .nav-active { color: #7c3aed; }
         
-        /* New Full Screen Player Styles to mimic separate tab */
-        #video-player-section { 
-            position: fixed; 
-            top: 0; left: 0; right: 0; bottom: 0; 
-            background: #000; 
-            z-index: 5000; 
-            display: none; 
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center;
-        }
+        #video-player-section { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #000; z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; }
         #video-player-section.active-player { display: flex; }
         .video-container { position: relative; width: 100%; max-width: 100%; background: #000; aspect-ratio: 16/9; }
         video { width: 100%; height: 100%; object-fit: contain; }
         
         #seeking-warning { display: none; position: absolute; inset: 0; background: rgba(0, 0, 0, 0.98); color: white; flex-direction: column; justify-content: center; align-items: center; z-index: 2000; text-align: center; padding: 20px; }
-        .ad-banner-container { width: 100%; display: flex; justify-content: center; margin-top: 10px; background: white; padding: 5px 0; border-radius: 10px; }
+        .ad-banner-container { width: 100%; display: center; justify-content: center; margin-top: 10px; background: white; padding: 5px 0; border-radius: 10px; }
+        
+        .notice-content { font-size: 14px; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; }
+
+        /* 10s Timer Styles */
+        #ad-loader { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; color: white; }
+        .timer-circle { width: 60px; height: 60px; border: 4px solid #7c3aed; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Support Chat UI */
+        #chat-ui { display: none; position: fixed; inset: 0; background: #f8fafc; z-index: 6000; flex-direction: column; }
+        .chat-msg-admin { align-self: flex-start; background: #ffffff; color: #1e293b; border-radius: 15px 15px 15px 2px; padding: 12px; margin: 5px; font-size: 13px; max-width: 80%; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .chat-msg-user { align-self: flex-end; background: #7c3aed; color: white; border-radius: 15px 15px 2px 15px; padding: 12px; margin: 5px; font-size: 13px; max-width: 80%; }
     </style>
 </head>
 <body>
+
+    <div id="chat-ui">
+        <div class="bg-white p-4 border-b flex justify-between items-center shadow-sm">
+            <h2 class="font-black text-slate-800 uppercase text-sm">Official Support</h2>
+            <button onclick="closeChat()" class="p-2 bg-slate-100 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div id="chat-box" class="flex-1 overflow-y-auto p-4 flex flex-col space-y-2"></div>
+        <div class="p-4 bg-white border-t flex gap-2">
+            <input id="chat-input" type="text" placeholder="মেসেজ লিখুন..." class="flex-1 bg-slate-100 rounded-2xl p-4 text-sm outline-none font-bold">
+            <button onclick="sendMessage()" class="bg-violet-600 text-white p-4 rounded-2xl shadow-lg"><i data-lucide="send" class="w-5 h-5"></i></button>
+        </div>
+    </div>
+
+    <div id="ad-loader">
+        <div class="timer-circle mb-4"></div>
+        <h2 class="font-black text-lg uppercase">Loading Video...</h2>
+        <p class="text-[11px] text-slate-400 mt-1 uppercase">কিছুক্ষণ অপেক্ষা করেন... ভিডিও কানেক্ট হচ্ছে</p>
+        <div id="countdown-text" class="text-3xl font-black mt-4 text-violet-500">10s</div>
+    </div>
 
     <div id="video-player-section">
         <div class="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10 bg-gradient-to-b from-black/80 to-transparent">
@@ -71,8 +92,13 @@
         </div>
     </div>
 
-    <div id="notice-board" class="hidden bg-indigo-600 text-white py-1 px-4 text-[9px] font-bold text-center">
-        <marquee id="notice-text"></marquee>
+    <div id="notice-board" class="hidden bg-gradient-to-r from-indigo-700 to-violet-700 text-white py-3 px-4 shadow-lg">
+        <div class="flex items-center gap-3">
+            <div class="bg-white/20 p-1.5 rounded-lg animate-pulse">
+                <i data-lucide="megaphone" class="w-4 h-4 text-white"></i>
+            </div>
+            <marquee id="notice-text" class="notice-content"></marquee>
+        </div>
     </div>
 
     <div class="bg-white/90 backdrop-blur-md p-4 sticky top-0 z-50 border-b flex justify-between items-center">
@@ -84,6 +110,9 @@
                 <p id="top-username" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Loading...</p>
             </div>
         </div>
+        <button onclick="supportWithAd()" class="bg-violet-100 p-2 rounded-xl text-violet-600">
+            <i data-lucide="headphones" class="w-6 h-6"></i>
+        </button>
     </div>
 
     <div class="ad-banner-container">
@@ -93,25 +122,33 @@
         <script type="text/javascript" src="https://www.highperformanceformat.com/68d64b420fe4aeee18352cb08543fd7e/invoke.js"></script>
     </div>
 
-    <div class="p-4 bg-white border-b flex gap-3">
-        <div class="flex-1 bg-indigo-600 p-4 rounded-2xl text-white shadow-lg">
-            <p class="text-[9px] font-bold opacity-70">BALANCE</p>
-            <p class="text-xl font-black">৳<span id="display-balance">0.00</span></p>
-        </div>
-        <div class="flex-1 bg-slate-50 border p-4 rounded-2xl text-center">
-            <p class="text-[9px] font-bold text-slate-400 uppercase">Status</p>
-            <p class="text-[11px] font-black text-slate-800"><span id="vid-watch-count">0</span>/10 Videos</p>
-        </div>
-    </div>
-
     <div id="pages-container" class="p-4">
+        
         <div id="home-page" class="sub-page active">
+            
+            <div class="mb-4">
+                <div class="w-full aspect-video rounded-2xl overflow-hidden shadow-lg border-2 border-white">
+                    <img id="main-home-thumb" src="https://via.placeholder.com/640x360" class="w-full h-full object-cover" alt="Thumbnail">
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl border mb-4 flex gap-3">
+                <div class="flex-1 bg-indigo-600 p-4 rounded-2xl text-white shadow-lg">
+                    <p class="text-[9px] font-bold opacity-70">BALANCE</p>
+                    <p class="text-xl font-black">৳<span id="display-balance">0.00</span></p>
+                </div>
+                <div class="flex-1 bg-slate-50 border p-4 rounded-2xl text-center">
+                    <p class="text-[9px] font-bold text-slate-400 uppercase">Status</p>
+                    <p class="text-[11px] font-black text-slate-800"><span id="vid-watch-count">0</span>/10 Videos</p>
+                </div>
+            </div>
+
             <div id="episode-list" class="space-y-3"></div>
         </div>
 
         <div id="task-page" class="sub-page">
             <h2 class="text-center font-black text-slate-400 text-[10px] uppercase mb-4 tracking-widest text-violet-600">Complete Tasks & Earn</h2>
-            <div onclick="window.open('https://otieu.com/4/10535907', '_blank')" class="bg-fuchsia-600 p-4 rounded-2xl mb-4 text-center text-white font-black text-xs uppercase shadow-lg">
+            <div onclick="window.open('https://otieu.com/4/10535907', '_blank')" class="bg-fuchsia-600 p-4 rounded-2xl mb-4 text-center text-white font-black text-xs uppercase shadow-lg cursor-pointer active:scale-95 transition-all">
                  🚀 Click to Get Bonus Point (AD)
             </div>
             <div id="social-list" class="space-y-3"></div>
@@ -133,8 +170,10 @@
         </div>
 
         <div id="profile-page" class="sub-page">
-            <div class="bg-white p-6 rounded-[30px] border">
-                <h3 class="font-black text-slate-800 text-sm mb-4 uppercase italic">Withdraw Balance</h3>
+            <div class="bg-white p-6 rounded-[30px] border shadow-sm">
+                <h3 class="font-black text-slate-800 text-sm mb-4 uppercase italic flex items-center gap-2">
+                    <i data-lucide="wallet" class="w-4 h-4"></i> Withdraw Balance
+                </h3>
                 <div id="ref-warning" class="bg-red-50 p-4 rounded-2xl mb-4 text-red-600 text-[10px] font-black uppercase">
                     🔒 LOCK: Need 20 Refers & 10 Videos Watched.
                 </div>
@@ -142,7 +181,24 @@
                 <input type="number" id="w-num" placeholder="Bkash/Nagad Number" class="w-full p-4 bg-slate-50 rounded-2xl mb-4 outline-none font-bold">
                 <button id="withdraw-btn" onclick="handleWithdraw()" class="w-full bg-slate-200 text-slate-400 py-4 rounded-2xl font-black uppercase disabled" disabled>Withdraw Locked</button>
             </div>
-            <button onclick="window.open('https://www.effectivegatecpm.com/gvba3wxs5?key=d80de39c9032cf5e382f716cf561e240', '_blank')" class="w-full mt-4 text-[9px] font-bold text-slate-400 uppercase">Privacy Policy & Support</button>
+
+            <div class="mt-6 space-y-3">
+                <p class="text-[10px] font-bold text-slate-400 uppercase text-center tracking-widest">Need Help?</p>
+                <button onclick="supportWithAd()" 
+                        class="w-full bg-slate-900 text-white p-5 rounded-[25px] flex items-center justify-between shadow-xl active:scale-95 transition-all">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-violet-500/20 p-3 rounded-2xl text-violet-400">
+                            <i data-lucide="message-circle" class="w-6 h-6"></i>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-xs font-black uppercase leading-none">Official Support</p>
+                            <p class="text-[9px] font-bold opacity-60 uppercase mt-1">Contact for any issues</p>
+                        </div>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-5 h-5 opacity-40"></i>
+                </button>
+                <p class="text-center text-[9px] font-bold text-slate-400 uppercase opacity-50">Privacy Policy & Terms</p>
+            </div>
         </div>
     </div>
 
@@ -169,23 +225,37 @@
         let currentVideoKey = null;
 
         function init() {
-            // Profile Sync
-            document.getElementById('top-username').innerText = user.first_name + (user.username ? " (@" + user.username + ")" : "");
+            document.getElementById('top-username').innerText = user.first_name;
             if(user.photo_url) {
                 document.getElementById('u-photo').src = user.photo_url;
                 document.getElementById('u-photo').classList.remove('hidden');
                 document.getElementById('u-initial-box').classList.add('hidden');
             } else { document.getElementById('u-initial-box').innerText = user.first_name[0]; }
 
-            // Notice Sync
-            db.ref('notice').on('value', s => {
-                if(s.val()) {
-                    document.getElementById('notice-board').classList.remove('hidden');
-                    document.getElementById('notice-text').innerText = s.val();
-                }
+            // অ্যাডমিন থাম্বনেইল লিসেনার
+            db.ref('app_config/home_thumbnail').on('value', s => {
+                if(s.exists()) document.getElementById('main-home-thumb').src = s.val();
             });
 
-            // User Data Sync
+            // চ্যাট মেসেজ লিসেনার
+            db.ref('support_chats/' + userId).on('value', snap => {
+                const box = document.getElementById('chat-box'); box.innerHTML = "";
+                snap.forEach(m => {
+                    const data = m.val();
+                    const style = data.sender === 'admin' ? 'chat-msg-admin' : 'chat-msg-user';
+                    box.innerHTML += `<div class="${style}">${data.text}</div>`;
+                });
+                box.scrollTop = box.scrollHeight;
+            });
+
+            db.ref('notice').on('value', s => {
+                const nb = document.getElementById('notice-board');
+                if(s.exists() && s.val() !== "") {
+                    nb.classList.remove('hidden');
+                    document.getElementById('notice-text').innerText = s.val();
+                } else { nb.classList.add('hidden'); }
+            });
+
             db.ref('user_activity/' + userId).on('value', snap => {
                 userData = snap.val() || { balance: 0, refCount: 0, videosWatched: 0, name: user.first_name };
                 if(!snap.exists()) db.ref('user_activity/'+userId).set({...userData, username: user.username || ""});
@@ -194,7 +264,6 @@
 
             loadContent(); loadLeaderboard();
             
-            // Video Security
             const v = document.getElementById('main-video');
             v.ontimeupdate = () => {
                 if (!isLocked && !v.seeking && (v.currentTime > lastTime + 2.1)) {
@@ -263,7 +332,7 @@
                     <div class="bg-white p-3 rounded-2xl flex items-center gap-3 border shadow-sm">
                         <img src="${v.image || 'https://via.placeholder.com/150'}" class="w-16 h-12 rounded-lg object-cover">
                         <div class="flex-1">
-                            <h4 class="text-[10px] font-black text-slate-800 uppercase">${v.title}</h4>
+                            <h4 class="text-[11px] font-black text-slate-800 uppercase">${v.title || v.name}</h4>
                             <button onclick="unlockStep('${k}', '${v.url}')" class="mt-1 w-full bg-indigo-50 text-indigo-600 py-1.5 rounded-lg text-[9px] font-black uppercase">
                                 ${adCounter[k] >= 5 ? 'Play Now' : 'Unlock ('+adCounter[k]+'/5 Ads)'}
                             </button>
@@ -279,10 +348,10 @@
                     list.innerHTML += `
                     <div class="bg-white p-4 rounded-2xl flex justify-between items-center border">
                         <div>
-                            <p class="text-[10px] font-black text-slate-800 uppercase">${t.name}</p>
+                            <p class="text-[10px] font-black text-slate-800 uppercase">${t.name || t.title}</p>
                             <p class="text-[9px] text-green-500 font-bold">Reward: ৳${t.reward || 0}</p>
                         </div>
-                        <button onclick="doSocialTask('${child.key}', '${t.link}', ${t.reward})" class="bg-slate-900 text-white px-5 py-2 rounded-xl text-[10px] font-black uppercase">Visit</button>
+                        <button onclick="doSocialTask('${child.key}', '${t.link || t.url}', ${t.reward})" class="bg-slate-900 text-white px-5 py-2 rounded-xl text-[10px] font-black uppercase">Visit</button>
                     </div>`;
                 });
             });
@@ -294,26 +363,59 @@
                     show_10530857().then(() => { adCounter[k]++; loadContent(); });
                 } else { adCounter[k]++; loadContent(); }
             } else {
-                // Open Ad Link in New Tab
+                const loader = document.getElementById('ad-loader');
+                const countText = document.getElementById('countdown-text');
+                loader.style.display = 'flex';
                 window.open('https://otieu.com/4/10535907', '_blank');
-                
-                // Show Full Screen Player Overlay (Mimics new app/tab)
-                document.getElementById('video-player-section').classList.add('active-player');
-                const v = document.getElementById('main-video'); 
-                v.src = url; 
-                v.play();
-                
-                // Real View Count Logic
-                currentVideoKey = k;
-                const viewRef = db.ref('video_stats/' + k + '/views');
-                viewRef.transaction(currentViews => (currentViews || 0) + 1);
-                
-                viewRef.on('value', s => {
-                    document.getElementById('live-view-count').innerHTML = `<i data-lucide="eye" class="w-3 h-3"></i> <span>${s.val() || 1} views</span>`;
-                    lucide.createIcons();
-                });
+                let timeLeft = 10;
+                const timer = setInterval(() => {
+                    timeLeft--;
+                    countText.innerText = timeLeft + "s";
+                    if(timeLeft <= 0) {
+                        clearInterval(timer);
+                        loader.style.display = 'none';
+                        startVideo(k, url);
+                    }
+                }, 1000);
             }
         }
+
+        function startVideo(k, url) {
+            document.getElementById('video-player-section').classList.add('active-player');
+            const v = document.getElementById('main-video'); v.src = url; v.play();
+            currentVideoKey = k;
+            const viewRef = db.ref('video_stats/' + k + '/views');
+            viewRef.transaction(cv => (cv || 0) + 1);
+            viewRef.on('value', s => {
+                document.getElementById('live-view-count').innerHTML = `<i data-lucide="eye" class="w-3 h-3"></i> <span>${s.val() || 1} views</span>`;
+                lucide.createIcons();
+            });
+        }
+
+        function supportWithAd() {
+            if (typeof show_10530857 === 'function') {
+                show_10530857().then(() => {
+                    document.getElementById('chat-ui').style.display = 'flex';
+                });
+            } else {
+                document.getElementById('chat-ui').style.display = 'flex';
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const txt = input.value;
+            if(!txt) return;
+            db.ref('support_chats/' + userId).push({
+                sender: 'user',
+                text: txt,
+                time: Date.now(),
+                userName: user.first_name
+            });
+            input.value = "";
+        }
+
+        function closeChat() { document.getElementById('chat-ui').style.display = 'none'; }
 
         function doSocialTask(k, link, reward) {
             window.open(link, '_blank');
@@ -325,16 +427,10 @@
         }
 
         function closeVideo() { 
-            const v = document.getElementById('main-video');
-            v.pause(); 
+            const v = document.getElementById('main-video'); v.pause(); 
             document.getElementById('video-player-section').classList.remove('active-player'); 
             lastTime = 0; 
-            
-            // Turn off view listener to save bandwidth
-            if(currentVideoKey) {
-                db.ref('video_stats/' + currentVideoKey + '/views').off();
-                currentVideoKey = null;
-            }
+            if(currentVideoKey) { db.ref('video_stats/' + currentVideoKey + '/views').off(); currentVideoKey = null; }
         }
         
         function changePage(id, el) {
