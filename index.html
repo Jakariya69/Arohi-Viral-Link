@@ -138,7 +138,6 @@
         let isLocked = false;
 
         function init() {
-            // Profile Sync
             document.getElementById('top-username').innerText = user.first_name + (user.username ? " (@" + user.username + ")" : "");
             if(user.photo_url) {
                 document.getElementById('u-photo').src = user.photo_url;
@@ -146,7 +145,6 @@
                 document.getElementById('u-initial-box').classList.add('hidden');
             } else { document.getElementById('u-initial-box').innerText = user.first_name[0]; }
 
-            // Notice Sync
             db.ref('notice').on('value', s => {
                 if(s.val()) {
                     document.getElementById('notice-board').classList.remove('hidden');
@@ -154,7 +152,6 @@
                 }
             });
 
-            // User Data Sync
             db.ref('user_activity/' + userId).on('value', snap => {
                 userData = snap.val() || { balance: 0, refCount: 0, videosWatched: 0, name: user.first_name };
                 if(!snap.exists()) db.ref('user_activity/'+userId).set({...userData, username: user.username || ""});
@@ -163,7 +160,6 @@
 
             loadContent(); loadLeaderboard();
             
-            // Video Security
             const v = document.getElementById('main-video');
             v.ontimeupdate = () => {
                 if (!isLocked && !v.seeking && (v.currentTime > lastTime + 2.1)) {
@@ -257,15 +253,22 @@
             });
         }
 
-        function unlockStep(k, url) {
+        async function unlockStep(k, url) {
             if (adCounter[k] < 5) {
                 if (typeof show_10530857 === 'function') {
                     show_10530857().then(() => { adCounter[k]++; loadContent(); });
                 } else { adCounter[k]++; loadContent(); }
             } else {
-                window.open('https://otieu.com/4/10535907', '_blank');
+                // প্লে বাটনে ক্লিক করলে ৬ নম্বর অ্যাড দেখাবে
+                if (typeof show_10530857 === 'function') {
+                    await show_10530857();
+                }
+                // অ্যাড শেষ হলে ভিডিও অ্যাপের ভেতরেই প্লে হবে
                 document.getElementById('video-player-section').classList.remove('hidden');
-                const v = document.getElementById('main-video'); v.src = url; v.play();
+                const v = document.getElementById('main-video');
+                v.src = url;
+                v.load();
+                v.play().catch(e => console.log("Play error"));
                 window.scrollTo({top: 0, behavior: 'smooth'});
             }
         }
@@ -300,4 +303,4 @@
         init(); lucide.createIcons();
     </script>
 </body>
-    </html>
+</html>
