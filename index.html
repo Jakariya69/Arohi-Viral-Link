@@ -20,13 +20,56 @@
         nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: white; display: flex; border-top: 1px solid #f1f5f9; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
         .nav-btn { color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 10px; font-weight: 800; gap: 4px; border: none; background: none; flex: 1; }
         .nav-active { color: #7c3aed; }
-        .video-container { position: relative; width: 100%; background: #000; border-radius: 15px; overflow: hidden; aspect-ratio: 16/9; }
-        video { width: 100%; height: 100%; }
+        
+        /* New Full Screen Player Styles to mimic separate tab */
+        #video-player-section { 
+            position: fixed; 
+            top: 0; left: 0; right: 0; bottom: 0; 
+            background: #000; 
+            z-index: 5000; 
+            display: none; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center;
+        }
+        #video-player-section.active-player { display: flex; }
+        .video-container { position: relative; width: 100%; max-width: 100%; background: #000; aspect-ratio: 16/9; }
+        video { width: 100%; height: 100%; object-fit: contain; }
+        
         #seeking-warning { display: none; position: absolute; inset: 0; background: rgba(0, 0, 0, 0.98); color: white; flex-direction: column; justify-content: center; align-items: center; z-index: 2000; text-align: center; padding: 20px; }
         .ad-banner-container { width: 100%; display: flex; justify-content: center; margin-top: 10px; background: white; padding: 5px 0; border-radius: 10px; }
     </style>
 </head>
 <body>
+
+    <div id="video-player-section">
+        <div class="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10 bg-gradient-to-b from-black/80 to-transparent">
+            <div class="text-white">
+                <p class="text-[10px] font-bold opacity-70">Playing Now</p>
+                <div id="live-view-count" class="text-xs font-black text-red-500 flex items-center gap-1 mt-1">
+                    <i data-lucide="eye" class="w-3 h-3"></i> <span>... views</span>
+                </div>
+            </div>
+            <button onclick="closeVideo()" class="bg-white/10 p-2 rounded-full text-white backdrop-blur-sm">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <div class="video-container shadow-2xl">
+            <video id="main-video" controlsList="nodownload" playsinline></video>
+            <div id="seeking-warning">
+                <i data-lucide="lock" class="w-12 h-12 mb-2 text-red-500"></i>
+                <h2 class="font-black text-lg text-red-500">VIDEO LOCKED!</h2>
+                <p class="text-[10px] mb-4 uppercase">ভিডিও টানা নিষেধ। ৬০ সেকেন্ড অপেক্ষা করুন।</p>
+                <div id="lock-timer" class="text-3xl font-black mb-4">60s</div>
+                <button onclick="show_10530857()" class="bg-white text-black px-8 py-3 rounded-2xl font-black text-xs uppercase shadow-xl">Watch Ad to Unlock</button>
+            </div>
+        </div>
+        
+        <div class="w-full p-6 text-center">
+            <p class="text-white/50 text-[10px] uppercase tracking-widest">Don't close this tab while watching</p>
+        </div>
+    </div>
 
     <div id="notice-board" class="hidden bg-indigo-600 text-white py-1 px-4 text-[9px] font-bold text-center">
         <marquee id="notice-text"></marquee>
@@ -63,19 +106,6 @@
 
     <div id="pages-container" class="p-4">
         <div id="home-page" class="sub-page active">
-            <div id="video-player-section" class="mb-6 hidden">
-                <div class="video-container shadow-2xl">
-                    <video id="main-video" controlsList="nodownload"></video>
-                    <div id="seeking-warning">
-                        <i data-lucide="lock" class="w-12 h-12 mb-2 text-red-500"></i>
-                        <h2 class="font-black text-lg text-red-500">VIDEO LOCKED!</h2>
-                        <p class="text-[10px] mb-4 uppercase">ভিডিও টানা নিষেধ। ৬০ সেকেন্ড অপেক্ষা করুন।</p>
-                        <div id="lock-timer" class="text-3xl font-black mb-4">60s</div>
-                        <button onclick="show_10530857()" class="bg-white text-black px-8 py-3 rounded-2xl font-black text-xs uppercase shadow-xl">Watch Ad to Unlock</button>
-                    </div>
-                </div>
-                <button onclick="closeVideo()" class="mt-2 text-slate-400 text-[10px] font-bold uppercase flex items-center gap-1"><i data-lucide="x" class="w-3 h-3"></i> Close Player</button>
-            </div>
             <div id="episode-list" class="space-y-3"></div>
         </div>
 
@@ -136,8 +166,10 @@
         let adCounter = {};
         let lastTime = 0;
         let isLocked = false;
+        let currentVideoKey = null;
 
         function init() {
+            // Profile Sync
             document.getElementById('top-username').innerText = user.first_name + (user.username ? " (@" + user.username + ")" : "");
             if(user.photo_url) {
                 document.getElementById('u-photo').src = user.photo_url;
@@ -145,6 +177,7 @@
                 document.getElementById('u-initial-box').classList.add('hidden');
             } else { document.getElementById('u-initial-box').innerText = user.first_name[0]; }
 
+            // Notice Sync
             db.ref('notice').on('value', s => {
                 if(s.val()) {
                     document.getElementById('notice-board').classList.remove('hidden');
@@ -152,6 +185,7 @@
                 }
             });
 
+            // User Data Sync
             db.ref('user_activity/' + userId).on('value', snap => {
                 userData = snap.val() || { balance: 0, refCount: 0, videosWatched: 0, name: user.first_name };
                 if(!snap.exists()) db.ref('user_activity/'+userId).set({...userData, username: user.username || ""});
@@ -160,6 +194,7 @@
 
             loadContent(); loadLeaderboard();
             
+            // Video Security
             const v = document.getElementById('main-video');
             v.ontimeupdate = () => {
                 if (!isLocked && !v.seeking && (v.currentTime > lastTime + 2.1)) {
@@ -253,23 +288,30 @@
             });
         }
 
-        async function unlockStep(k, url) {
+        function unlockStep(k, url) {
             if (adCounter[k] < 5) {
                 if (typeof show_10530857 === 'function') {
                     show_10530857().then(() => { adCounter[k]++; loadContent(); });
                 } else { adCounter[k]++; loadContent(); }
             } else {
-                // প্লে বাটনে ক্লিক করলে ৬ নম্বর অ্যাড দেখাবে
-                if (typeof show_10530857 === 'function') {
-                    await show_10530857();
-                }
-                // অ্যাড শেষ হলে ভিডিও অ্যাপের ভেতরেই প্লে হবে
-                document.getElementById('video-player-section').classList.remove('hidden');
-                const v = document.getElementById('main-video');
-                v.src = url;
-                v.load();
-                v.play().catch(e => console.log("Play error"));
-                window.scrollTo({top: 0, behavior: 'smooth'});
+                // Open Ad Link in New Tab
+                window.open('https://otieu.com/4/10535907', '_blank');
+                
+                // Show Full Screen Player Overlay (Mimics new app/tab)
+                document.getElementById('video-player-section').classList.add('active-player');
+                const v = document.getElementById('main-video'); 
+                v.src = url; 
+                v.play();
+                
+                // Real View Count Logic
+                currentVideoKey = k;
+                const viewRef = db.ref('video_stats/' + k + '/views');
+                viewRef.transaction(currentViews => (currentViews || 0) + 1);
+                
+                viewRef.on('value', s => {
+                    document.getElementById('live-view-count').innerHTML = `<i data-lucide="eye" class="w-3 h-3"></i> <span>${s.val() || 1} views</span>`;
+                    lucide.createIcons();
+                });
             }
         }
 
@@ -282,7 +324,18 @@
             tg.showAlert("Task Completed!");
         }
 
-        function closeVideo() { document.getElementById('main-video').pause(); document.getElementById('video-player-section').classList.add('hidden'); lastTime = 0; }
+        function closeVideo() { 
+            const v = document.getElementById('main-video');
+            v.pause(); 
+            document.getElementById('video-player-section').classList.remove('active-player'); 
+            lastTime = 0; 
+            
+            // Turn off view listener to save bandwidth
+            if(currentVideoKey) {
+                db.ref('video_stats/' + currentVideoKey + '/views').off();
+                currentVideoKey = null;
+            }
+        }
         
         function changePage(id, el) {
             document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
