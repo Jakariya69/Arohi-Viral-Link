@@ -18,6 +18,7 @@
         .input-box { background: rgba(15, 23, 42, 0.8) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: white !important; }
         .btn-primary { background: linear-gradient(135deg, #6d28d9, #4f46e5); transition: all 0.3s ease; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -10px #4f46e5; }
+        /* Chat UI Styles */
         .msg-admin { align-self: flex-end; background: #4f46e5; color: white; border-radius: 12px 12px 2px 12px; padding: 6px 10px; font-size: 11px; margin-bottom: 4px; }
         .msg-user { align-self: flex-start; background: #1e293b; color: #cbd5e1; border-radius: 12px 12px 12px 2px; padding: 6px 10px; font-size: 11px; margin-bottom: 4px; }
     </style>
@@ -43,6 +44,7 @@
 
         <div id="settings-panel" class="hidden mb-10 glass p-8 rounded-[2.5rem] border-t border-blue-500/30">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
                 <div class="space-y-6">
                     <div>
                         <h2 class="text-lg font-extrabold mb-4 flex items-center gap-3 text-blue-400 uppercase">
@@ -82,6 +84,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
 
@@ -174,7 +177,16 @@
         function toggleSettings() { document.getElementById('settings-panel').classList.toggle('hidden'); }
         function updateNotice() { db.ref('notice').set(document.getElementById('app-notice').value).then(() => alert("Notice Updated!")); }
         function deleteNotice() { if(confirm("Delete notice?")) db.ref('notice').remove(); }
-        function updateThumb() { db.ref('app_config/home_thumbnail').set(document.getElementById('app-home-thumb').value).then(() => alert("Thumbnail Updated!")); }
+        
+        // --- Updated Update Thumb Function ---
+        function updateThumb() { 
+            const link = document.getElementById('app-home-thumb').value;
+            if(!link) return alert("Please enter a link!");
+            db.ref('app_config/home_thumbnail').set(link)
+                .then(() => alert("Thumbnail Link Updated Successfully!"))
+                .catch(err => alert("Error: " + err.message));
+        }
+        
         function deleteThumb() { if(confirm("Delete thumbnail?")) db.ref('app_config/home_thumbnail').remove(); }
 
         // Chat Support Logic
@@ -207,31 +219,13 @@
             document.getElementById('admin-msg-input').value = "";
         }
 
-        // --- Content Logic (FIXED THUMBNAIL) ---
+        // Content Logic
         function addContent() {
-            const title = document.getElementById('adm-title').value, 
-                  url = document.getElementById('adm-url').value, 
-                  thumb = document.getElementById('adm-thumb').value, 
-                  type = document.getElementById('adm-type').value, 
-                  reward = document.getElementById('adm-reward').value;
-            
+            const title = document.getElementById('adm-title').value, url = document.getElementById('adm-url').value, thumb = document.getElementById('adm-thumb').value, type = document.getElementById('adm-type').value, reward = document.getElementById('adm-reward').value;
             if(!title || !url) return alert("Required!");
-
-            const finalThumb = thumb || "https://cdn-icons-png.flaticon.com/512/1179/1179069.png";
-
-            db.ref(type).push({ 
-                title: title, 
-                name: title, 
-                url: url, 
-                link: url, 
-                image: finalThumb, 
-                thumbnail: finalThumb, // Added thumbnail key
-                reward: parseFloat(reward) 
-            }).then(() => {
+            db.ref(type).push({ title, name: title, url, link: url, image: thumb || "https://cdn-icons-png.flaticon.com/512/1179/1179069.png", reward: parseFloat(reward) }).then(() => {
                 alert("Published!");
-                document.getElementById('adm-title').value = ""; 
-                document.getElementById('adm-url').value = "";
-                document.getElementById('adm-thumb').value = "";
+                document.getElementById('adm-title').value = ""; document.getElementById('adm-url').value = "";
             });
         }
 
@@ -253,29 +247,25 @@
             lucide.createIcons();
         });
 
-        // Updated Sync Manager with Edit Thumbnail & Title
         function syncManager() {
             const list = document.getElementById('adm-manage-list');
             db.ref('tasks').on('value', s1 => {
                 list.innerHTML = "";
-                s1.forEach(c => renderRow(list, c.val(), 'tasks/'+c.key, 'Video'));
+                s1.forEach(c => renderRow(list, c.val().title, 'tasks/'+c.key, 'Video'));
                 db.ref('social_tasks').on('value', s2 => {
-                    s2.forEach(c => renderRow(list, c.val(), 'social_tasks/'+c.key, 'Social'));
+                    s2.forEach(c => renderRow(list, (c.val().name || c.val().title), 'social_tasks/'+c.key, 'Social'));
                     document.getElementById('stat-tasks').innerText = (s1.numChildren() + s2.numChildren());
                 });
             });
         }
 
-        function renderRow(container, data, path, tag) {
-            const title = data.title || data.name;
-            const thumbUrl = data.image || data.thumbnail || "";
-            
+        function renderRow(container, title, path, tag) {
             container.innerHTML += `
             <div class="p-4 bg-slate-900/30 rounded-2xl border border-white/5 flex flex-col gap-2">
                 <div class="flex justify-between items-center">
                     <span class="text-[7px] text-violet-400 font-bold uppercase px-2 py-0.5 bg-violet-400/10 rounded-full">${tag}</span>
                     <div class="flex gap-3">
-                        <button onclick="editContent('${path}', '${title}', '${thumbUrl}')" class="text-blue-400"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                        <button onclick="editTitle('${path}', '${title}')" class="text-blue-400"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
                         <button onclick="removeItem('${path}')" class="text-red-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                     </div>
                 </div>
@@ -284,16 +274,10 @@
             lucide.createIcons();
         }
 
-        function editContent(path, oldTitle, oldThumb) {
+        function editTitle(path, oldTitle) {
             const newTitle = prompt("Edit Content Title:", oldTitle);
-            const newThumb = prompt("Edit Thumbnail URL:", oldThumb);
-            
-            let updates = {};
-            if (newTitle !== null) { updates.title = newTitle; updates.name = newTitle; }
-            if (newThumb !== null) { updates.image = newThumb; updates.thumbnail = newThumb; }
-
-            if (Object.keys(updates).length > 0) {
-                db.ref(path).update(updates).then(() => alert("Updated Successfully!"));
+            if (newTitle && newTitle !== oldTitle) {
+                db.ref(path).update({ title: newTitle, name: newTitle }).then(() => alert("Title Updated!"));
             }
         }
 
