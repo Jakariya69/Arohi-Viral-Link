@@ -27,16 +27,26 @@
         video { width: 100%; height: 100%; object-fit: contain; }
         
         #seeking-warning { display: none; position: absolute; inset: 0; background: rgba(0, 0, 0, 0.98); color: white; flex-direction: column; justify-content: center; align-items: center; z-index: 2000; text-align: center; padding: 20px; }
-        .ad-banner-container { width: 100%; display: center; justify-content: center; margin-top: 10px; background: white; padding: 5px 0; border-radius: 10px; }
         
+        /* Banner Ad Container Fixed */
+        .ad-banner-container { 
+            width: 100%; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            margin-top: 10px; 
+            background: transparent; 
+            padding: 5px 0; 
+        }
+
         .notice-content { font-size: 14px; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; }
 
-        /* 10s Timer Styles */
-        #ad-loader { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; color: white; }
-        .timer-circle { width: 60px; height: 60px; border: 4px solid #7c3aed; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+        #ad-loader { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; color: white; }
+        .progress-container { width: 80%; height: 10px; background: #334155; border-radius: 20px; margin-top: 25px; overflow: hidden; border: 1px solid #475569; }
+        #progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #2563eb); box-shadow: 0 0 15px rgba(37, 99, 235, 0.5); transition: width 0.1s linear; }
+        .timer-circle { width: 60px; height: 60px; border: 4px solid #1e293b; border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Support Chat UI */
         #chat-ui { display: none; position: fixed; inset: 0; background: #f8fafc; z-index: 6000; flex-direction: column; }
         .chat-msg-admin { align-self: flex-start; background: #ffffff; color: #1e293b; border-radius: 15px 15px 15px 2px; padding: 12px; margin: 5px; font-size: 13px; max-width: 80%; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .chat-msg-user { align-self: flex-end; background: #7c3aed; color: white; border-radius: 15px 15px 2px 15px; padding: 12px; margin: 5px; font-size: 13px; max-width: 80%; }
@@ -58,9 +68,12 @@
 
     <div id="ad-loader">
         <div class="timer-circle mb-4"></div>
-        <h2 class="font-black text-lg uppercase">Loading Video...</h2>
-        <p class="text-[11px] text-slate-400 mt-1 uppercase">কিছুক্ষণ অপেক্ষা করেন... ভিডিও কানেক্ট হচ্ছে</p>
-        <div id="countdown-text" class="text-3xl font-black mt-4 text-violet-500">10s</div>
+        <h2 class="font-black text-lg uppercase">Loading Secure Video...</h2>
+        <p class="text-[11px] text-slate-400 mt-1 uppercase text-center px-6">সার্ভার থেকে ভিডিও লিঙ্ক তৈরি হচ্ছে, ১০ সেকেন্ড অপেক্ষা করুন।</p>
+        <div class="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+        <div id="countdown-text" class="text-3xl font-black mt-4 text-blue-500">10s</div>
     </div>
 
     <div id="video-player-section">
@@ -75,7 +88,6 @@
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
         </div>
-
         <div class="video-container shadow-2xl">
             <video id="main-video" controlsList="nodownload" playsinline></video>
             <div id="seeking-warning">
@@ -86,7 +98,6 @@
                 <button onclick="show_10530857()" class="bg-white text-black px-8 py-3 rounded-2xl font-black text-xs uppercase shadow-xl">Watch Ad to Unlock</button>
             </div>
         </div>
-        
         <div class="w-full p-6 text-center">
             <p class="text-white/50 text-[10px] uppercase tracking-widest">Don't close this tab while watching</p>
         </div>
@@ -116,22 +127,21 @@
     </div>
 
     <div class="ad-banner-container">
-        <script type="text/javascript">
-            atOptions = {'key' : '68d64b420fe4aeee18352cb08543fd7e','format' : 'iframe','height' : 50,'width' : 320,'params' : {}};
-        </script>
-        <script type="text/javascript" src="https://www.highperformanceformat.com/68d64b420fe4aeee18352cb08543fd7e/invoke.js"></script>
+        <div>
+            <script type="text/javascript">
+                atOptions = {'key' : '68d64b420fe4aeee18352cb08543fd7e','format' : 'iframe','height' : 50,'width' : 320,'params' : {}};
+            </script>
+            <script type="text/javascript" src="https://www.highperformanceformat.com/68d64b420fe4aeee18352cb08543fd7e/invoke.js"></script>
+        </div>
     </div>
 
     <div id="pages-container" class="p-4">
-        
         <div id="home-page" class="sub-page active">
-            
             <div class="mb-4">
                 <div class="w-full aspect-video rounded-2xl overflow-hidden shadow-lg border-2 border-white">
                     <img id="main-home-thumb" src="https://via.placeholder.com/640x360" class="w-full h-full object-cover" alt="Thumbnail">
                 </div>
             </div>
-
             <div class="bg-white p-4 rounded-2xl border mb-4 flex gap-3">
                 <div class="flex-1 bg-indigo-600 p-4 rounded-2xl text-white shadow-lg">
                     <p class="text-[9px] font-bold opacity-70">BALANCE</p>
@@ -142,13 +152,12 @@
                     <p class="text-[11px] font-black text-slate-800"><span id="vid-watch-count">0</span>/10 Videos</p>
                 </div>
             </div>
-
             <div id="episode-list" class="space-y-3"></div>
         </div>
 
         <div id="task-page" class="sub-page">
             <h2 class="text-center font-black text-slate-400 text-[10px] uppercase mb-4 tracking-widest text-violet-600">Complete Tasks & Earn</h2>
-            <div onclick="window.open('https://otieu.com/4/10535907', '_blank')" class="bg-fuchsia-600 p-4 rounded-2xl mb-4 text-center text-white font-black text-xs uppercase shadow-lg cursor-pointer active:scale-95 transition-all">
+            <div onclick="tg.openLink('https://otieu.com/4/10535907')" class="bg-fuchsia-600 p-4 rounded-2xl mb-4 text-center text-white font-black text-xs uppercase shadow-lg cursor-pointer active:scale-95 transition-all">
                  🚀 Click to Get Bonus Point (AD)
             </div>
             <div id="social-list" class="space-y-3"></div>
@@ -181,11 +190,10 @@
                 <input type="number" id="w-num" placeholder="Bkash/Nagad Number" class="w-full p-4 bg-slate-50 rounded-2xl mb-4 outline-none font-bold">
                 <button id="withdraw-btn" onclick="handleWithdraw()" class="w-full bg-slate-200 text-slate-400 py-4 rounded-2xl font-black uppercase disabled" disabled>Withdraw Locked</button>
             </div>
-
+            
             <div class="mt-6 space-y-3">
                 <p class="text-[10px] font-bold text-slate-400 uppercase text-center tracking-widest">Need Help?</p>
-                <button onclick="supportWithAd()" 
-                        class="w-full bg-slate-900 text-white p-5 rounded-[25px] flex items-center justify-between shadow-xl active:scale-95 transition-all">
+                <button onclick="supportWithAd()" class="w-full bg-slate-900 text-white p-5 rounded-[25px] flex items-center justify-between shadow-xl active:scale-95 transition-all">
                     <div class="flex items-center gap-4">
                         <div class="bg-violet-500/20 p-3 rounded-2xl text-violet-400">
                             <i data-lucide="message-circle" class="w-6 h-6"></i>
@@ -232,12 +240,10 @@
                 document.getElementById('u-initial-box').classList.add('hidden');
             } else { document.getElementById('u-initial-box').innerText = user.first_name[0]; }
 
-            // অ্যাডমিন থাম্বনেইল লিসেনার
             db.ref('app_config/home_thumbnail').on('value', s => {
                 if(s.exists()) document.getElementById('main-home-thumb').src = s.val();
             });
 
-            // চ্যাট মেসেজ লিসেনার
             db.ref('support_chats/' + userId).on('value', snap => {
                 const box = document.getElementById('chat-box'); box.innerHTML = "";
                 snap.forEach(m => {
@@ -277,6 +283,39 @@
                 });
                 tg.showAlert("Video Completed! ৳5 Added.");
             };
+        }
+
+        function unlockStep(k, url) {
+            if (adCounter[k] < 5) {
+                if (typeof show_10530857 === 'function') {
+                    show_10530857().then(() => { adCounter[k]++; loadContent(); });
+                } else { adCounter[k]++; loadContent(); }
+            } else {
+                const loader = document.getElementById('ad-loader');
+                const progressBar = document.getElementById('progress-bar');
+                const countText = document.getElementById('countdown-text');
+                
+                loader.style.display = 'flex';
+                progressBar.style.width = '0%';
+                
+                tg.openLink('https://otieu.com/4/10535907');
+                
+                let timeLeft = 10;
+                let totalTime = 10;
+                
+                const timer = setInterval(() => {
+                    timeLeft--;
+                    let progress = ((totalTime - timeLeft) / totalTime) * 100;
+                    progressBar.style.width = progress + '%';
+                    countText.innerText = timeLeft + "s";
+                    
+                    if(timeLeft <= 0) {
+                        clearInterval(timer);
+                        loader.style.display = 'none';
+                        startVideo(k, url);
+                    }
+                }, 1000);
+            }
         }
 
         function triggerBlock() {
@@ -357,29 +396,6 @@
             });
         }
 
-        function unlockStep(k, url) {
-            if (adCounter[k] < 5) {
-                if (typeof show_10530857 === 'function') {
-                    show_10530857().then(() => { adCounter[k]++; loadContent(); });
-                } else { adCounter[k]++; loadContent(); }
-            } else {
-                const loader = document.getElementById('ad-loader');
-                const countText = document.getElementById('countdown-text');
-                loader.style.display = 'flex';
-                window.open('https://otieu.com/4/10535907', '_blank');
-                let timeLeft = 10;
-                const timer = setInterval(() => {
-                    timeLeft--;
-                    countText.innerText = timeLeft + "s";
-                    if(timeLeft <= 0) {
-                        clearInterval(timer);
-                        loader.style.display = 'none';
-                        startVideo(k, url);
-                    }
-                }, 1000);
-            }
-        }
-
         function startVideo(k, url) {
             document.getElementById('video-player-section').classList.add('active-player');
             const v = document.getElementById('main-video'); v.src = url; v.play();
@@ -418,7 +434,7 @@
         function closeChat() { document.getElementById('chat-ui').style.display = 'none'; }
 
         function doSocialTask(k, link, reward) {
-            window.open(link, '_blank');
+            tg.openLink(link);
             db.ref('user_activity/'+userId).transaction(d => {
                 if(d) d.balance = (d.balance || 0) + parseFloat(reward);
                 return d;
