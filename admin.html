@@ -206,20 +206,19 @@
 
 
         function openChat(uid) {
-    selectedUserId = uid;
-    db.ref('support_chats/' + uid).on('value', snap => {
-        const box = document.getElementById('chat-messages'); 
-        box.innerHTML = "";
-        snap.forEach(m => {
-            const data = m.val();
-            // ডাটাবেসে sender 'user' থাকলে বামে, 'admin' থাকলে ডানে দেখাবে
-            const style = data.sender === 'admin' ? 'msg-admin' : 'msg-user';
-            box.innerHTML += `<div class="${style} font-bold">${data.text}</div>`;
-        });
-        box.scrollTop = box.scrollHeight;
-    });
-}
-
+    selefunction openChat(uid) {
+            selectedUserId = uid;
+            db.ref('support_chats/' + uid).on('value', snap => {
+                const box = document.getElementById('chat-messages'); 
+                box.innerHTML = "";
+                snap.forEach(m => {
+                    const data = m.val();
+                    const style = data.sender === 'admin' ? 'msg-admin' : 'msg-user';
+                    box.innerHTML += `<div class="${style} font-bold">${data.text}</div>`;
+                });
+                box.scrollTop = box.scrollHeight;
+            });
+                                              }
 
         function sendReply() {
             const txt = document.getElementById('admin-msg-input').value;
@@ -308,4 +307,5 @@
     </script>
 </body>
 </html>
+
 
