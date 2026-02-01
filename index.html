@@ -182,7 +182,7 @@
         <button onclick="changePage('profile-page', this)" class="nav-btn"><i data-lucide="wallet"></i>Wallet</button>
     </nav>
 
-    <script>
+     <script>
         const tg = window.Telegram.WebApp; tg.expand();
         // Firebase Configuration
         const firebaseConfig = { apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150", databaseURL: "https://mini-app-link-default-rtdb.firebaseio.com" };
@@ -206,7 +206,6 @@
                 document.getElementById('u-initial-box').innerText = user.first_name[0]; 
             }
 
-            // --- DYNAMIC THUMBNAIL & NOTICE ---
             db.ref('app_config/home_thumbnail').on('value', s => {
                 if(s.exists()) document.getElementById('main-home-thumb').src = s.val();
             });
@@ -220,13 +219,11 @@
                 }
             });
 
-            // User Data Logic
             db.ref('user_activity/' + userId).on('value', snap => {
                 userData = snap.val() || { balance: 0, refCount: 0, videosWatched: 0, name: user.first_name };
                 updateUI();
             });
 
-            // Internal Player Seeking Protection
             video.addEventListener('timeupdate', () => {
                 if (!video.seeking) {
                     if (video.currentTime > lastTime + 2) {
@@ -259,6 +256,8 @@
             } else {
                 document.getElementById('ad-loader').style.display = 'flex';
                 let timeLeft = 10;
+                document.getElementById('progress-bar').style.width = '0%';
+
                 const timer = setInterval(() => {
                     timeLeft--;
                     document.getElementById('progress-bar').style.width = ((10 - timeLeft) / 10) * 100 + '%';
@@ -266,16 +265,26 @@
                     if(timeLeft <= 0) {
                         clearInterval(timer);
                         document.getElementById('ad-loader').style.display = 'none';
-                        lastTime = 0; video.src = url;
+                        
+                        // ভিডিও লোড করার ফিক্সড লজিক
+                        lastTime = 0; 
+                        video.src = url;
+                        video.load(); // এটি অত্যন্ত জরুরি
+                        
                         document.getElementById('video-player-section').classList.add('active-player');
-                        video.play();
+                        
+                        video.play().catch(e => {
+                            console.log("Auto-play blocked");
+                            tg.showAlert("ভিডিওটি দেখতে প্লে বাটনে ক্লিক করুন।");
+                        });
                     }
                 }, 1000);
             }
         }
 
         function closeVideo() { 
-            video.pause(); video.src = "";
+            video.pause(); 
+            video.src = "";
             document.getElementById('video-player-section').classList.remove('active-player');
             document.getElementById('seeking-warning').style.display = 'none';
         }
@@ -313,7 +322,6 @@
         }
 
         function loadContent() {
-            // Load Videos/Tasks
             db.ref('tasks').on('value', snap => {
                 const list = document.getElementById('episode-list'); list.innerHTML = "";
                 snap.forEach(child => {
@@ -330,7 +338,6 @@
                 });
             });
             
-            // Load Social Tasks
             db.ref('social_tasks').on('value', snap => {
                 const list = document.getElementById('social-list'); 
                 if(!list) return;
@@ -365,5 +372,3 @@
         init(); 
         lucide.createIcons();
     </script>
-</body>
-</html>
