@@ -193,15 +193,17 @@
         
         function deleteThumb() { if(confirm("Delete thumbnail?")) db.ref('app_config/home_thumbnail').remove(); }
 
-        // Chat Support Logic
+                // Chat Support Logic (লাইন ১৯৪ থেকে শুরু)
         db.ref('support_chats').on('value', snap => {
-            const list = document.getElementById('chat-user-list'); list.innerHTML = "";
+            const list = document.getElementById('chat-user-list'); 
+            list.innerHTML = "";
             snap.forEach(u => {
                 const uid = u.key;
                 const btnClass = uid === selectedUserId ? 'bg-yellow-500 text-black' : 'bg-white/10 text-white';
                 list.innerHTML += `<button onclick="openChat('${uid}')" class="${btnClass} px-3 py-1.5 rounded-xl text-[10px] font-black uppercase border border-white/5 whitespace-nowrap">${uid}</button>`;
             });
         });
+
 
         function openChat(uid) {
     selectedUserId = uid;
@@ -306,3 +308,4 @@
     </script>
 </body>
 </html>
+
