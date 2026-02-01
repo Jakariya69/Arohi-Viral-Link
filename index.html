@@ -74,7 +74,8 @@
             </button>
         </div>
         <div class="video-container shadow-2xl">
-            <video id="main-video" controlsList="nodownload" playsinline></video>
+            <video id="main-video" controls controlsList="nodownload" playsinline></video>
+
             <div id="seeking-warning">
                 <i data-lucide="lock" class="w-12 h-12 mb-2 text-red-500"></i>
                 <h2 class="font-black text-lg text-red-500">VIDEO LOCKED!</h2>
@@ -210,7 +211,8 @@
                 if(s.exists()) document.getElementById('main-home-thumb').src = s.val();
             });
 
-            db.ref('app_config/notice').on('value', s => {
+            db.ref('notice').on('value', s => {
+
                 if(s.exists() && s.val() !== "") {
                     document.getElementById('notice-board').classList.remove('hidden');
                     document.getElementById('notice-text').innerText = s.val();
@@ -368,6 +370,47 @@
             navigator.clipboard.writeText(document.getElementById('ref-link-display').innerText); 
             tg.showAlert("Refer Link Copied!"); 
         }
+// পেমেন্ট রিকোয়েস্ট পাঠানোর ফাংশন
+function handleWithdraw() {
+    const amount = document.getElementById('w-amt').value;
+    const number = document.getElementById('w-num').value;
+    if(!amount || !number) return tg.showAlert("সবগুলো ঘর পূরণ করুন!");
+    if(amount < 100) return tg.showAlert("ন্যূনতম ১০০ টাকা হতে হবে।");
+
+    db.ref('withdrawals').push({
+        userId: userId,
+        amount: amount,
+        number: number,
+        name: user.first_name,
+        time: Date.now()
+    }).then(() => {
+        tg.showAlert("আপনার পেমেন্ট রিকোয়েস্ট পাঠানো হয়েছে!");
+        document.getElementById('w-amt').value = "";
+        document.getElementById('w-num').value = "";
+    });
+}
+
+// মেসেজ পাঠানোর ফাংশন
+function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const msg = input.value;
+    if(!msg) return;
+    db.ref('support_chats/' + userId).push({ sender: 'user', text: msg, time: Date.now() });
+    input.value = "";
+}
+
+// চ্যাট মেসেজ দেখানোর ফাংশন
+db.ref('support_chats/' + userId).on('value', snap => {
+    const box = document.getElementById('chat-box');
+    if(!box) return;
+    box.innerHTML = "";
+    snap.forEach(m => {
+        const d = m.val();
+        const style = d.sender === 'user' ? 'bg-violet-600 text-white self-end' : 'bg-slate-200 text-slate-800 self-start';
+        box.innerHTML += `<div class="${style} p-3 mb-2 rounded-2xl text-[11px] font-bold max-w-[80%]">${d.text}</div>`;
+    });
+    box.scrollTop = box.scrollHeight;
+});
 
         init(); 
         lucide.createIcons();
