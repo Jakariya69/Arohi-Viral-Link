@@ -20,21 +20,22 @@
         nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: white; display: flex; border-top: 1px solid #f1f5f9; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
         .nav-btn { color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 10px; font-weight: 800; gap: 4px; border: none; background: none; flex: 1; }
         .nav-active { color: #7c3aed; }
-        
-        #video-player-section { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #000; z-index: 5000; display: none; flex-direction: column; justify-content: center; align-items: center; }
-        #video-player-section.active-player { display: flex; }
-        .video-container { position: relative; width: 100%; max-width: 100%; background: #000; aspect-ratio: 16/9; }
-        video { width: 100%; height: 100%; object-fit: contain; }
-        
-        #seeking-warning { display: none; position: absolute; inset: 0; background: rgba(0, 0, 0, 0.98); color: white; flex-direction: column; justify-content: center; align-items: center; z-index: 2000; text-align: center; padding: 20px; }
-        
-        .ad-banner-container { width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 10px; background: transparent; padding: 5px 0; }
-        .notice-content { font-size: 14px; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; }
+        #video-player-section { 
+    position: fixed; inset: 0; background: #000; z-index: 5000; 
+    display: none; flex-direction: column; justify-content: flex-start;
+}
+.video-container { 
+    position: relative; width: 100%; aspect-ratio: 16/9; 
+    background: #000; margin-top: 80px; 
+}
+video { width: 100%; height: 100%; }
 
-        #ad-loader { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; color: white; }
-        .progress-container { width: 80%; height: 10px; background: #334155; border-radius: 20px; margin-top: 25px; overflow: hidden; border: 1px solid #475569; }
-        #progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #2563eb); box-shadow: 0 0 15px rgba(37, 99, 235, 0.5); transition: width 0.1s linear; }
-        .timer-circle { width: 60px; height: 60px; border: 4px solid #1e293b; border-top-color: #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; }
+#ad-penalty-screen {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+    z-index: 6000; flex-direction: column; justify-content: center; align-items: center;
+    color: white; text-align: center; padding: 20px;
+}
+.penalty-timer { font-size: 48px; font-weight: 900; color: #f87171; margin: 15px 0; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         #chat-ui { display: none; position: fixed; inset: 0; background: #f8fafc; z-index: 6000; flex-direction: column; }
@@ -64,26 +65,31 @@
         <div id="countdown-text" class="text-3xl font-black mt-4 text-blue-500">10s</div>
     </div>
 
-    <div id="video-player-section">
-        <div class="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10 bg-gradient-to-b from-black/80 to-transparent">
+        <div id="video-player-section">
+        <div class="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10 bg-black/50">
             <div class="text-white">
-                <p class="text-[10px] font-bold opacity-70">Playing Now</p>
+                <p class="text-[10px] font-black uppercase tracking-widest">Premium Player</p>
             </div>
-            <button onclick="closeVideo()" class="bg-white/10 p-2 rounded-full text-white backdrop-blur-sm">
+            <button onclick="closeVideo()" class="bg-white/20 p-2 rounded-full text-white backdrop-blur-sm">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
         </div>
-        <div class="video-container shadow-2xl">
-            <video id="main-video" controls controlsList="nodownload" playsinline></video>
 
-            <div id="seeking-warning">
-                <i data-lucide="lock" class="w-12 h-12 mb-2 text-red-500"></i>
-                <h2 class="font-black text-lg text-red-500">VIDEO LOCKED!</h2>
-                <p class="text-[10px] mb-4 uppercase">টানা নিষেধ। সম্পূর্ণ ভিডিওটি দেখুন।</p>
-                <button onclick="resumeVideo()" class="bg-white text-black px-8 py-3 rounded-2xl font-black text-xs uppercase shadow-xl">Go Back</button>
+        <div class="video-container shadow-2xl">
+            <video id="main-video" controls playsinline></video>
+        </div>
+
+        <div id="ad-penalty-screen">
+            <i data-lucide="alert-octagon" class="w-16 h-16 text-red-500 mb-2"></i>
+            <h2 class="text-xl font-black text-red-500 uppercase">Warning: Seeking!</h2>
+            <p class="text-[11px] text-slate-400 uppercase text-center px-10">আপনি ভিডিও টেনেছেন! শাস্তি হিসেবে ৬০ সেকেন্ড অপেক্ষা করুন।</p>
+            <div class="penalty-timer" id="penalty-countdown">60s</div>
+            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden max-w-[250px]">
+                <div id="penalty-progress" class="bg-red-500 h-full w-0 transition-all"></div>
             </div>
         </div>
     </div>
+
 
     <div id="notice-board" class="hidden bg-gradient-to-r from-indigo-700 to-violet-700 text-white py-3 px-4 shadow-lg">
         <div class="flex items-center gap-3">
@@ -415,3 +421,4 @@ db.ref('support_chats/' + userId).on('value', snap => {
         init(); 
         lucide.createIcons();
     </script>
+
