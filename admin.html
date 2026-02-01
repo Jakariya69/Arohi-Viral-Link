@@ -178,13 +178,17 @@
         function updateNotice() { db.ref('notice').set(document.getElementById('app-notice').value).then(() => alert("Notice Updated!")); }
         function deleteNotice() { if(confirm("Delete notice?")) db.ref('notice').remove(); }
         
-        // --- Updated Update Thumb Function ---
+        // --- FIXED: Update Thumb Function (Image Publish Fix) ---
         function updateThumb() { 
-            const link = document.getElementById('app-home-thumb').value;
-            if(!link) return alert("Please enter a link!");
-            db.ref('app_config/home_thumbnail').set(link)
-                .then(() => alert("Thumbnail Link Updated Successfully!"))
-                .catch(err => alert("Error: " + err.message));
+            const thumbUrl = document.getElementById('app-home-thumb').value;
+            
+            if(!thumbUrl) {
+                return alert("Please enter a valid Image URL first!");
+            }
+
+            db.ref('app_config/home_thumbnail').set(thumbUrl)
+                .then(() => alert("Thumbnail Updated Successfully!"))
+                .catch(error => alert("Error Updating: " + error.message));
         }
         
         function deleteThumb() { if(confirm("Delete thumbnail?")) db.ref('app_config/home_thumbnail').remove(); }
@@ -247,6 +251,7 @@
             lucide.createIcons();
         });
 
+        // Updated Sync Manager with Edit Option
         function syncManager() {
             const list = document.getElementById('adm-manage-list');
             db.ref('tasks').on('value', s1 => {
@@ -277,7 +282,10 @@
         function editTitle(path, oldTitle) {
             const newTitle = prompt("Edit Content Title:", oldTitle);
             if (newTitle && newTitle !== oldTitle) {
-                db.ref(path).update({ title: newTitle, name: newTitle }).then(() => alert("Title Updated!"));
+                db.ref(path).update({ 
+                    title: newTitle, 
+                    name: newTitle 
+                }).then(() => alert("Title Updated!"));
             }
         }
 
