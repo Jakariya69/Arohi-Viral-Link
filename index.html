@@ -269,22 +269,24 @@ video { width: 100%; height: 100%; }
             screen.style.display = 'flex';
             let timeLeft = 60;
 
-            if(adBox) adBox.innerHTML = '<iframe src="https://otieu.com/4/10535907" width="100%" height="250" frameborder="0" style="border-radius:15px; background:white;"></iframe>';
-
-            penaltyTimer = setInterval(() => {
-                timeLeft--;
-                timerText.innerText = timeLeft + "s";
-                bar.style.width = ((60 - timeLeft) / 60) * 100 + '%';
-
-                if (timeLeft <= 0) {
-                    clearInterval(penaltyTimer);
-                    screen.style.display = 'none';
-                    if(adBox) adBox.innerHTML = ''; 
-                    video.play();
-                    tg.showAlert("বিজ্ঞাপন শেষ! এখন ভিডিও দেখুন।");
-                }
-            }, 1000);
+        if(adBox) {
+            adBox.innerHTML = '<iframe src="https://otieu.com/4/10535907" width="100%" height="250" frameborder="0"></iframe>';
         }
+
+        penaltyTimer = setInterval(() => {
+            timeLeft--;
+            if (timerText) timerText.innerText = timeLeft + "s";
+            if (bar) bar.style.width = ((60 - timeLeft) / 60) * 100 + '%';
+
+            if (timeLeft <= 0) {
+                clearInterval(penaltyTimer);
+                if (screen) screen.style.display = 'none';
+                if (adBox) adBox.innerHTML = '';
+                video.play();
+                tg.showAlert("বিজ্ঞাপন শেষ! এখন ভিডিও দেখুন।");
+            }
+        }, 1000);
+
 
 
             video.addEventListener('ended', () => {
@@ -465,6 +467,7 @@ db.ref('support_chats/' + userId).on('value', snap => {
         init(); 
         lucide.createIcons();
     </script>
+
 
 
 
