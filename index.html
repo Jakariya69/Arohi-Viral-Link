@@ -76,8 +76,21 @@ video { width: 100%; height: 100%; }
             </button>
         </div>
 
-                    <video id="main-video" controls playsinline></video>            <video id="main-video" controls playsinline></video>
+         <div id="video-player-section" class="flex flex-col items-center">
+            <div class="w-full p-4 flex justify-between items-center bg-black/50 backdrop-blur-sm">
+                <div class="text-white">
+                    <p class="text-[10px] font-black uppercase tracking-widest">Premium Player</p>
+                </div>
+                <button onclick="closeVideo()" class="bg-white/20 p-2 rounded-full text-white backdrop-blur-sm">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="video-container shadow-2xl bg-black relative flex items-center justify-center overflow-hidden" style="aspect-ratio: 16/9; width: 100%; margin: 0 auto;">
+                <video id="main-video" controls playsinline preload="metadata" style="width: 100%; height: 100%; object-fit: contain;"></video>
+            </div>
         </div>
+
 
         <div id="ad-penalty-screen">
             <i data-lucide="alert-octagon" class="w-16 h-16 text-red-500 mb-2"></i>
@@ -305,39 +318,43 @@ video { width: 100%; height: 100%; }
         }
 
         function unlockStep(k, url) {
-            if (!adCounter[k]) adCounter[k] = 0;
-            if (adCounter[k] < 5) {
-                if (typeof show_10530857 === 'function') {
-                    show_10530857().then(() => { adCounter[k]++; loadContent(); });
-                } else { adCounter[k]++; loadContent(); }
-            } else {
-                document.getElementById('ad-loader').style.display = 'flex';
-                let timeLeft = 10;
-                document.getElementById('progress-bar').style.width = '0%';
-
-                const timer = setInterval(() => {
-                    timeLeft--;
-                    document.getElementById('progress-bar').style.width = ((10 - timeLeft) / 10) * 100 + '%';
-                    document.getElementById('countdown-text').innerText = timeLeft + "s";
-                    if(timeLeft <= 0) {
-                        clearInterval(timer);
-                        document.getElementById('ad-loader').style.display = 'none';
-                        
-                        // ভিডিও লোড করার ফিক্সড লজিক
-                        lastTime = 0; 
-                        video.src = url;
-                        video.load(); // এটি অত্যন্ত জরুরি
-                        
-                        document.getElementById('video-player-section').classList.add('active-player');
-                        
-                        video.play().catch(e => {
-                            console.log("Auto-play blocked");
-                            tg.showAlert("ভিডিওটি দেখতে প্লে বাটনে ক্লিক করুন।");
-                        });
-                    }
-                }, 1000);
-            }
+    if (!adCounter[k]) adCounter[k] = 0;
+    
+    if (adCounter[k] < 5) {
+        // প্রথম ৫টি টাস্ক বিজ্ঞাপন
+        if (typeof show_10530857 === 'function') {
+            show_10530857().then(() => { 
+                adCounter[k]++; 
+                loadContent(); 
+            });
+        } else { 
+            adCounter[k]++; 
+            loadContent(); 
         }
+    } else {
+        // ৫টি শেষ হলে Play Now ক্লিক করলে আপনার দেওয়া রোলার অ্যাড আসবে (+১ অ্যাড)
+        tg.showAlert("ভিডিওটি লোড হচ্ছে, শেষ বিজ্ঞাপনটি দেখুন।");
+        
+        // আপনার রোলার অ্যাড বা ডাইরেক্ট লিংক
+        tg.openLink('https://pl25785002.highperformanceformat.com/f8/33/71/f8337181c967676e18f8f26a57895101.js');
+        
+        // বিজ্ঞাপনটি ওপেন হওয়ার পর ভিডিও সেকশনটি আসবে
+        setTimeout(() => {
+            // ভিডিওর সোর্স সেট করা
+            lastTime = 0;
+            const video = document.getElementById('main-video');
+            video.src = url;
+            video.load();
+
+            // ভিডিও প্লেয়ার সেকশনটি দেখানো
+            document.getElementById('video-player-section').classList.add('active');
+            
+            // ভিডিওটি থেমে থাকবে, ইউজার নিজে প্লে করবে
+            video.pause(); 
+            tg.showAlert("এখন ভিডিওর প্লে বাটনে ক্লিক করে দেখা শুরু করুন।");
+        }, 3000);
+    }
+}
 
                 function closeVideo() { 
             video.pause(); 
@@ -469,6 +486,7 @@ db.ref('support_chats/' + userId).on('value', snap => {
         init(); 
         lucide.createIcons();
     </script>
+
 
 
 
