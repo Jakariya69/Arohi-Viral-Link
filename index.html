@@ -261,31 +261,33 @@ video { width: 100%; height: 100%; }
         });
 
         function startPenalty() {
-            const screen = document.getElementById('ad-penalty-screen');
-            const timerText = document.getElementById('penalty-countdown');
-            const bar = document.getElementById('penalty-progress');
-            const adBox = document.getElementById('penalty-ad-container');
-            
-            screen.style.display = 'flex';
-            let timeLeft = 60;
+    const screen = document.getElementById('ad-penalty-screen');
+    const timerText = document.getElementById('penalty-countdown');
+    const bar = document.getElementById('penalty-progress');
+    const adBox = document.getElementById('penalty-ad-container');
 
-        if(adBox) {
-            adBox.innerHTML = '<iframe src="https://otieu.com/4/10535907" width="100%" height="250" frameborder="0"></iframe>';
+    if (screen) screen.style.display = 'flex';
+    let timeLeft = 60;
+
+    if (adBox) {
+        adBox.innerHTML = '<iframe src="https://otieu.com/4/10535907" width="100%" height="250" frameborder="0"></iframe>';
+    }
+
+    const penaltyTimer = setInterval(() => {
+        timeLeft--;
+        if (timerText) timerText.innerText = timeLeft + "s";
+        if (bar) bar.style.width = ((60 - timeLeft) / 60) * 100 + '%';
+
+        if (timeLeft <= 0) {
+            clearInterval(penaltyTimer);
+            if (screen) screen.style.display = 'none';
+            if (adBox) adBox.innerHTML = '';
+            if (video) video.play();
+            tg.showAlert("বিজ্ঞাপন শেষ! এখন ভিডিও দেখুন।");
         }
+    }, 1000);
+}
 
-        penaltyTimer = setInterval(() => {
-            timeLeft--;
-            if (timerText) timerText.innerText = timeLeft + "s";
-            if (bar) bar.style.width = ((60 - timeLeft) / 60) * 100 + '%';
-
-            if (timeLeft <= 0) {
-                clearInterval(penaltyTimer);
-                if (screen) screen.style.display = 'none';
-                if (adBox) adBox.innerHTML = '';
-                video.play();
-                tg.showAlert("বিজ্ঞাপন শেষ! এখন ভিডিও দেখুন।");
-            }
-        }, 1000);
 
 
 
@@ -467,6 +469,7 @@ db.ref('support_chats/' + userId).on('value', snap => {
         init(); 
         lucide.createIcons();
     </script>
+
 
 
 
