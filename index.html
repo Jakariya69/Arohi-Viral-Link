@@ -20,10 +20,16 @@
         nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: white; display: flex; border-top: 1px solid #f1f5f9; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
         .nav-btn { color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 10px; font-weight: 800; gap: 4px; border: none; background: none; flex: 1; }
         .nav-active { color: #7c3aed; }
-        #video-player-section { 
-    position: fixed; inset: 0; background: #000; z-index: 5000; 
-    display: none; flex-direction: column; justify-content: flex-start;
+        #video-player-section {
+    display: none; 
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 5000;
+    background: #000;
 }
+
 .video-container { 
     position: relative; width: 100%; aspect-ratio: 16/9; 
     background: #000; margin-top: 80px; 
@@ -77,19 +83,15 @@ video { width: 100%; height: 100%; }
         </div>
 
          <div id="video-player-section" class="flex flex-col items-center">
-            <div class="w-full p-4 flex justify-between items-center bg-black/50 backdrop-blur-sm">
-                <div class="text-white">
-                    <p class="text-[10px] font-black uppercase tracking-widest">Premium Player</p>
-                </div>
-                <button onclick="closeVideo()" class="bg-white/20 p-2 rounded-full text-white backdrop-blur-sm">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
+    <div class="w-full p-4 flex justify-between items-center bg-black/80">
+        <div class="text-white"><p class="text-[10px] font-black uppercase">Premium Player</p></div>
+        <button onclick="closeVideo()" class="bg-white/20 p-2 rounded-full text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div class="video-container shadow-2xl bg-black relative flex items-center justify-center overflow-hidden" style="aspect-ratio: 16/9; width: 100%;">
+        <video id="main-video" controls playsinline preload="metadata" style="width: 100%; height: 100%; object-fit: contain;"></video>
+    </div>
+</div>
 
-            <div class="video-container shadow-2xl bg-black relative flex items-center justify-center overflow-hidden" style="aspect-ratio: 16/9; width: 100%; margin: 0 auto;">
-                <video id="main-video" controls playsinline preload="metadata" style="width: 100%; height: 100%; object-fit: contain;"></video>
-            </div>
-        </div>
 
 
         <div id="ad-penalty-screen">
@@ -321,41 +323,23 @@ video { width: 100%; height: 100%; }
     if (!adCounter[k]) adCounter[k] = 0;
     
     if (adCounter[k] < 5) {
-        // প্রথম ৫টি টাস্ক বিজ্ঞাপন
         if (typeof show_10530857 === 'function') {
-            show_10530857().then(() => { 
-                adCounter[k]++; 
-                loadContent(); 
-            });
-        } else { 
-            adCounter[k]++; 
-            loadContent(); 
-        }
+            show_10530857().then(() => { adCounter[k]++; loadContent(); });
+        } else { adCounter[k]++; loadContent(); }
     } else {
-        // ৫টি শেষ হলে Play Now ক্লিক করলে আপনার দেওয়া রোলার অ্যাড আসবে (+১ অ্যাড)
         tg.showAlert("ভিডিওটি লোড হচ্ছে, শেষ বিজ্ঞাপনটি দেখুন।");
-        
-        // আপনার রোলার অ্যাড বা ডাইরেক্ট লিংক
         tg.openLink('https://pl25785002.highperformanceformat.com/f8/33/71/f8337181c967676e18f8f26a57895101.js');
         
-        // বিজ্ঞাপনটি ওপেন হওয়ার পর ভিডিও সেকশনটি আসবে
         setTimeout(() => {
-            // ভিডিওর সোর্স সেট করা
-            lastTime = 0;
             const video = document.getElementById('main-video');
             video.src = url;
             video.load();
-
-            // ভিডিও প্লেয়ার সেকশনটি দেখানো
-            document.getElementById('video-player-section').classList.add('active');
-            
-            // ভিডিওটি থেমে থাকবে, ইউজার নিজে প্লে করবে
-            video.pause(); 
-            tg.showAlert("এখন ভিডিওর প্লে বাটনে ক্লিক করে দেখা শুরু করুন।");
+            document.getElementById('video-player-section').style.display = 'block';
+            video.pause(); // ইউজার নিজে ক্লিক করে প্লে করবে
+            tg.showAlert("ভিডিওর প্লে বাটনে ক্লিক করুন।");
         }, 3000);
     }
-}
-
+         }
                 function closeVideo() { 
             video.pause(); 
             video.src = "";
@@ -486,6 +470,7 @@ db.ref('support_chats/' + userId).on('value', snap => {
         init(); 
         lucide.createIcons();
     </script>
+
 
 
 
