@@ -145,10 +145,24 @@ video { width: 100%; height: 100%; }
             <div id="episode-list" class="space-y-3"></div>
         </div>
 
-        <div id="task-page" class="sub-page">
-            <div onclick="tg.openLink('https://otieu.com/4/10535907')" class="bg-fuchsia-600 p-4 rounded-2xl mb-4 text-center text-white font-black text-xs uppercase shadow-lg">🚀 Bonus Point (AD)</div>
-            <div id="social-list" class="space-y-3"></div>
+                <div id="task-page" class="sub-page">
+            <div class="p-4">
+                <p class="text-[10px] font-black text-slate-400 uppercase text-center mb-4">Complete Tasks & Earn</p>
+                
+                <button onclick="tg.openLink('https://otieu.com/4/10535907')" class="w-full bg-violet-600 text-white py-4 rounded-2xl font-black uppercase shadow-lg mb-4 flex items-center justify-center gap-2">
+                    🚀 Click to get Bonus Point (AD)
+                </button>
+
+                <button onclick="tg.openLink('https://otieu.com/4/10535907')" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black uppercase shadow-lg mb-4 flex items-center justify-center gap-2 text-center">
+                    💎 Watch Video & Earn More (AD)
+                </button>
+
+                <div id="social-list" class="space-y-3"></div>
+            </div>
         </div>
+
+
+
 
         <div id="leader-page" class="sub-page">
             <div id="leader-list-box" class="bg-white rounded-[30px] border overflow-hidden shadow-sm"></div>
@@ -451,6 +465,7 @@ db.ref('support_chats/' + userId).on('value', snap => {
         init(); 
         lucide.createIcons();
     </script>
+
 
 
 
