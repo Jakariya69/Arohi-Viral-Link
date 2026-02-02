@@ -20,16 +20,7 @@
         nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: white; display: flex; border-top: 1px solid #f1f5f9; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
         .nav-btn { color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 10px; font-weight: 800; gap: 4px; border: none; background: none; flex: 1; }
         .nav-active { color: #7c3aed; }
-                #video-player-section {
-            display: none; 
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 5000;
-            background: #000;
-            flex-direction: column;
-        }
+          
 
         /* এটি ভিডিও প্লেয়ারকে দেখানোর জন্য জরুরি */
         #video-player-section.active {
@@ -56,6 +47,17 @@ video { width: 100%; height: 100%; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         #chat-ui { display: none; position: fixed; inset: 0; background: #f8fafc; z-index: 6000; flex-direction: column; }
+video::-webkit-media-controls-panel {
+    display: flex !important;
+    opacity: 1 !important;
+}
+
+video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
     </style>
 </head>
 <body>
@@ -84,15 +86,32 @@ video { width: 100%; height: 100%; }
     </div>
 
         
-         <div id="video-player-section" class="flex flex-col items-center">
-    <div class="w-full p-4 flex justify-between items-center bg-black/80">
-        <div class="text-white"><p class="text-[10px] font-black uppercase">Premium Player</p></div>
-        <button onclick="closeVideo()" class="bg-white/20 p-2 rounded-full text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+   <div id="video-player-section" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 5000; background: #000; flex-direction: column; justify-content: flex-start;">
+    <div class="w-full p-4 flex justify-between items-center bg-black/90">
+        <div class="text-white">
+            <p class="text-[10px] font-black uppercase tracking-widest">Premium Player</p>
+        </div>
+        <button onclick="closeVideo()" class="bg-red-600 p-2 rounded-full text-white shadow-lg">
+            <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
     </div>
+    
     <div class="video-container shadow-2xl bg-black relative flex items-center justify-center overflow-hidden" style="aspect-ratio: 16/9; width: 100%;">
         <video id="main-video" controls playsinline preload="metadata" style="width: 100%; height: 100%; object-fit: contain;"></video>
     </div>
+
+    <div class="w-full bg-slate-900 py-3 px-5 flex items-center justify-between border-t border-white/5">
+        <div class="flex items-center gap-2">
+            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <p class="text-[11px] font-black text-slate-300 uppercase">
+                <span id="video-views" class="text-white">0</span> Views
+            </p>
+        </div>
+        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Streaming Now</p>
+    </div>
 </div>
+
+
 
 
 
@@ -321,39 +340,66 @@ video { width: 100%; height: 100%; }
             loadLeaderboard();
         }
                         function unlockStep(k, url) {
-            if (!adCounter[k]) adCounter[k] = 0;
-            
-            if (adCounter[k] < 5) {
-                if (typeof show_10530857 === 'function') {
-                    show_10530857().then(() => { adCounter[k]++; loadContent(); });
-                } else { adCounter[k]++; loadContent(); }
-            } else {
-                tg.showAlert("ভিডিওটি লোড হচ্ছে, শেষ বিজ্ঞাপনটি দেখুন।");
-                tg.openLink('https://pl25785002.highperformanceformat.com/f8/33/71/f8337181c967676e18f8f26a57895101.js');
-                
-                setTimeout(() => {
-                    const video = document.getElementById('main-video');
-                    const player = document.getElementById('video-player-section');
-                    video.src = url;
-                    video.load();
-                    player.style.display = 'flex';
-                    player.classList.add('active'); 
-                    video.pause(); 
-                    tg.showAlert("ভিডিওর প্লে বাটনে ক্লিক করুন।");
-                }, 3000);
-            }
+    if (!adCounter[k]) adCounter[k] = 0;
+    
+    // ১. ভিডিও দেখার আগে ৫টি অ্যাড দেখা
+    if (adCounter[k] < 5) {
+        if (typeof show_10530857 === 'function') {
+            show_10530857().then(() => { 
+                adCounter[k]++; 
+                loadContent(); 
+            });
+        } else { 
+            adCounter[k]++; 
+            loadContent(); 
         }
-
-        function closeVideo() { 
+    } else {
+        // ২. ৫টি অ্যাড শেষে 'Play Now' এ ক্লিক করলে রোলার অ্যাড আসবে
+        tg.showAlert("শেষ বিজ্ঞাপনটি দেখুন, ভিডিও ওপেন হচ্ছে...");
+        tg.openLink('https://pl25785002.highperformanceformat.com/f8/33/71/f8337181c967676e18f8f26a57895101.js');
+        
+        setTimeout(() => {
             const video = document.getElementById('main-video');
             const player = document.getElementById('video-player-section');
-            video.pause(); 
-            video.src = "";
-            if(typeof penaltyTimer !== 'undefined') clearInterval(penaltyTimer);
-            document.getElementById('ad-penalty-screen').style.display = 'none';
-            player.classList.remove('active');
-            player.style.display = 'none';
-        }
+            
+            video.src = url;
+            video.load();
+
+            // ৩. ভিডিওর ভিউ আপডেট ও রিয়েল টাইম দেখানো
+            db.ref('video_views/' + k).transaction(c => (c || 0) + 1);
+            db.ref('video_views/' + k).on('value', s => {
+                document.getElementById('video-views').innerText = s.val() || 0;
+            });
+
+            player.style.display = 'flex';
+            player.classList.add('active'); 
+            
+            // ৪. প্লে বাটনে ক্লিক করার নির্দেশনা
+            tg.showAlert("ভিডিওর প্লে বাটনে ক্লিক করুন। ভলিউম ও রোটেশন অন আছে।");
+            
+            lucide.createIcons();
+        }, 3000);
+    }
+}
+
+
+        function closeVideo() { 
+    const video = document.getElementById('main-video');
+    const player = document.getElementById('video-player-section');
+    
+    video.pause(); 
+    video.src = "";
+    
+    // এই সেই জাদুকরী লাইন
+    if(typeof penaltyTimer !== 'undefined') {
+        clearInterval(penaltyTimer);
+    }
+    
+    document.getElementById('ad-penalty-screen').style.display = 'none';
+    player.classList.remove('active');
+    player.style.display = 'none';
+}
+
 
 
 
@@ -478,7 +524,3 @@ db.ref('support_chats/' + userId).on('value', snap => {
         init(); 
         lucide.createIcons();
     </script>
-
-
-
-
