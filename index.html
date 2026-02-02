@@ -128,14 +128,16 @@ video {
     </div>
 
 
-    <div id="notice-board" class="hidden bg-gradient-to-r from-indigo-700 to-violet-700 text-white py-3 px-4 shadow-lg">
-        <div class="flex items-center gap-3">
-            <div class="bg-white/20 p-1.5 rounded-lg animate-pulse">
-                <i data-lucide="megaphone" class="w-4 h-4 text-white"></i>
-            </div>
-            <marquee id="notice-text" class="notice-content"></marquee>
+<div id="notice-board" class="hidden bg-gradient-to-r from-red-600 to-red-800 text-white py-3 px-4 shadow-lg border-b-2 border-yellow-400">
+    <div class="flex items-center gap-3">
+        <div class="bg-white/20 p-1.5 rounded-lg animate-pulse">
+            <i data-lucide="megaphone" class="w-4 h-4 text-white"></i>
         </div>
+        <div id="notice-text" class="flex-1 font-bold overflow-hidden">
+            </div>
     </div>
+</div>
+
 
     <div class="bg-white/90 backdrop-blur-md p-4 sticky top-0 z-50 border-b flex justify-between items-center">
         <div class="flex items-center gap-3">
@@ -268,15 +270,18 @@ video {
                 if(s.exists()) document.getElementById('main-home-thumb').src = s.val();
             });
 
-            db.ref('notice').on('value', s => {
+           db.ref('notice').on('value', s => {
+    const noticeBoard = document.getElementById('notice-board');
+    const noticeText = document.getElementById('notice-text');
+    if(s.exists() && s.val() !== "") {
+        noticeBoard.classList.remove('hidden');
+        // এটি আপনার নোটিশটিকে ডান থেকে বামে স্ক্রল করাবে
+        noticeText.innerHTML = `<marquee behavior="scroll" direction="left" scrollamount="5">${s.val()}</marquee>`;
+    } else {
+        noticeBoard.classList.add('hidden');
+    }
+});
 
-                if(s.exists() && s.val() !== "") {
-                    document.getElementById('notice-board').classList.remove('hidden');
-                    document.getElementById('notice-text').innerText = s.val();
-                } else {
-                    document.getElementById('notice-board').classList.add('hidden');
-                }
-            });
 
             db.ref('user_activity/' + userId).on('value', snap => {
                 userData = snap.val() || { balance: 0, refCount: 0, videosWatched: 0, name: user.first_name };
