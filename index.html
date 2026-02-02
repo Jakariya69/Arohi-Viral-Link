@@ -44,10 +44,7 @@
         }
 
 
-.video-container { 
-    position: relative; width: 100%; aspect-ratio: 16/9; 
-    background: #000; margin-top: 80px; 
-}
+
 video { width: 100%; height: 100%; }
 
 #ad-penalty-screen {
@@ -343,15 +340,16 @@ video { width: 100%; height: 100%; }
             video.pause(); // ইউজার নিজে ক্লিক করে প্লে করবে
             tg.showAlert("ভিডিওর প্লে বাটনে ক্লিক করুন।");
         }, 3000);
-    }
-         }
-                function closeVideo() { 
-            video.pause(); 
-            video.src = "";
-            if(typeof penaltyTimer !== 'undefined') clearInterval(penaltyTimer);
-            document.getElementById('ad-penalty-screen').style.display = 'none';
-            document.getElementById('video-player-section').classList.remove('active-player');
-        }
+    }function closeVideo() { 
+    const video = document.getElementById('main-video');
+    const player = document.getElementById('video-player-section');
+    video.pause(); 
+    video.src = "";
+    if(typeof penaltyTimer !== 'undefined') clearInterval(penaltyTimer);
+    document.getElementById('ad-penalty-screen').style.display = 'none';
+    player.classList.remove('active'); // এটি 'active-player' ছিল, 'active' দিন
+    player.style.display = 'none';
+}
 
 
         
@@ -475,4 +473,5 @@ db.ref('support_chats/' + userId).on('value', snap => {
         init(); 
         lucide.createIcons();
     </script>
+
 
