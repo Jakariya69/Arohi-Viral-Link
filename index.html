@@ -76,9 +76,10 @@ video { width: 100%; height: 100%; }
             </button>
         </div>
 
-        <div class="video-container shadow-2xl">
-            <video id="main-video" controls playsinline></video>
-               <div id="ad-penalty-screen">
+                    <video id="main-video" controls playsinline></video>            <video id="main-video" controls playsinline></video>
+        </div>
+
+        <div id="ad-penalty-screen">
             <i data-lucide="alert-octagon" class="w-16 h-16 text-red-500 mb-2"></i>
             <h2 class="text-xl font-black text-red-500 uppercase">Warning: Seeking!</h2>
             <p class="text-[11px] text-slate-400 uppercase text-center px-10">আপনি ভিডিও টেনেছেন! শাস্তি হিসেবে ৬০ সেকেন্ড অপেক্ষা করুন।</p>
@@ -88,6 +89,7 @@ video { width: 100%; height: 100%; }
                 <div id="penalty-progress" class="bg-red-500 h-full w-0 transition-all"></div>
             </div>
         </div>
+    </div>
 
 
     <div id="notice-board" class="hidden bg-gradient-to-r from-indigo-700 to-violet-700 text-white py-3 px-4 shadow-lg">
@@ -449,6 +451,7 @@ db.ref('support_chats/' + userId).on('value', snap => {
         init(); 
         lucide.createIcons();
     </script>
+
 
 
 
