@@ -86,7 +86,8 @@ video {
     </div>
 
         
-   <div id="video-player-section" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 5000; background: #000; flex-direction: column; justify-content: flex-start;">
+ <div id="video-player-section" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 5000; background: #000; flex-direction: column; justify-content: flex-start;">
+    
     <div class="w-full p-4 flex justify-between items-center bg-black/90">
         <div class="text-white">
             <p class="text-[10px] font-black uppercase tracking-widest">Premium Player</p>
@@ -100,16 +101,22 @@ video {
         <video id="main-video" controls playsinline preload="metadata" style="width: 100%; height: 100%; object-fit: contain;"></video>
     </div>
 
+    <div class="w-full px-5 py-2 flex justify-between text-[10px] font-bold text-white bg-slate-900/50">
+        <span id="current-time">0:00</span>
+        <span id="total-duration">0:00</span>
+    </div>
+
     <div class="w-full bg-slate-900 py-3 px-5 flex items-center justify-between border-t border-white/5">
         <div class="flex items-center gap-2">
             <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
             <p class="text-[11px] font-black text-slate-300 uppercase">
-                <span id="video-views" class="text-white">0</span> Views
+                Streaming Online
             </p>
         </div>
-        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Streaming Now</p>
+        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Powered by Elite Player</p>
     </div>
 </div>
+
 
 
 
@@ -242,259 +249,330 @@ video {
         <button onclick="changePage('profile-page', this)" class="nav-btn"><i data-lucide="wallet"></i>Wallet</button>
        </nav>
 
-    <script>
-        const tg = window.Telegram.WebApp; 
-        tg.expand();
+   <script>
+    const tg = window.Telegram.WebApp; 
+    tg.expand();
 
-        // Firebase Configuration
-        const firebaseConfig = { 
-            apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150", 
-            databaseURL: "https://mini-app-link-default-rtdb.firebaseio.com" 
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const user = tg.initDataUnsafe?.user || { id: "0000", first_name: "Guest" };
-        const userId = "TG-" + user.id;
+    // Firebase Configuration
+    const firebaseConfig = { 
+        apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150", 
+        databaseURL: "https://mini-app-link-default-rtdb.firebaseio.com" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-        let userData = { balance: 0, refCount: 0, videosWatched: 0 };
-        let adCounter = {};
-        let lastTime = 0;
-        let penaltyTimer; 
-        const video = document.getElementById('main-video');
+    // User Data Initialization
+    const user = tg.initDataUnsafe?.user || { id: "0000", first_name: "Guest" };
+    const userId = "TG-" + user.id;
 
-        function init() {
-            document.getElementById('top-username').innerText = user.first_name;
-            if(user.photo_url) {
-                document.getElementById('u-photo').src = user.photo_url;
-                document.getElementById('u-photo').classList.remove('hidden');
-                document.getElementById('u-initial-box').classList.add('hidden');
-            } else { 
-                document.getElementById('u-initial-box').innerText = user.first_name[0]; 
+    let userData = { balance: 0, refCount: 0, videosWatched: 0 };
+    let adCounter = {};
+    let penaltyTimer; 
+    const video = document.getElementById('main-video');
+
+    // --- INITIALIZATION ---
+    function init() {
+        document.getElementById('top-username').innerText = user.first_name;
+        if(user.photo_url) {
+            document.getElementById('u-photo').src = user.photo_url;
+            document.getElementById('u-photo').classList.remove('hidden');
+            document.getElementById('u-initial-box').classList.add('hidden');
+        } else { 
+            const initBox = document.getElementById('u-initial-box');
+            if(initBox) initBox.innerText = user.first_name[0]; 
+        }
+
+        // Real-time Activity Listener (Admin panel theke change korle ekhane update hobe)
+        db.ref('user_activity/' + userId).on('value', snap => {
+            userData = snap.val() || { balance: 0, refCount: 0, videosWatched: 0, name: user.first_name };
+            updateUI();
+        });
+
+        // App Config & Notice Listeners
+        db.ref('app_config/home_thumbnail').on('value', s => {
+            const thumb = document.getElementById('main-home-thumb');
+            if(s.exists() && thumb) thumb.src = s.val();
+        });
+
+        db.ref('notice').on('value', s => {
+            const noticeBoard = document.getElementById('notice-board');
+            const noticeText = document.getElementById('notice-text');
+            if(s.exists() && s.val() !== "" && noticeBoard) {
+                noticeBoard.classList.remove('hidden');
+                noticeText.innerHTML = `<marquee behavior="scroll" direction="left" scrollamount="5">${s.val()}</marquee>`;
+            } else if(noticeBoard) {
+                noticeBoard.classList.add('hidden');
             }
+        });
 
-            db.ref('app_config/home_thumbnail').on('value', s => {
-                if(s.exists()) document.getElementById('main-home-thumb').src = s.val();
-            });
-
-            db.ref('notice').on('value', s => {
-                const noticeBoard = document.getElementById('notice-board');
-                const noticeText = document.getElementById('notice-text');
-                if(s.exists() && s.val() !== "") {
-                    noticeBoard.classList.remove('hidden');
-                    noticeText.innerHTML = `<marquee behavior="scroll" direction="left" scrollamount="5">${s.val()}</marquee>`;
-                } else {
-                    noticeBoard.classList.add('hidden');
-                }
-            });
-
-            db.ref('user_activity/' + userId).on('value', snap => {
-                userData = snap.val() || { balance: 0, refCount: 0, videosWatched: 0, name: user.first_name };
-                updateUI();
-            });
-
-            video.addEventListener('timeupdate', () => {
-                if (document.getElementById('ad-penalty-screen').style.display === 'flex') return;
-                if (video.currentTime > lastTime + 2.5) {
+        // --- SECURITY: VIDEO SEEKING PROTECTION ---
+        if(video) {
+            video.addEventListener('seeking', () => {
+                if (document.getElementById('ad-penalty-screen').style.display !== 'flex') {
                     video.pause();
-                    video.currentTime = lastTime; 
                     startPenalty();
-                } else { 
-                    lastTime = video.currentTime; 
                 }
             });
 
+            // REWARD LOGIC
             video.addEventListener('ended', () => {
+                const currentBal = parseFloat(userData.balance || 0);
+                const currentWatch = parseInt(userData.videosWatched || 0);
+                
                 db.ref('user_activity/' + userId).update({ 
-                    videosWatched: (userData.videosWatched || 0) + 1,
-                    balance: (userData.balance || 0) + 5
+                    videosWatched: currentWatch + 1,
+                    balance: currentBal + 5
+                }).then(() => {
+                    tg.showAlert("Video Completed! ৳5 Added.");
+                    closeVideo();
                 });
-                tg.showAlert("Video Completed! ৳5 Added.");
-                closeVideo();
             });
-
-            loadContent(); 
-            loadLeaderboard();
         }
 
-        function startPenalty() {
-            if (penaltyTimer) clearInterval(penaltyTimer); 
-            const screen = document.getElementById('ad-penalty-screen');
-            const timerText = document.getElementById('penalty-countdown');
-            const bar = document.getElementById('penalty-progress');
-            const adBox = document.getElementById('penalty-ad-container');
-            screen.style.display = 'flex';
-            let timeLeft = 60;
-            adBox.innerHTML = '<iframe src="https://otieu.com/4/10535907" width="100%" height="250" frameborder="0"></iframe>';
-            penaltyTimer = setInterval(() => {
-                timeLeft--;
-                timerText.innerText = timeLeft + "s";
-                if(bar) bar.style.width = ((60 - timeLeft) / 60) * 100 + '%';
-                if (timeLeft <= 0) {
-                    clearInterval(penaltyTimer);
-                    screen.style.display = 'none';
-                    adBox.innerHTML = '';
-                    video.play();
-                    tg.showAlert("শাস্তি শেষ! এখন ভিডিও দেখুন।");
-                }
-            }, 1000);
+        loadContent(); 
+        loadLeaderboard();
+    }
+
+    // --- WITHDRAW LOGIC (SECURE & SYNCED WITH ADMIN) ---
+    function handleWithdraw() {
+        const amount = parseFloat(document.getElementById('w-amt').value);
+        const number = document.getElementById('w-num').value;
+
+        if(!amount || !number) return tg.showAlert("সবগুলো ঘর পূরণ করুন!");
+        if(amount < 100) return tg.showAlert("ন্যূনতম ১০০ টাকা হতে হবে।");
+        
+        if(amount > userData.balance) {
+            return tg.showAlert("আপনার ব্যালেন্স পর্যাপ্ত নয়! বর্তমান ব্যালেন্স: ৳" + userData.balance.toFixed(2));
         }
 
-        function unlockStep(k, url) {
-            if (!adCounter[k]) adCounter[k] = 0;
-            if (adCounter[k] < 5) {
-                if (typeof show_10530857 === 'function') {
-                    show_10530857().then(() => { 
-                        adCounter[k]++; 
-                        loadContent(); 
-                    });
-                } else { 
+        db.ref('withdrawals').push({
+            userId: userId, 
+            amount: amount, 
+            number: number, 
+            name: user.first_name, 
+            status: "pending",
+            time: firebase.database.ServerValue.TIMESTAMP 
+        }).then(() => {
+            // Deduct balance instantly
+            const newBalance = userData.balance - amount;
+            db.ref('user_activity/' + userId).update({ balance: newBalance });
+            
+            tg.showAlert("আপনার পেমেন্ট রিকোয়েস্ট পাঠানো হয়েছে!");
+            document.getElementById('w-amt').value = "";
+            document.getElementById('w-num').value = "";
+        });
+    }
+
+    function unlockStep(k, url) {
+        if (!adCounter[k]) adCounter[k] = 0;
+        
+        if (adCounter[k] < 5) {
+            // ৫ বার অ্যাড না দেখা পর্যন্ত এই অংশ কাজ করবে
+            if (typeof show_10530857 === 'function') {
+                show_10530857().then(() => { 
                     adCounter[k]++; 
                     loadContent(); 
-                }
-            } else {
-                tg.showAlert("শেষ বিজ্ঞাপনটি দেখুন, ভিডিও ওপেন হচ্ছে...");
-                tg.openLink('https://otieu.com/4/10535907');
-                setTimeout(() => {
-                    video.src = url;
-                    video.load();
-                    db.ref('video_views/' + k).transaction(c => (c || 0) + 1);
-                    db.ref('video_views/' + k).on('value', s => {
-                        document.getElementById('video-views').innerText = s.val() || 0;
-                    });
-                    document.getElementById('video-player-section').style.display = 'flex';
-                    document.getElementById('video-player-section').classList.add('active'); 
-                    tg.showAlert("ভিডিওর প্লে বাটনে ক্লিক করুন।");
-                    lucide.createIcons();
-                }, 3000);
+                });
+            } else { 
+                adCounter[k]++; 
+                loadContent(); 
             }
+        } else {
+            // ৫ বার অ্যাড দেখা হয়ে গেলে ভিডিও লোড হবে
+            const loader = document.getElementById('ad-loader');
+            if(loader) loader.style.display = 'flex';
+            
+            setTimeout(() => {
+                if(loader) loader.style.display = 'none';
+                
+                video.src = url;
+                video.load();
+                video.pause(); // ভিডিও পজ হয়ে থাকবে
+                
+                const playerSection = document.getElementById('video-player-section');
+                if(playerSection) {
+                    playerSection.style.display = 'flex';
+                    playerSection.classList.add('active'); 
+                }
+                
+                tg.showAlert("ভিডিও লোড হয়েছে। প্লে বাটনে ক্লিক করুন।");
+                lucide.createIcons();
+            }, 3000); 
+        }
+    }
+
+
+    // --- PENALTY LOGIC (ANTI-CHEAT) ---
+    function startPenalty() {
+        if (penaltyTimer) clearInterval(penaltyTimer); 
+        const screen = document.getElementById('ad-penalty-screen');
+        const timerText = document.getElementById('penalty-countdown');
+        const bar = document.getElementById('penalty-progress');
+        const adBox = document.getElementById('penalty-ad-container');
+        
+        screen.style.display = 'flex';
+        let timeLeft = 60;
+        adBox.innerHTML = '<iframe src="https://otieu.com/4/10535907" width="100%" height="250" frameborder="0"></iframe>';
+        
+        penaltyTimer = setInterval(() => {
+            timeLeft--;
+            if(timerText) timerText.innerText = timeLeft + "s";
+            if(bar) bar.style.width = ((60 - timeLeft) / 60) * 100 + '%';
+            if (timeLeft <= 0) {
+                clearInterval(penaltyTimer);
+                screen.style.display = 'none';
+                adBox.innerHTML = '';
+                video.play();
+                tg.showAlert("শাস্তি শেষ! এখন ভিডিও দেখুন।");
+            }
+        }, 1000);
+    }
+
+    function closeVideo() { 
+        if(video) { video.pause(); video.src = ""; }
+        if(penaltyTimer) clearInterval(penaltyTimer);
+        document.getElementById('ad-penalty-screen').style.display = 'none';
+        document.getElementById('video-player-section').classList.remove('active');
+        document.getElementById('video-player-section').style.display = 'none';
+    }
+
+    // --- VIDEO TIME UPDATE LOGIC ---
+    video.addEventListener('timeupdate', () => {
+        const currentTxt = document.getElementById('current-time');
+        const totalTxt = document.getElementById('total-duration');
+
+        if (video.currentTime && currentTxt) {
+            let curMins = Math.floor(video.currentTime / 60);
+            let curSecs = Math.floor(video.currentTime % 60);
+            currentTxt.innerText = curMins + ":" + (curSecs < 10 ? "0" + curSecs : curSecs);
         }
 
-        function closeVideo() { 
-            video.pause(); 
-            video.src = "";
-            if(penaltyTimer) clearInterval(penaltyTimer);
-            document.getElementById('ad-penalty-screen').style.display = 'none';
-            document.getElementById('video-player-section').classList.remove('active');
-            document.getElementById('video-player-section').style.display = 'none';
+        if (video.duration && totalTxt) {
+            let durMins = Math.floor(video.duration / 60);
+            let durSecs = Math.floor(video.duration % 60);
+            totalTxt.innerText = durMins + ":" + (durSecs < 10 ? "0" + durSecs : durSecs);
         }
+    });
 
-        function updateUI() {
-            document.getElementById('display-balance').innerText = (userData.balance || 0).toFixed(2);
-            document.getElementById('vid-watch-count').innerText = userData.videosWatched || 0;
-            document.getElementById('ref-link-display').innerText = `https://t.me/arohimimvirallinkjk_bot?start=${user.id}`;
-            const wBtn = document.getElementById('withdraw-btn');
-            const warning = document.getElementById('ref-warning');
+
+    function updateUI() {
+        const balDisp = document.getElementById('display-balance');
+        const watchDisp = document.getElementById('vid-watch-count');
+        const refLink = document.getElementById('ref-link-display');
+        
+        if(balDisp) balDisp.innerText = (userData.balance || 0).toFixed(2);
+        if(watchDisp) watchDisp.innerText = userData.videosWatched || 0;
+        if(refLink) refLink.innerText = `https://t.me/arohimimvirallinkjk_bot?start=${user.id}`;
+        
+        const wBtn = document.getElementById('withdraw-btn');
+        const warning = document.getElementById('ref-warning');
+        
+        if(wBtn) {
             if((userData.refCount || 0) >= 20 && (userData.videosWatched || 0) >= 10) {
                 wBtn.disabled = false; 
-                wBtn.className = "w-full bg-violet-600 text-white py-4 rounded-2xl font-black uppercase";
+                wBtn.className = "w-full bg-violet-600 text-white py-4 rounded-2xl font-black uppercase shadow-lg";
                 wBtn.innerText = "Send Request"; 
-                warning.classList.add('hidden');
+                if(warning) warning.classList.add('hidden');
             } else {
                 wBtn.disabled = true;
                 wBtn.className = "w-full bg-slate-200 text-slate-400 py-4 rounded-2xl font-black uppercase";
                 wBtn.innerText = "Withdraw Locked";
-                warning.classList.remove('hidden');
-                warning.innerText = `🔒 LOCK: Need ${20 - (userData.refCount || 0)} Ref & ${10 - (userData.videosWatched || 0)} Videos.`;
+                if(warning) {
+                    warning.classList.remove('hidden');
+                    warning.innerText = `🔒 LOCK: Need ${20 - (userData.refCount || 0)} Ref & ${10 - (userData.videosWatched || 0)} Videos.`;
+                }
             }
         }
+    }
 
-        function loadLeaderboard() {
-            db.ref('user_activity').orderByChild('refCount').limitToLast(10).on('value', s => {
-                const box = document.getElementById('leader-list-box'); box.innerHTML = "";
-                let arr = []; s.forEach(c => arr.push(c.val()));
-                arr.reverse().forEach((u, i) => {
-                    box.innerHTML += `<div class="p-4 flex justify-between border-b last:border-0 items-center">
-                        <span class="text-xs font-black text-slate-300">#${i+1}</span>
-                        <span class="flex-1 ml-4 text-[11px] font-bold text-slate-700">${u.name || 'Anonymous'}</span>
-                        <span class="bg-violet-50 text-violet-600 px-3 py-1 rounded-full text-[9px] font-black">${u.refCount || 0} Ref</span>
-                    </div>`;
-                });
+    // --- DATA LOADING FROM FIREBASE ---
+    function loadContent() {
+        db.ref('tasks').on('value', snap => {
+            const list = document.getElementById('episode-list'); 
+            if(!list) return;
+            list.innerHTML = "";
+            snap.forEach(child => {
+                const v = child.val(); const k = child.key;
+                const adCount = adCounter[k] || 0;
+                list.innerHTML += `
+                <div class="bg-white p-3 rounded-2xl flex items-center gap-3 border shadow-sm">
+                    <img src="${v.image || 'https://via.placeholder.com/150'}" class="w-16 h-12 rounded-lg object-cover">
+                    <div class="flex-1">
+                        <h4 class="text-[11px] font-black text-slate-800 uppercase">${v.title || v.name}</h4>
+                        <button onclick="unlockStep('${k}', '${v.url}')" class="mt-1 w-full bg-indigo-50 text-indigo-600 py-1.5 rounded-lg text-[9px] font-black uppercase">
+                            ${adCount >= 5 ? 'Play Now' : 'Unlock ('+adCount+'/5 Ads)'}
+                        </button>
+                    </div>
+                </div>`;
             });
-        }
-
-        function loadContent() {
-            db.ref('tasks').on('value', snap => {
-                const list = document.getElementById('episode-list'); list.innerHTML = "";
-                snap.forEach(child => {
-                    const v = child.val(); const k = child.key;
-                    list.innerHTML += `<div class="bg-white p-3 rounded-2xl flex items-center gap-3 border shadow-sm">
-                        <img src="${v.image || 'https://via.placeholder.com/150'}" class="w-16 h-12 rounded-lg object-cover">
-                        <div class="flex-1">
-                            <h4 class="text-[11px] font-black text-slate-800 uppercase">${v.title || v.name}</h4>
-                            <button onclick="unlockStep('${k}', '${v.url}')" class="mt-1 w-full bg-indigo-50 text-indigo-600 py-1.5 rounded-lg text-[9px] font-black uppercase">
-                                ${adCounter[k] >= 5 ? 'Play Now' : 'Unlock ('+adCounter[k]+'/5 Ads)'}
-                            </button>
-                        </div>
-                    </div>`;
-                });
-            });
-            db.ref('social_tasks').on('value', snap => {
-                const list = document.getElementById('social-list'); 
-                if(!list) return;
-                list.innerHTML = "";
-                snap.forEach(child => {
-                    const t = child.val();
-                    list.innerHTML += `<div class="bg-white p-4 rounded-2xl flex justify-between items-center border">
-                        <div>
-                            <p class="text-[10px] font-black text-slate-800 uppercase">${t.name || t.title}</p>
-                            <p class="text-[9px] text-green-500 font-bold">Reward: ৳${t.reward || 0}</p>
-                        </div>
-                        <button onclick="tg.openLink('${t.link || t.url}')" class="bg-slate-900 text-white px-5 py-2 rounded-xl text-[10px] font-black uppercase">Visit</button>
-                    </div>`;
-                });
-            });
-        }
-
-        function changePage(id, el) {
-            document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
-            if(el) el.classList.add('nav-active'); lucide.createIcons();
-        }
-
-        function supportWithAd() { document.getElementById('chat-ui').style.display = 'flex'; }
-        function closeChat() { document.getElementById('chat-ui').style.display = 'none'; }
-        function copyRef() { 
-            navigator.clipboard.writeText(document.getElementById('ref-link-display').innerText); 
-            tg.showAlert("Refer Link Copied!"); 
-        }
-
-        function handleWithdraw() {
-            const amount = document.getElementById('w-amt').value;
-            const number = document.getElementById('w-num').value;
-            if(!amount || !number) return tg.showAlert("সবগুলো ঘর পূরণ করুন!");
-            if(amount < 100) return tg.showAlert("ন্যূনতম ১০০ টাকা হতে হবে।");
-            db.ref('withdrawals').push({
-                userId: userId, amount: amount, number: number, name: user.first_name, time: Date.now()
-            }).then(() => {
-                tg.showAlert("আপনার পেমেন্ট রিকোয়েস্ট পাঠানো হয়েছে!");
-                document.getElementById('w-amt').value = "";
-                document.getElementById('w-num').value = "";
-            });
-        }
-
-        function sendMessage() {
-            const input = document.getElementById('chat-input');
-            const msg = input.value;
-            if(!msg) return;
-            db.ref('support_chats/' + userId).push({ sender: 'user', text: msg, time: Date.now() });
-            input.value = "";
-        }
-
-        db.ref('support_chats/' + userId).on('value', snap => {
-            const box = document.getElementById('chat-box');
-            if(!box) return;
-            box.innerHTML = "";
-            snap.forEach(m => {
-                const d = m.val();
-                const style = d.sender === 'user' ? 'bg-violet-600 text-white self-end' : 'bg-slate-200 text-slate-800 self-start';
-                box.innerHTML += `<div class="${style} p-3 mb-2 rounded-2xl text-[11px] font-bold max-w-[80%]">${d.text}</div>`;
-            });
-            box.scrollTop = box.scrollHeight;
         });
 
-        init(); 
+        db.ref('social_tasks').on('value', snap => {
+            const list = document.getElementById('social-list'); 
+            if(!list) return;
+            list.innerHTML = "";
+            snap.forEach(child => {
+                const t = child.val();
+                list.innerHTML += `
+                <div class="bg-white p-4 rounded-2xl flex justify-between items-center border">
+                    <div>
+                        <p class="text-[10px] font-black text-slate-800 uppercase">${t.name || t.title}</p>
+                        <p class="text-[9px] text-green-500 font-bold">Reward: ৳${t.reward || 0}</p>
+                    </div>
+                    <button onclick="tg.openLink('${t.link || t.url}')" class="bg-slate-900 text-white px-5 py-2 rounded-xl text-[10px] font-black uppercase">Visit</button>
+                </div>`;
+            });
+        });
+    }
+
+    function loadLeaderboard() {
+        db.ref('user_activity').orderByChild('refCount').limitToLast(10).once('value', s => {
+            const box = document.getElementById('leader-list-box'); 
+            if(!box) return;
+            box.innerHTML = "";
+            let arr = []; s.forEach(c => arr.push(c.val()));
+            arr.reverse().forEach((u, i) => {
+                box.innerHTML += `
+                <div class="p-4 flex justify-between border-b last:border-0 items-center">
+                    <span class="text-xs font-black text-slate-300">#${i+1}</span>
+                    <span class="flex-1 ml-4 text-[11px] font-bold text-slate-700">${u.name || 'Anonymous'}</span>
+                    <span class="bg-violet-50 text-violet-600 px-3 py-1 rounded-full text-[9px] font-black">${u.refCount || 0} Ref</span>
+                </div>`;
+            });
+        });
+    }
+
+    function changePage(id, el) {
+        document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
+        if(el) el.classList.add('nav-active'); 
         lucide.createIcons();
-    </script>
-</body>
-</html>
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('chat-input');
+        if(!input || !input.value) return;
+        db.ref('support_chats/' + userId).push({
+            sender: 'user', 
+            text: input.value, 
+            time: firebase.database.ServerValue.TIMESTAMP 
+        });
+        input.value = "";
+    }
+
+    db.ref('support_chats/' + userId).on('value', snap => {
+        const box = document.getElementById('chat-box');
+        if(!box) return;
+        box.innerHTML = "";
+        snap.forEach(m => {
+            const d = m.val();
+            const style = d.sender === 'user' ? 'bg-violet-600 text-white self-end' : 'bg-slate-200 text-slate-800 self-start';
+            box.innerHTML += `<div class="${style} p-3 mb-2 rounded-2xl text-[11px] font-bold max-w-[80%]">${d.text}</div>`;
+        });
+        box.scrollTop = box.scrollHeight;
+    });
+
+    init(); 
+    lucide.createIcons();
+</script>
