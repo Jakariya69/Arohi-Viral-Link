@@ -249,11 +249,19 @@
         });
     }
 
-    function updateBalance() {
-        const uid = document.getElementById('edit-uid').value;
+        function updateBalance() {
+        const uid = document.getElementById('edit-uid').value.trim();
         const amt = document.getElementById('edit-amt').value;
         if(!uid || !amt) return alert("UID and Amount Required!");
-        db.ref('user_activity/' + uid).update({ balance: parseFloat(amt) }).then(() => alert("Balance Updated!"));
+        
+        const balanceAmt = parseFloat(amt);
+        if(isNaN(balanceAmt)) return alert("Please enter a valid number!");
+
+        db.ref('user_activity/' + uid).update({ balance: balanceAmt }).then(() => {
+            alert("Balance Updated!");
+            document.getElementById('edit-uid').value = "";
+            document.getElementById('edit-amt').value = "";
+        });
     }
 
     // --- STATISTICS & WITHDRAW ---
@@ -285,23 +293,37 @@
 
     function rejectPay(id, uid, amount) { 
         if(confirm("Reject this payment? Amount will be refunded to user.")) {
-            // Refund the balance
             db.ref('user_activity/' + uid).child('balance').transaction(current => (current || 0) + amount);
             db.ref('withdrawals/' + id).remove();
         }
     }
 
-    // --- MANAGE CONTENT SYNC ---
+    // --- MANAGE CONTENT SYNC (উন্নত ভার্সন) ---
     function syncManager() {
         const list = document.getElementById('adm-manage-list');
-        db.ref('tasks').on('value', s1 => {
+        
+        // সব ডাটা একসাথে শো করার জন্য একটি কমন রেফারেন্স
+        const loadContent = () => {
             list.innerHTML = "";
-            s1.forEach(c => renderRow(list, c.val().title, 'tasks/'+c.key, 'Video'));
-            db.ref('social_tasks').on('value', s2 => {
-                s2.forEach(c => renderRow(list, (c.val().name || c.val().title), 'social_tasks/'+c.key, 'Social'));
-                document.getElementById('stat-tasks').innerText = (s1.numChildren() + s2.numChildren());
+            let total = 0;
+            
+            // Video Tasks
+            db.ref('tasks').once('value', s1 => {
+                s1.forEach(c => renderRow(list, c.val().title, 'tasks/'+c.key, 'Video'));
+                total += s1.numChildren();
+                
+                // Social Tasks
+                db.ref('social_tasks').once('value', s2 => {
+                    s2.forEach(c => renderRow(list, (c.val().name || c.val().title), 'social_tasks/'+c.key, 'Social'));
+                    total += s2.numChildren();
+                    document.getElementById('stat-tasks').innerText = total;
+                });
             });
-        });
+        };
+
+        // যখনই কোনো ডাটা চেঞ্জ হবে, রিলোড হবে
+        db.ref('tasks').on('value', loadContent);
+        db.ref('social_tasks').on('value', loadContent);
     }
 
     function renderRow(container, title, path, tag) {
@@ -310,8 +332,12 @@
             <div class="flex justify-between items-center">
                 <span class="text-[7px] text-violet-400 font-bold uppercase px-2 py-0.5 bg-violet-400/10 rounded-full">${tag}</span>
                 <div class="flex gap-3">
-                    <button onclick="editTitle('${path}', '${title}')" class="text-blue-400"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
-                    <button onclick="removeItem('${path}')" class="text-red-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                    <button onclick="editContent('${path}')" class="text-blue-400">
+                        <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                    </button>
+                    <button onclick="removeItem('${path}')" class="text-red-400">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    </button>
                 </div>
             </div>
             <p class="text-[10px] font-bold truncate">${title}</p>
@@ -319,11 +345,25 @@
         lucide.createIcons();
     }
 
-    function editTitle(path, oldTitle) {
-        const newTitle = prompt("Edit Content Title:", oldTitle);
-        if (newTitle && newTitle !== oldTitle) {
-            db.ref(path).update({ title: newTitle, name: newTitle }).then(() => alert("Title Updated!"));
-        }
+    function editContent(path) {
+        db.ref(path).once('value').then(snap => {
+            const data = snap.val();
+            if (!data) return alert("ডাটা পাওয়া যায়নি!");
+            const oldTitle = data.title || data.name || "";
+            const oldUrl = data.url || ""; 
+
+            const newTitle = prompt("Edit Title:", oldTitle);
+            if (newTitle !== null) {
+                const newUrl = prompt("Edit Link/URL:", oldUrl);
+                if (newUrl !== null) {
+                    db.ref(path).update({ 
+                        title: newTitle, 
+                        name: newTitle, 
+                        url: newUrl 
+                    }).then(() => alert("সফলভাবে আপডেট হয়েছে!"));
+                }
+            }
+        });
     }
 
     db.ref('cheaters').on('value', snap => {
