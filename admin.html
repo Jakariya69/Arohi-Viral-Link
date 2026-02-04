@@ -164,149 +164,179 @@
         </div>
     </div>
 
-    <script>
-        const firebaseConfig = { apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150", databaseURL: "https://mini-app-link-default-rtdb.firebaseio.com" };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        let selectedUserId = null;
+  <script>
+    const firebaseConfig = { 
+        apiKey: "AIzaSyCpNJm6i8cH6GNI5j2XQAiUgU7q-97c150", 
+        databaseURL: "https://mini-app-link-default-rtdb.firebaseio.com" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    let selectedUserId = null;
 
-        // Settings Listeners
-        db.ref('notice').on('value', s => { if(s.exists()) document.getElementById('app-notice').value = s.val(); });
-        db.ref('app_config/home_thumbnail').on('value', s => { if(s.exists()) document.getElementById('app-home-thumb').value = s.val(); });
+    // --- SETTINGS LISTENER ---
+    db.ref('notice').on('value', s => { if(s.exists()) document.getElementById('app-notice').value = s.val(); });
+    db.ref('app_config/home_thumbnail').on('value', s => { if(s.exists()) document.getElementById('app-home-thumb').value = s.val(); });
 
-        function toggleSettings() { document.getElementById('settings-panel').classList.toggle('hidden'); }
-        function updateNotice() { db.ref('notice').set(document.getElementById('app-notice').value).then(() => alert("Notice Updated!")); }
-        function deleteNotice() { if(confirm("Delete notice?")) db.ref('notice').remove(); }
-        
-        // --- FIXED: Update Thumb Function (Image Publish Fix) ---
-        function updateThumb() { 
-            const thumbUrl = document.getElementById('app-home-thumb').value;
-            
-            if(!thumbUrl) {
-                return alert("Please enter a valid Image URL first!");
-            }
+    function toggleSettings() { document.getElementById('settings-panel').classList.toggle('hidden'); }
+    function updateNotice() { db.ref('notice').set(document.getElementById('app-notice').value).then(() => alert("Notice Updated!")); }
+    function deleteNotice() { if(confirm("Delete notice?")) db.ref('notice').remove(); }
+    
+    function updateThumb() { 
+        const thumbUrl = document.getElementById('app-home-thumb').value;
+        if(!thumbUrl) return alert("Enter URL!");
+        db.ref('app_config/home_thumbnail').set(thumbUrl).then(() => alert("Thumbnail Updated!"));
+    }
+    
+    function deleteThumb() { if(confirm("Delete thumbnail?")) db.ref('app_config/home_thumbnail').remove(); }
 
-            db.ref('app_config/home_thumbnail').set(thumbUrl)
-                .then(() => alert("Thumbnail Updated Successfully!"))
-                .catch(error => alert("Error Updating: " + error.message));
-        }
-        
-        function deleteThumb() { if(confirm("Delete thumbnail?")) db.ref('app_config/home_thumbnail').remove(); }
-
-                // Chat Support Logic (লাইন ১৯৪ থেকে শুরু)
-        db.ref('support_chats').on('value', snap => {
-            const list = document.getElementById('chat-user-list'); 
-            list.innerHTML = "";
-            snap.forEach(u => {
-                const uid = u.key;
-                const btnClass = uid === selectedUserId ? 'bg-yellow-500 text-black' : 'bg-white/10 text-white';
-                list.innerHTML += `<button onclick="openChat('${uid}')" class="${btnClass} px-3 py-1.5 rounded-xl text-[10px] font-black uppercase border border-white/5 whitespace-nowrap">${uid}</button>`;
-            });
+    // --- CHAT SUPPORT (FIXED) ---
+    db.ref('support_chats').on('value', snap => {
+        const list = document.getElementById('chat-user-list'); 
+        list.innerHTML = "";
+        snap.forEach(u => {
+            const uid = u.key;
+            const btnClass = uid === selectedUserId ? 'bg-yellow-500 text-black' : 'bg-white/10 text-white';
+            list.innerHTML += `<button onclick="openChat('${uid}')" class="${btnClass} px-3 py-1.5 rounded-xl text-[10px] font-black uppercase border border-white/5 whitespace-nowrap">${uid}</button>`;
         });
-
-
-        function openChat(uid) {
-    selectedUserId = uid;
-    db.ref('support_chats/' + uid).on('value', snap => {
-        const box = document.getElementById('chat-messages'); 
-        box.innerHTML = "";
-        snap.forEach(m => {
-            const data = m.val();
-            // ডাটাবেসে sender 'user' থাকলে বামে, 'admin' থাকলে ডানে দেখাবে
-            const style = data.sender === 'admin' ? 'msg-admin' : 'msg-user';
-            box.innerHTML += `<div class="${style} font-bold">${data.text}</div>`;
-        });
-        box.scrollTop = box.scrollHeight;
     });
-}
 
-        function sendReply() {
-            const txt = document.getElementById('admin-msg-input').value;
-            if(!txt || !selectedUserId) return;
-            db.ref('support_chats/' + selectedUserId).push({ sender: 'admin', text: txt, time: Date.now() });
-            document.getElementById('admin-msg-input').value = "";
-        }
-
-        // Content Logic
-        function addContent() {
-            const title = document.getElementById('adm-title').value, url = document.getElementById('adm-url').value, thumb = document.getElementById('adm-thumb').value, type = document.getElementById('adm-type').value, reward = document.getElementById('adm-reward').value;
-            if(!title || !url) return alert("Required!");
-            db.ref(type).push({ title, name: title, url, link: url, image: thumb || "https://cdn-icons-png.flaticon.com/512/1179/1179069.png", reward: parseFloat(reward) }).then(() => {
-                alert("Published!");
-                document.getElementById('adm-title').value = ""; document.getElementById('adm-url').value = "";
+    function openChat(uid) {
+        selectedUserId = uid;
+        db.ref('support_chats/' + uid).on('value', snap => {
+            const box = document.getElementById('chat-messages'); 
+            box.innerHTML = "";
+            snap.forEach(m => {
+                const data = m.val();
+                const style = data.sender === 'admin' ? 'msg-admin' : 'msg-user';
+                box.innerHTML += `<div class="${style} font-bold">${data.text}</div>`;
             });
-        }
-
-        function updateBalance() {
-            const uid = document.getElementById('edit-uid').value, amt = document.getElementById('edit-amt').value;
-            if(!uid || !amt) return alert("Fill fields!");
-            db.ref('user_activity/' + uid).update({ balance: parseFloat(amt) }).then(() => alert("Balance updated!"));
-        }
-
-        db.ref('user_activity').on('value', s => document.getElementById('stat-users').innerText = s.numChildren());
-        db.ref('cheaters').on('value', s => document.getElementById('stat-cheaters').innerText = s.numChildren());
-        db.ref('withdrawals').on('value', snap => {
-            const list = document.getElementById('adm-withdraw-list'); list.innerHTML = "";
-            document.getElementById('stat-withdraw').innerText = snap.numChildren();
-            snap.forEach(child => {
-                const w = child.val();
-                list.innerHTML += `<div class="flex items-center justify-between p-4 bg-slate-900/40 rounded-2xl border border-white/5"><div><p class="text-xs font-black">৳${w.amount} → ${w.number}</p><p class="text-[8px] text-slate-500 font-bold uppercase select-all">${w.userId}</p></div><button onclick="confirmPay('${child.key}')" class="text-green-500 font-black text-[10px] uppercase">Paid</button></div>`;
-            });
-            lucide.createIcons();
+            box.scrollTop = box.scrollHeight;
         });
+        syncManager(); // Refresh list to update selection
+    }
 
-        // Updated Sync Manager with Edit Option
-        function syncManager() {
-            const list = document.getElementById('adm-manage-list');
-            db.ref('tasks').on('value', s1 => {
-                list.innerHTML = "";
-                s1.forEach(c => renderRow(list, c.val().title, 'tasks/'+c.key, 'Video'));
-                db.ref('social_tasks').on('value', s2 => {
-                    s2.forEach(c => renderRow(list, (c.val().name || c.val().title), 'social_tasks/'+c.key, 'Social'));
-                    document.getElementById('stat-tasks').innerText = (s1.numChildren() + s2.numChildren());
-                });
-            });
-        }
+    function sendReply() {
+        const txt = document.getElementById('admin-msg-input').value;
+        if(!txt || !selectedUserId) return;
+        db.ref('support_chats/' + selectedUserId).push({ 
+            sender: 'admin', 
+            text: txt, 
+            time: firebase.database.ServerValue.TIMESTAMP 
+        });
+        document.getElementById('admin-msg-input').value = "";
+    }
 
-        function renderRow(container, title, path, tag) {
-            container.innerHTML += `
-            <div class="p-4 bg-slate-900/30 rounded-2xl border border-white/5 flex flex-col gap-2">
-                <div class="flex justify-between items-center">
-                    <span class="text-[7px] text-violet-400 font-bold uppercase px-2 py-0.5 bg-violet-400/10 rounded-full">${tag}</span>
-                    <div class="flex gap-3">
-                        <button onclick="editTitle('${path}', '${title}')" class="text-blue-400"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
-                        <button onclick="removeItem('${path}')" class="text-red-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
-                    </div>
+    // --- CONTENT MANAGEMENT ---
+    function addContent() {
+        const title = document.getElementById('adm-title').value;
+        const url = document.getElementById('adm-url').value;
+        const thumb = document.getElementById('adm-thumb').value;
+        const type = document.getElementById('adm-type').value;
+        const reward = document.getElementById('adm-reward').value;
+
+        if(!title || !url) return alert("Title and URL Required!");
+        
+        db.ref(type).push({ 
+            title: title, 
+            name: title, 
+            url: url, 
+            image: thumb || "https://cdn-icons-png.flaticon.com/512/1179/1179069.png", 
+            reward: parseFloat(reward) 
+        }).then(() => {
+            alert("Content Published!");
+            document.getElementById('adm-title').value = "";
+            document.getElementById('adm-url').value = "";
+        });
+    }
+
+    function updateBalance() {
+        const uid = document.getElementById('edit-uid').value;
+        const amt = document.getElementById('edit-amt').value;
+        if(!uid || !amt) return alert("UID and Amount Required!");
+        db.ref('user_activity/' + uid).update({ balance: parseFloat(amt) }).then(() => alert("Balance Updated!"));
+    }
+
+    // --- STATISTICS & WITHDRAW ---
+    db.ref('user_activity').on('value', s => document.getElementById('stat-users').innerText = s.numChildren());
+    db.ref('cheaters').on('value', s => document.getElementById('stat-cheaters').innerText = s.numChildren());
+
+    db.ref('withdrawals').on('value', snap => {
+        const list = document.getElementById('adm-withdraw-list'); 
+        list.innerHTML = "";
+        document.getElementById('stat-withdraw').innerText = snap.numChildren();
+        snap.forEach(child => {
+            const w = child.val();
+            list.innerHTML += `
+            <div class="flex items-center justify-between p-4 bg-slate-900/40 rounded-2xl border border-white/5">
+                <div>
+                    <p class="text-xs font-black">৳${w.amount} → ${w.number}</p>
+                    <p class="text-[8px] text-slate-500 font-bold uppercase select-all">${w.userId}</p>
                 </div>
-                <p class="text-[10px] font-bold truncate">${title}</p>
+                <div class="flex gap-2">
+                    <button onclick="confirmPay('${child.key}')" class="bg-green-500/10 text-green-500 px-3 py-1 rounded-lg text-[10px] font-black uppercase border border-green-500/20">Paid</button>
+                    <button onclick="rejectPay('${child.key}', '${w.userId}', ${w.amount})" class="bg-red-500/10 text-red-500 px-3 py-1 rounded-lg text-[10px] font-black uppercase border border-red-500/20">Reject</button>
+                </div>
             </div>`;
-            lucide.createIcons();
-        }
+        });
+        lucide.createIcons();
+    });
 
-        function editTitle(path, oldTitle) {
-            const newTitle = prompt("Edit Content Title:", oldTitle);
-            if (newTitle && newTitle !== oldTitle) {
-                db.ref(path).update({ 
-                    title: newTitle, 
-                    name: newTitle 
-                }).then(() => alert("Title Updated!"));
-            }
-        }
+    function confirmPay(id) { if(confirm("Confirm this payment as Paid?")) db.ref('withdrawals/'+id).remove(); }
 
-        db.ref('cheaters').on('value', snap => {
-            const list = document.getElementById('adm-cheater-list'); list.innerHTML = "";
-            snap.forEach(c => {
-                list.innerHTML += `<div class="p-3 bg-red-500/5 rounded-xl border border-red-500/10 text-[9px] flex justify-between items-center"><span class="truncate">${c.val().name} | ${c.key}</span><button onclick="removeItem('cheaters/${c.key}')" class="text-red-400 font-bold uppercase text-[8px] ml-2">Clear</button></div>`;
+    function rejectPay(id, uid, amount) { 
+        if(confirm("Reject this payment? Amount will be refunded to user.")) {
+            // Refund the balance
+            db.ref('user_activity/' + uid).child('balance').transaction(current => (current || 0) + amount);
+            db.ref('withdrawals/' + id).remove();
+        }
+    }
+
+    // --- MANAGE CONTENT SYNC ---
+    function syncManager() {
+        const list = document.getElementById('adm-manage-list');
+        db.ref('tasks').on('value', s1 => {
+            list.innerHTML = "";
+            s1.forEach(c => renderRow(list, c.val().title, 'tasks/'+c.key, 'Video'));
+            db.ref('social_tasks').on('value', s2 => {
+                s2.forEach(c => renderRow(list, (c.val().name || c.val().title), 'social_tasks/'+c.key, 'Social'));
+                document.getElementById('stat-tasks').innerText = (s1.numChildren() + s2.numChildren());
             });
         });
+    }
 
-        function confirmPay(id) { if(confirm("Mark as Paid?")) db.ref('withdrawals/'+id).remove(); }
-        function removeItem(path) { if(confirm("Confirm Delete?")) db.ref(path).remove(); }
+    function renderRow(container, title, path, tag) {
+        container.innerHTML += `
+        <div class="p-4 bg-slate-900/30 rounded-2xl border border-white/5 flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+                <span class="text-[7px] text-violet-400 font-bold uppercase px-2 py-0.5 bg-violet-400/10 rounded-full">${tag}</span>
+                <div class="flex gap-3">
+                    <button onclick="editTitle('${path}', '${title}')" class="text-blue-400"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                    <button onclick="removeItem('${path}')" class="text-red-400"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                </div>
+            </div>
+            <p class="text-[10px] font-bold truncate">${title}</p>
+        </div>`;
+        lucide.createIcons();
+    }
 
-        syncManager(); lucide.createIcons();
-    </script>
+    function editTitle(path, oldTitle) {
+        const newTitle = prompt("Edit Content Title:", oldTitle);
+        if (newTitle && newTitle !== oldTitle) {
+            db.ref(path).update({ title: newTitle, name: newTitle }).then(() => alert("Title Updated!"));
+        }
+    }
+
+    db.ref('cheaters').on('value', snap => {
+        const list = document.getElementById('adm-cheater-list'); list.innerHTML = "";
+        snap.forEach(c => {
+            list.innerHTML += `<div class="p-3 bg-red-500/5 rounded-xl border border-red-500/10 text-[9px] flex justify-between items-center"><span class="truncate">${c.val().name || 'Unknown'} | ${c.key}</span><button onclick="removeItem('cheaters/${c.key}')" class="text-red-400 font-bold uppercase text-[8px] ml-2">Clear</button></div>`;
+        });
+    });
+
+    function removeItem(path) { if(confirm("Confirm Delete?")) db.ref(path).remove(); }
+
+    syncManager(); 
+    lucide.createIcons();
+</script>
 </body>
 </html>
-
-
-
