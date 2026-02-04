@@ -47,20 +47,20 @@ video { width: 100%; height: 100%; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         #chat-ui { display: none; position: fixed; inset: 0; background: #f8fafc; z-index: 6000; flex-direction: column; }
-video::-webkit-media-controls-panel {
-    display: flex !important;
-    opacity: 1 !important;
-}
-
 video {
     width: 100%;
     height: 100%;
     object-fit: contain;
 }
+video::-webkit-media-controls-volume-slider { display: flex !important; }
+video::-webkit-media-controls-mute-button { display: flex !important; }
+video::-webkit-media-controls-panel { display: flex !important; opacity: 1 !important; }
 
-    </style>
+</style>
 </head>
 <body>
+
+
 
     <div id="chat-ui">
         <div class="bg-white p-4 border-b flex justify-between items-center shadow-sm">
@@ -363,7 +363,7 @@ video {
         });
     }
 
-    function unlockStep(k, url) {
+        function unlockStep(k, url) {
         if (!adCounter[k]) adCounter[k] = 0;
         
         if (adCounter[k] < 5) {
@@ -387,19 +387,26 @@ video {
                 
                 video.src = url;
                 video.load();
-                video.pause(); // ভিডিও পজ হয়ে থাকবে
                 
+                // --- অটো-রোটেশন সিস্টেম (ফুলস্ক্রিন করলে ঘুরবে) ---
+                video.addEventListener('webkitbeginfullscreen', () => {
+                    if (screen.orientation && screen.orientation.lock) {
+                        screen.orientation.lock('landscape').catch(() => {});
+                    }
+                });
+
                 const playerSection = document.getElementById('video-player-section');
                 if(playerSection) {
                     playerSection.style.display = 'flex';
                     playerSection.classList.add('active'); 
                 }
                 
-                tg.showAlert("ভিডিও লোড হয়েছে। প্লে বাটনে ক্লিক করুন।");
+                // পপ-আপ মেসেজ (tg.showAlert) এখান থেকে সরিয়ে দেওয়া হয়েছে
                 lucide.createIcons();
             }, 3000); 
         }
     }
+
 
 
     // --- PENALTY LOGIC (ANTI-CHEAT) ---
@@ -576,3 +583,5 @@ video {
     init(); 
     lucide.createIcons();
 </script>
+</body>
+</html>
