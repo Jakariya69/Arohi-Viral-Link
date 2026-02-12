@@ -356,6 +356,56 @@
 
     function confirmPay(id) { if(confirm("Paid?")) db.ref('withdrawals/'+id).remove(); }
 
+    // --- কন্টেন্ট আপলোড ফাংশন (Fix) ---
+    function addContent() {
+        const title = document.getElementById('adm-title').value;
+        const url = document.getElementById('adm-url').value;
+        const thumb = document.getElementById('adm-thumb').value;
+        const type = document.getElementById('adm-type').value; // tasks or social_tasks
+        const reward = parseFloat(document.getElementById('adm-reward').value);
+
+        if(!title || !url) {
+            alert("Title এবং URL অবশ্যই দিতে হবে!");
+            return;
+        }
+
+        const payload = {
+            title: title,
+            name: title, // দুইটাই রাখা হলো যাতে অ্যাপ সাপোর্ট করে
+            url: url,
+            image: thumb || "https://via.placeholder.com/150",
+            thumbnail: thumb || "https://via.placeholder.com/150",
+            reward: reward || 5,
+            views: 0,
+            state: 'active',
+            time: firebase.database.ServerValue.TIMESTAMP
+        };
+
+        // Firebase-এ ডেটা পুশ করা
+        db.ref(type).push(payload)
+        .then(() => {
+            alert("সফলভাবে পাবলিশ হয়েছে!");
+            // ইনপুট বক্স খালি করা
+            document.getElementById('adm-title').value = "";
+            document.getElementById('adm-url').value = "";
+            document.getElementById('adm-thumb').value = "";
+        })
+        .catch(err => {
+            alert("Error: " + err.message);
+        });
+    }
+
+    function updateBalance() {
+        const uid = document.getElementById('edit-uid').value.trim();
+        const amt = parseFloat(document.getElementById('edit-amt').value);
+
+        if(!uid || isNaN(amt)) return alert("ID এবং Amount সঠিকভাবে দিন!");
+
+        db.ref('user_activity/' + uid).update({ balance: amt })
+        .then(() => alert("ইউজারের ব্যালেন্স আপডেট হয়েছে!"))
+        .catch(() => alert("ইউজার পাওয়া যায়নি!"));
+    }
+
     syncManager();
     lucide.createIcons();
 </script>
