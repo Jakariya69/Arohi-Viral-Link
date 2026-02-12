@@ -63,109 +63,79 @@ video::-webkit-media-controls-panel { display: flex !important; opacity: 1 !impo
 
 
 
-    <div id="chat-ui">
-        <div class="bg-white p-4 border-b flex justify-between items-center shadow-sm">
-            <h2 class="font-black text-slate-800 uppercase text-sm">Official Support</h2>
-            <button onclick="closeChat()" class="p-2 bg-slate-100 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
-        </div>
-        <div id="chat-box" class="flex-1 overflow-y-auto p-4 flex flex-col space-y-2"></div>
-        <div class="p-4 bg-white border-t flex gap-2">
-            <input id="chat-input" type="text" placeholder="মেসেজ লিখুন..." class="flex-1 bg-slate-100 rounded-2xl p-4 text-sm outline-none font-bold">
-            <button onclick="sendMessage()" class="bg-violet-600 text-white p-4 rounded-2xl shadow-lg"><i data-lucide="send" class="w-5 h-5"></i></button>
-        </div>
+   <div id="chat-ui">
+    <div class="bg-white p-4 border-b flex justify-between items-center shadow-sm">
+        <h2 class="font-black text-slate-800 uppercase text-sm">Official Support</h2>
+        <button onclick="closeChat()" class="p-2 bg-slate-100 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
-
-    <div id="ad-loader" style="display: none;">
-
-        <div class="timer-circle mb-4"></div>
-        <h2 class="font-black text-lg uppercase">Loading Secure Video...</h2>
-        <p class="text-[11px] text-slate-400 mt-1 uppercase text-center px-6">১০ সেকেন্ড অপেক্ষা করুন।</p>
-        <div class="progress-container">
-            <div id="progress-bar"></div>
-        </div>
-        <div id="countdown-text" class="text-3xl font-black mt-4 text-blue-500">10s</div>
+    <div id="chat-box" class="flex-1 overflow-y-auto p-4 flex flex-col space-y-2"></div>
+    <div class="p-4 bg-white border-t flex gap-2">
+        <input id="chat-input" type="text" placeholder="মেসেজ লিখুন..." class="flex-1 bg-slate-100 rounded-2xl p-4 text-sm outline-none font-bold">
+        <button onclick="sendMessage()" class="bg-violet-600 text-white p-4 rounded-2xl shadow-lg"><i data-lucide="send" class="w-5 h-5"></i></button>
     </div>
-
-        
- <div id="video-player-section" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 5000; background: #000; flex-direction: column; justify-content: flex-start;">
-    
-    <div class="w-full p-4 flex justify-between items-center bg-black/90">
-        <div class="text-white">
-            <p class="text-[10px] font-black uppercase tracking-widest">Premium Player</p>
-        </div>
-        <button onclick="closeVideo()" class="bg-red-600 p-2 rounded-full text-white shadow-lg">
-            <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-    </div>
-    
-    <div class="video-container shadow-2xl bg-black relative flex items-center justify-center overflow-hidden" style="aspect-ratio: 16/9; width: 100%;">
-    <video id="main-video" controls playsinline preload="metadata" 
-           controlsList="nodownload" 
-           style="width: 100%; height: 100%; object-fit: contain; background: black;">
-    </video>
 </div>
 
+<div id="ad-loader" style="display: none;">
+    <div class="timer-circle mb-4"></div>
+    <h2 class="font-black text-lg uppercase">Loading Secure Video...</h2>
+    <p class="text-[11px] text-slate-400 mt-1 uppercase text-center px-6">১০ সেকেন্ড অপেক্ষা করুন।</p>
+    <div class="progress-container"><div id="progress-bar"></div></div>
+    <div id="countdown-text" class="text-3xl font-black mt-4 text-blue-500">10s</div>
+</div>
 
+<div id="video-player-section" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: 5000; background: #000; flex-direction: column;">
+    <div class="w-full p-4 flex justify-between items-center bg-black/90">
+        <p class="text-white text-[10px] font-black uppercase tracking-widest">Premium Player</p>
+        <button onclick="closeVideo()" class="bg-red-600 p-2 rounded-full text-white shadow-lg"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>
+    <div class="video-container shadow-2xl bg-black relative flex items-center justify-center overflow-hidden" style="aspect-ratio: 16/9; width: 100%;">
+        <video id="main-video" controls playsinline preload="metadata" controlsList="nodownload" style="width: 100%; height: 100%; object-fit: contain; background: black;"></video>
+    </div>
     <div class="w-full px-5 py-2 flex justify-between text-[10px] font-bold text-white bg-slate-900/50">
         <span id="current-time">0:00</span>
         <span id="total-duration">0:00</span>
     </div>
-
-    <div class="w-full bg-slate-900 py-3 px-5 flex items-center justify-between border-t border-white/5">
-        <div class="flex items-center gap-2">
-            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <p class="text-[11px] font-black text-slate-300 uppercase">
-                Streaming Online
-            </p>
-        </div>
-        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Powered by Elite Player</p>
-    </div>
 </div>
 
-
-
-
-
-
-        <div id="ad-penalty-screen">
-            <i data-lucide="alert-octagon" class="w-16 h-16 text-red-500 mb-2"></i>
-            <h2 class="text-xl font-black text-red-500 uppercase">Warning: Seeking!</h2>
-            <p class="text-[11px] text-slate-400 uppercase text-center px-10">আপনি ভিডিও টেনেছেন! শাস্তি হিসেবে ৬০ সেকেন্ড অপেক্ষা করুন।</p>
-            <div class="penalty-timer" id="penalty-countdown">60s</div>
-            <div id="penalty-ad-container" style="width: 100%; min-height: 250px; display: flex; justify-content: center; align-items: center; margin-bottom: 15px;"></div>
-            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden max-w-[250px]">
-                <div id="penalty-progress" class="bg-red-500 h-full w-0 transition-all"></div>
-            </div>
-        </div>
-    </div>
-
-
-<div id="notice-board" class="hidden bg-gradient-to-r from-red-600 to-red-800 text-white py-3 px-4 shadow-lg border-b-2 border-yellow-400">
-    <div class="flex items-center gap-3">
-        <div class="bg-white/20 p-1.5 rounded-lg animate-pulse">
-            <i data-lucide="megaphone" class="w-4 h-4 text-white"></i>
-        </div>
-        <div id="notice-text" class="flex-1 font-bold overflow-hidden">
-            </div>
-    </div>
+<div id="ad-penalty-screen">
+    <i data-lucide="alert-octagon" class="w-16 h-16 text-red-500 mb-2"></i>
+    <h2 class="text-xl font-black text-red-500 uppercase">Warning: Seeking!</h2>
+    <p class="text-[11px] text-slate-400 uppercase text-center px-10">আপনি ভিডিও টেনেছেন! শাস্তি হিসেবে ৬০ সেকেন্ড অপেক্ষা করুন।</p>
+    <div class="penalty-timer" id="penalty-countdown">60s</div>
+    <div id="penalty-ad-container" style="width: 100%; min-height: 250px;"></div>
+    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden max-w-[250px]"><div id="penalty-progress" class="bg-red-500 h-full w-0 transition-all"></div></div>
 </div>
 
+<div class="sticky top-0 z-50 bg-white">
+    <div id="notice-board" class="hidden bg-gradient-to-r from-red-600 to-red-800 text-white py-3 px-4 shadow-lg border-b-2 border-yellow-400">
+        <div class="flex items-center gap-3">
+            <div class="bg-white/20 p-1.5 rounded-lg animate-pulse"><i data-lucide="megaphone" class="w-4 h-4 text-white"></i></div>
+            <div id="notice-text" class="flex-1 font-bold text-[11px] overflow-hidden"></div>
+        </div>
+    </div>
 
-    <div class="bg-white/90 backdrop-blur-md p-4 sticky top-0 z-50 border-b flex justify-between items-center">
+    <div class="bg-white p-4 border-b flex justify-between items-center shadow-sm">
         <div class="flex items-center gap-3">
             <img id="u-photo" src="" class="hidden w-10 h-10 rounded-xl border-2 border-violet-600 object-cover">
-            <div id="u-initial-box" class="w-10 h-10 bg-violet-600 rounded-xl flex items-center justify-center text-white font-black">?</div>
+            <div id="u-initial-box" class="w-10 h-10 bg-violet-600 rounded-xl flex items-center justify-center text-white font-black text-sm">?</div>
             <div>
                 <h1 class="font-black text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-600 text-xl italic leading-none">MIM PREMIUM</h1>
                 <p id="top-username" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Loading...</p>
             </div>
         </div>
-        <button onclick="supportWithAd()" class="bg-violet-100 p-2 rounded-xl text-violet-600">
-            <i data-lucide="headphones" class="w-6 h-6"></i>
-        </button>
+        <button onclick="supportWithAd()" class="bg-violet-100 p-2 rounded-xl text-violet-600"><i data-lucide="headphones" class="w-6 h-6"></i></button>
     </div>
 
-    <div class="ad-banner-container" style="display: flex; justify-content: center; align-items: center; width: 100%; margin: 10px 0;">
+    <div class="px-4 py-3 bg-white border-b shadow-sm">
+        <div class="relative">
+            <input type="text" id="videoSearch" onkeyup="searchVideo()" placeholder="ভিডিও বা এপিসোড খুঁজুন..." 
+                   class="w-full bg-slate-100 border-none p-3 pl-10 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-violet-200">
+            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4"></i>
+        </div>
+    </div>
+</div>
+
+<div class="ad-banner-container flex justify-center w-full my-2">
     <div style="text-align: center;">
         <script type="text/javascript">
             atOptions = {'key' : '68d64b420fe4aeee18352cb08543fd7e','format' : 'iframe','height' : 50,'width' : 320,'params' : {}};
@@ -173,6 +143,7 @@ video::-webkit-media-controls-panel { display: flex !important; opacity: 1 !impo
         <script type="text/javascript" src="https://www.highperformanceformat.com/68d64b420fe4aeee18352cb08543fd7e/invoke.js"></script>
     </div>
 </div>
+
 
 
     <div id="pages-container" class="p-4">
@@ -483,46 +454,50 @@ video::-webkit-media-controls-panel { display: flex !important; opacity: 1 !impo
 
 
     function loadContent() {
-        db.ref('tasks').on('value', snap => {
-            const list = document.getElementById('episode-list'); 
-            if(!list) return; list.innerHTML = "";
-            let adData = JSON.parse(localStorage.getItem('ad_progress_data')) || {};
-            let today = new Date().toDateString();
+    db.ref('tasks').on('value', snap => {
+        const list = document.getElementById('episode-list'); 
+        if(!list) return; 
+        list.innerHTML = "";
+        let adData = JSON.parse(localStorage.getItem('ad_progress_data')) || {};
+        let today = new Date().toDateString();
 
-            snap.forEach(child => {
-                const v = child.val(); const k = child.key;
-                let currentCount = (adData[k] && adData[k].date === today) ? adData[k].count : 0;
+        snap.forEach(child => {
+            const v = child.val(); 
+            const k = child.key;
+            let currentCount = (adData[k] && adData[k].date === today) ? adData[k].count : 0;
 
-                list.innerHTML += `
-                <div class="bg-white p-4 rounded-3xl flex flex-col gap-3 border border-slate-100 shadow-sm mb-4">
-                    <div class="flex items-center gap-4">
-                        <img src="${v.image || 'https://via.placeholder.com/150'}" class="w-24 h-20 rounded-2xl object-cover shadow-md border-2 border-slate-50">
-                        <div class="flex-1">
-                            <h4 class="text-[13px] font-black text-slate-800 uppercase leading-tight">${v.title || v.name}</h4>
-                            <p class="text-[10px] text-slate-400 font-bold mt-1">Status: ${currentCount >= 5 ? 'Ready ✅' : 'Locked 🔒'}</p>
-                        </div>
+            list.innerHTML += `
+            <div class="video-card-item bg-white p-4 rounded-3xl flex flex-col gap-3 border border-slate-100 shadow-sm mb-4">
+                <div class="flex items-center gap-4">
+                    <img src="${v.image || 'https://via.placeholder.com/150'}" class="w-24 h-20 rounded-2xl object-cover shadow-md border-2 border-slate-50">
+                    <div class="flex-1">
+                        <h4 class="video-title text-[13px] font-black text-slate-800 uppercase leading-tight">${v.title || v.name}</h4>
+                        <p class="text-[10px] text-slate-400 font-bold mt-1">Status: ${currentCount >= 5 ? 'Ready ✅' : 'Locked 🔒'}</p>
                     </div>
-                    <button onclick="unlockStep('${k}', '${v.url}')" 
-                        class="w-full ${currentCount >= 5 ? 'bg-green-500 shadow-green-200' : 'bg-indigo-600 shadow-indigo-200'} text-white py-4 rounded-2xl text-[12px] font-black uppercase shadow-lg active:scale-95 transition-all">
-                        ${currentCount >= 5 ? 'PLAY VIDEO NOW ✅' : 'UNLOCK VIDEO ('+currentCount+'/5 Ads) 🔒'}
-                    </button>
-                </div>`;
-            });
+                </div>
+                <button onclick="unlockStep('${k}', '${v.url}')" 
+                    class="w-full ${currentCount >= 5 ? 'bg-green-500 shadow-green-200' : 'bg-indigo-600 shadow-indigo-200'} text-white py-4 rounded-2xl text-[12px] font-black uppercase shadow-lg active:scale-95 transition-all">
+                    ${currentCount >= 5 ? 'PLAY VIDEO NOW ✅' : 'UNLOCK VIDEO ('+currentCount+'/5 Ads) 🔒'}
+                </button>
+            </div>`;
         });
+    });
 
-        // সোশ্যাল টাস্ক
-        db.ref('social_tasks').on('value', snap => {
-            const list = document.getElementById('social-list'); if(!list) return;
-            list.innerHTML = "";
-            snap.forEach(child => {
-                const t = child.val();
-                list.innerHTML += `<div class="bg-white p-4 rounded-2xl flex justify-between items-center border border-slate-50 shadow-sm mb-3">
-                    <div><p class="text-[11px] font-black text-slate-800 uppercase">${t.name}</p><p class="text-[10px] text-green-500 font-bold">Reward: ৳${t.reward}</p></div>
-                    <button onclick="tg.openLink('${t.link}')" class="bg-slate-900 text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase">Visit</button>
-                </div>`;
-            });
+    // সোশ্যাল টাস্ক লোড করার অংশ (নিচে না থাকলে এটিও যোগ করে দিন)
+    db.ref('social_tasks').on('value', snap => {
+        const list = document.getElementById('social-list'); 
+        if(!list) return;
+        list.innerHTML = "";
+        snap.forEach(child => {
+            const t = child.val();
+            list.innerHTML += `<div class="bg-white p-4 rounded-2xl flex justify-between items-center border border-slate-50 shadow-sm mb-3">
+                <div><p class="text-[11px] font-black text-slate-800 uppercase">${t.name}</p><p class="text-[10px] text-green-500 font-bold">Reward: ৳${t.reward}</p></div>
+                <button onclick="tg.openLink('${t.link}')" class="bg-slate-900 text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase">Visit</button>
+            </div>`;
         });
-    }
+    });
+}
+
 
     function showToast(msg) {
         const old = document.querySelector(".custom-toast");
@@ -615,9 +590,25 @@ db.ref('support_chats/' + userId).on('value', snap => {
     function closeChat() { document.getElementById('chat-ui').style.display = 'none'; }
     function supportWithAd() { document.getElementById('chat-ui').style.display = 'flex'; }
 
-
     init();
     lucide.createIcons();
+function searchVideo() {
+    let input = document.getElementById('videoSearch').value.toUpperCase();
+    let cards = document.getElementsByClassName('video-card-item');
+    
+    for (let i = 0; i < cards.length; i++) {
+        let titleElement = cards[i].querySelector('.video-title');
+        if (titleElement) {
+            let title = titleElement.innerText.toUpperCase();
+            if (title.indexOf(input) > -1) {
+                cards[i].style.display = ""; 
+            } else {
+                cards[i].style.display = "none"; 
+            }
+        }
+    }
+}
+
 </script>
 </body>
 </html>
