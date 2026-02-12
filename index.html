@@ -2,17 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mim Premium - Official</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
-    
-    <script src="//niphaumeenses.net/vignette.min.js" data-zone="10530857" data-sdk="show_10530857"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mim Premium - Official</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
 
-    <style>
+<script src="https://niphaumeenses.net/vignette.min.js" data-zone="10530857" data-sdk="show_10530857"></script>
+
+<style>
+
         @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;700;900&display=swap');
         body { font-family: 'Urbanist', sans-serif; background: #f8fafc; user-select: none; margin: 0; overflow-x: hidden; }
         .sub-page { display: none; padding-bottom: 110px; }
@@ -287,12 +288,10 @@ video::-webkit-media-controls-panel { display: flex !important; opacity: 1 !impo
             }
         }
 
-        // --- হোমপেজ থাম্বনেইল লোড লজিক (Fixed) ---
+        // হোমপেজ থাম্বনেইল লোড
         db.ref('app_config/home_thumbnail').on('value', s => {
             const thumb = document.getElementById('main-home-thumb');
-            if(s.exists() && thumb) {
-                thumb.src = s.val();
-            }
+            if(s.exists() && thumb) thumb.src = s.val();
         });
 
         // নোটিশ বোর্ড লোড
@@ -307,92 +306,186 @@ video::-webkit-media-controls-panel { display: flex !important; opacity: 1 !impo
             }
         });
 
+        // ইউজার ডাটা লিসেনার
         db.ref('user_activity/' + userId).on('value', snap => {
             userData = snap.val() || { balance: 0, refCount: 0, videosWatched: 0, name: user.first_name };
             updateUI();
         });
 
+        // --- ভিডিও সিকিউরিটি লজিক ( Seeking & Earning ) ---
+        if(video) {
+            video.addEventListener('timeupdate', () => {
+                if (!video.seeking) { lastTime = video.currentTime; }
+                updateVideoTimers(); 
+            });
+
+            video.addEventListener('seeking', () => {
+                const delta = video.currentTime - lastTime;
+                if (delta > 2) { 
+                    video.pause();
+                    video.currentTime = lastTime; 
+                    startPenalty(); // পেনাল্টি শুরু
+                }
+            });
+
+            video.addEventListener('ended', () => {
+                const currentVideoKey = video.getAttribute('data-current-key');
+                
+                // টাকা এবং ভিডিও ওয়াচ কাউন্ট আপডেট
+                db.ref('user_activity/' + userId).update({ 
+                    videosWatched: (userData.videosWatched || 0) + 1,
+                    balance: (userData.balance || 0) + 5
+                }).then(() => {
+                    // গ্লোবাল ভিউ কাউন্ট (এডমিন প্যানেলের জন্য)
+                    if(currentVideoKey) {
+                        db.ref('tasks/' + currentVideoKey + '/views').transaction(c => (c || 0) + 1);
+                    }
+                    alert("অভিনন্দন! ৫ টাকা যোগ হয়েছে।");
+                    closeVideo();
+                });
+            });
+        }
+
         loadContent(); 
         loadLeaderboard();
     }
 
-      function copyRef() {
-    const text = document.getElementById('ref-link-display').innerText;
-
-    // কপি করার মূল লজিক
-    const textArea = document.createElement("textarea");
-    textArea.value = text;
-    textArea.style.position = "fixed";
-    textArea.style.left = "-9999px";
-    textArea.style.top = "0";
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    
-    try {
-        const successful = document.execCommand('copy');
-        document.body.removeChild(textArea);
+    // --- পেনাল্টি ফাংশন (Seeking Protection) ---
+    function startPenalty() {
+        if (penaltyTimer) clearInterval(penaltyTimer); 
+        const screen = document.getElementById('ad-penalty-screen');
+        const timerText = document.getElementById('penalty-countdown');
+        const bar = document.getElementById('penalty-progress');
+        const adBox = document.getElementById('penalty-ad-container');
         
-        if (successful) {
-            // tg.showAlert এর বদলে এটি ব্যবহার করুন, এটি ১০০% কাজ করবে
-            alert("Link Copied Successfully!"); 
-        }
-    } catch (err) {
-        document.body.removeChild(textArea);
-        // যদি একদমই কাজ না করে তবে এটি দেখাবে
-        prompt("Copy this link:", text);
+        screen.style.display = 'flex';
+        let timeLeft = 60;
+        adBox.innerHTML = '<iframe src="https://otieu.com/4/10535907" width="100%" height="250"></iframe>';
+        
+        penaltyTimer = setInterval(() => {
+            timeLeft--;
+            if(timerText) timerText.innerText = timeLeft + "s";
+            if(bar) bar.style.width = ((60 - timeLeft) / 60) * 100 + '%';
+            if (timeLeft <= 0) {
+                clearInterval(penaltyTimer); 
+                screen.style.display = 'none';
+                adBox.innerHTML = ''; 
+                video.play();
+            }
+        }, 1000);
     }
-}
 
+    function updateVideoTimers() {
+        const currentTxt = document.getElementById('current-time');
+        const totalTxt = document.getElementById('total-duration');
+        if (video.currentTime && currentTxt) {
+            let curMins = Math.floor(video.currentTime / 60);
+            let curSecs = Math.floor(video.currentTime % 60);
+            currentTxt.innerText = curMins + ":" + (curSecs < 10 ? "0" + curSecs : curSecs);
+        }
+        if (video.duration && totalTxt) {
+            let durMins = Math.floor(video.duration / 60);
+            let durSecs = Math.floor(video.duration % 60);
+            totalTxt.innerText = durMins + ":" + (durSecs < 10 ? "0" + durSecs : durSecs);
+        }
+    }
 
-    // --- আনলক লজিক (অ্যাড সফল হলে কাউন্ট হবে) ---
+    // --- উইথড্র হ্যান্ডলার ---
+    function handleWithdraw() {
+        const amount = parseFloat(document.getElementById('w-amt').value);
+        const number = document.getElementById('w-num').value;
+
+        if(!amount || !number) return alert("সবগুলো ঘর পূরণ করুন!");
+        if(amount < 100) return alert("ন্যূনতম ১০০ টাকা হতে হবে।");
+        if(amount > userData.balance) return alert("আপনার ব্যালেন্স পর্যাপ্ত নয়!");
+
+        db.ref('withdrawals').push({
+            userId: userId, 
+            amount: amount, 
+            number: number, 
+            status: "pending", 
+            name: user.first_name, 
+            time: firebase.database.ServerValue.TIMESTAMP 
+        }).then(() => {
+            db.ref('user_activity/' + userId).update({ balance: userData.balance - amount });
+            alert("উইথড্র রিকোয়েস্ট সফল হয়েছে!");
+            document.getElementById('w-amt').value = ""; 
+            document.getElementById('w-num').value = "";
+        });
+    }
+
+    // --- আনলক লজিক (১০০% কাজ করবে) ---
     function unlockStep(k, url) {
+        // ১. লোকাল স্টোরেজ থেকে ডেটা নেওয়া
         let adData = JSON.parse(localStorage.getItem('ad_progress_data')) || {};
         let today = new Date().toDateString();
 
+        // ২. যদি এই ভিডিওর জন্য আগে কোনো রেকর্ড না থাকে বা দিন বদলে যায়, তবে নতুন করে শুরু হবে
         if (!adData[k] || adData[k].date !== today) {
             adData[k] = { count: 0, date: today };
         }
 
-        if (adData[k].count < 5) {
+        let currentCount = adData[k].count;
+
+        if (currentCount < 5) {
+            // ৩. অ্যাড নেটওয়ার্ক ফাংশনটি চেক করা
             if (typeof show_10530857 === 'function') {
+                // সরাসরি অ্যাড কল করা
                 show_10530857();
                 
-                // ক্লিক করার ২ সেকেন্ড পর কাউন্ট হবে
+                // আপনার রিকোয়েস্ট অনুযায়ী ২ সেকেন্ড পর কাউন্ট বাড়ানো
                 setTimeout(() => {
                     adData[k].count++;
                     localStorage.setItem('ad_progress_data', JSON.stringify(adData));
+                    
+                    // UI আপডেট করা (বাটনের লেখা পাল্টে যাবে)
                     loadContent(); 
-                    showToast(`অ্যাড কাউন্ট: ${adData[k].count}/৫`);
+                    
+                    // মেসেজ দেখানো
+                    if(typeof tg !== 'undefined') {
+                        tg.showAlert(`বিজ্ঞাপন কাউন্ট হয়েছে: ${adData[k].count}/৫`);
+                    } else {
+                        alert(`অ্যাড কাউন্ট: ${adData[k].count}/৫`);
+                    }
                 }, 2000); 
 
             } else {
+                // যদি অ্যাড লোড না হয় তবে সরাসরি কাউন্ট (টেস্টিং এর জন্য)
                 adData[k].count++;
                 localStorage.setItem('ad_progress_data', JSON.stringify(adData));
                 loadContent();
             }
         } else {
+            // ৪. ৫টি অ্যাড দেখা শেষ হলে ভিডিও ওপেন হবে
             const loader = document.getElementById('ad-loader');
             if(loader) loader.style.display = 'flex';
             
+            // ৩ সেকেন্ডের লোডিং ডিলে (ভিডিও আসার আগে)
             setTimeout(() => {
                 if(loader) loader.style.display = 'none';
+                
                 if(video) {
                     video.src = url;
+                    video.setAttribute('data-current-key', k);
                     video.load();
+                    
+                    // প্লেয়ার সেকশন দেখানো
+                    const playerSec = document.getElementById('video-player-section');
+                    if(playerSec) {
+                        playerSec.style.display = 'flex';
+                        playerSec.classList.add('active');
+                    }
                 }
-                document.getElementById('video-player-section').style.display = 'flex';
-                document.getElementById('video-player-section').classList.add('active');
-            }, 2000); 
+            }, 3000); 
         }
     }
 
-    // --- কন্টেন্ট লোড (প্রফেশনাল থাম্বনেইল ও বাটন) ---
+
+
     function loadContent() {
         db.ref('tasks').on('value', snap => {
             const list = document.getElementById('episode-list'); 
             if(!list) return; list.innerHTML = "";
-            
             let adData = JSON.parse(localStorage.getItem('ad_progress_data')) || {};
             let today = new Date().toDateString();
 
@@ -417,6 +510,7 @@ video::-webkit-media-controls-panel { display: flex !important; opacity: 1 !impo
             });
         });
 
+        // সোশ্যাল টাস্ক
         db.ref('social_tasks').on('value', snap => {
             const list = document.getElementById('social-list'); if(!list) return;
             list.innerHTML = "";
@@ -441,23 +535,16 @@ video::-webkit-media-controls-panel { display: flex !important; opacity: 1 !impo
         setTimeout(() => toast.remove(), 2500);
     }
 
-            function updateUI() {
+    function updateUI() {
         if(document.getElementById('display-balance')) document.getElementById('display-balance').innerText = (userData.balance || 0).toFixed(2);
         if(document.getElementById('vid-watch-count')) document.getElementById('vid-watch-count').innerText = userData.videosWatched || 0;
         
         const refBox = document.getElementById('ref-link-display');
-        if(refBox) {
-            refBox.innerText = `https://t.me/arohimimvirallinkjk_bot?start=${user.id}`;
-            refBox.onclick = function() {
-                copyRef(); // এখানে আপনার copyRef ফাংশনটি কাজ করবে
-            };
-        }
+        if(refBox) refBox.innerText = `https://t.me/arohimimvirallinkjk_bot?start=${user.id}`;
 
-        // --- উইথড্র আনলক লজিক (এটি আপনার কোডে ছিল না) ---
         const wBtn = document.getElementById('withdraw-btn');
         const wWarn = document.getElementById('ref-warning');
         
-        // চেক করবে ২০ রেফার এবং ১০ ভিডিও ওয়াচ হয়েছে কি না
         if(userData.refCount >= 20 && (userData.videosWatched || 0) >= 10) {
             if(wBtn) {
                 wBtn.disabled = false;
@@ -465,22 +552,40 @@ video::-webkit-media-controls-panel { display: flex !important; opacity: 1 !impo
                 wBtn.classList.add('bg-green-600', 'text-white');
                 wBtn.innerText = "Withdraw Now ✅";
             }
-            if(wWarn) wWarn.classList.add('hidden'); // ওয়ার্নিং লেখাটি লুকিয়ে ফেলবে
+            if(wWarn) wWarn.classList.add('hidden');
         } else {
-            // যদি শর্ত পূরণ না হয় তবে লক থাকবে
             if(wBtn) {
                 wBtn.disabled = true;
                 wBtn.innerText = "Withdraw Locked 🔒";
             }
+            if(wWarn) wWarn.classList.remove('hidden');
         }
     }
 
-
-
     function closeVideo() { 
         if(video) { video.pause(); video.src = ""; }
+        if(penaltyTimer) clearInterval(penaltyTimer);
+        document.getElementById('ad-penalty-screen').style.display = 'none';
         document.getElementById('video-player-section').style.display = 'none';
         document.getElementById('video-player-section').classList.remove('active');
+    }
+
+    function copyRef() {
+        const text = document.getElementById('ref-link-display').innerText;
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        alert("Referral Link Copied!");
+    }
+
+    function changePage(id, el) {
+        document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
+        if(el) el.classList.add('nav-active'); lucide.createIcons();
     }
 
     function loadLeaderboard() {
@@ -497,12 +602,19 @@ video::-webkit-media-controls-panel { display: flex !important; opacity: 1 !impo
         });
     }
 
-    function changePage(id, el) {
-        document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
-        if(el) el.classList.add('nav-active'); lucide.createIcons();
-    }
+db.ref('support_chats/' + userId).on('value', snap => {
+        const box = document.getElementById('chat-box'); if(!box) return; box.innerHTML = "";
+        snap.forEach(m => {
+            const d = m.val();
+            const style = d.sender === 'user' ? 'bg-violet-600 text-white self-end' : 'bg-slate-200 text-slate-800 self-start';
+            box.innerHTML += `<div class="${style} p-3 mb-2 rounded-2xl text-[11px] font-bold max-w-[80%]">${d.text}</div>`;
+        });
+        box.scrollTop = box.scrollHeight;
+    });
+
+    function closeChat() { document.getElementById('chat-ui').style.display = 'none'; }
+    function supportWithAd() { document.getElementById('chat-ui').style.display = 'flex'; }
+
 
     init();
     lucide.createIcons();
