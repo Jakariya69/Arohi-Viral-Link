@@ -88,22 +88,37 @@ video::-webkit-media-controls-panel { display: flex !important; opacity: 1 !impo
         <p class="text-white text-[10px] font-black uppercase tracking-widest">Premium Player</p>
         <button onclick="closeVideo()" class="bg-red-600 p-2 rounded-full text-white shadow-lg"><i data-lucide="x" class="w-4 h-4"></i></button>
     </div>
+    
     <div class="video-container shadow-2xl bg-black relative flex items-center justify-center overflow-hidden" style="aspect-ratio: 16/9; width: 100%;">
         <video id="main-video" controls playsinline preload="metadata" controlsList="nodownload" style="width: 100%; height: 100%; object-fit: contain; background: black;"></video>
     </div>
-    <div class="w-full px-5 py-2 flex justify-between text-[10px] font-bold text-white bg-slate-900/50">
-        <span id="current-time">0:00</span>
-        <span id="total-duration">0:00</span>
+
+    <div class="w-full px-5 py-4 bg-slate-900 flex items-center justify-between border-b border-white/10">
+        <div>
+            <h3 id="player-video-title" class="text-white text-[13px] font-black uppercase leading-none tracking-tight">Loading Title...</h3>
+            <div class="flex items-center gap-2 mt-2">
+                <div class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
+                <span id="player-view-count" class="text-[11px] font-bold text-slate-400 uppercase tracking-tighter">0 Views</span>
+            </div>
+        </div>
+        <div class="bg-indigo-600/20 px-3 py-1.5 rounded-xl border border-indigo-500/30">
+            <p class="text-[9px] font-black text-indigo-400 uppercase">Live Stats</p>
+        </div>
+    </div>
+
+    <div class="w-full px-5 py-3 flex justify-between text-[11px] font-black text-white" style="background: #0f172a; border-top: 1px solid rgba(255,255,255,0.05); padding-bottom: 30px;">
+        <span id="current-time" style="color: #94a3b8; letter-spacing: 1px;">0:00</span>
+        <span id="total-duration" style="color: #94a3b8; letter-spacing: 1px;">0:00</span>
     </div>
 </div>
 
-<div id="ad-penalty-screen">
+<div id="ad-penalty-screen" style="display: none; position: fixed; inset: 0; z-index: 6000; background: rgba(15, 23, 42, 0.98); flex-direction: column; align-items: center; justify-content: center;">
     <i data-lucide="alert-octagon" class="w-16 h-16 text-red-500 mb-2"></i>
     <h2 class="text-xl font-black text-red-500 uppercase">Warning: Seeking!</h2>
     <p class="text-[11px] text-slate-400 uppercase text-center px-10">আপনি ভিডিও টেনেছেন! শাস্তি হিসেবে ৬০ সেকেন্ড অপেক্ষা করুন।</p>
-    <div class="penalty-timer" id="penalty-countdown">60s</div>
+    <div class="penalty-timer text-4xl font-black text-white my-4" id="penalty-countdown">60s</div>
     <div id="penalty-ad-container" style="width: 100%; min-height: 250px;"></div>
-    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden max-w-[250px]"><div id="penalty-progress" class="bg-red-500 h-full w-0 transition-all"></div></div>
+    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden max-w-[250px] mt-4"><div id="penalty-progress" class="bg-red-500 h-full w-0 transition-all"></div></div>
 </div>
 
 <div class="sticky top-0 z-50 bg-white">
@@ -135,37 +150,29 @@ video::-webkit-media-controls-panel { display: flex !important; opacity: 1 !impo
     </div>
 </div>
 
-<div class="ad-banner-container flex justify-center w-full my-2">
-    <div style="text-align: center;">
-        <script type="text/javascript">
-            atOptions = {'key' : '68d64b420fe4aeee18352cb08543fd7e','format' : 'iframe','height' : 50,'width' : 320,'params' : {}};
-        </script>
-        <script type="text/javascript" src="https://www.highperformanceformat.com/68d64b420fe4aeee18352cb08543fd7e/invoke.js"></script>
+<div id="pages-container" class="p-4">
+    <div id="home-page" class="sub-page active">
+        <div class="mb-4">
+            <div class="w-full aspect-video rounded-2xl overflow-hidden shadow-lg border-2 border-white">
+                <img id="main-home-thumb" src="https://via.placeholder.com/640x360" class="w-full h-full object-cover">
+            </div>
+        </div>
+        
+        <div class="bg-white p-4 rounded-2xl border mb-4 flex gap-3">
+            <div class="flex-1 bg-indigo-600 p-4 rounded-2xl text-white shadow-lg">
+                <p class="text-[9px] font-bold opacity-70">BALANCE</p>
+                <p class="text-xl font-black">৳<span id="display-balance">0.00</span></p>
+            </div>
+            <div class="flex-1 bg-slate-50 border p-4 rounded-2xl text-center">
+                <p class="text-[9px] font-bold text-slate-400 uppercase">Status</p>
+                <p class="text-[11px] font-black text-slate-800"><span id="vid-watch-count">0</span>/10 Videos</p>
+            </div>
+        </div>
+        
+        <div id="episode-list" class="space-y-3"></div>
     </div>
 </div>
 
-
-
-    <div id="pages-container" class="p-4">
-        
-        <div id="home-page" class="sub-page active">
-            <div class="mb-4">
-                <div class="w-full aspect-video rounded-2xl overflow-hidden shadow-lg border-2 border-white">
-                    <img id="main-home-thumb" src="https://via.placeholder.com/640x360" class="w-full h-full object-cover">
-                </div>
-            </div>
-            <div class="bg-white p-4 rounded-2xl border mb-4 flex gap-3">
-                <div class="flex-1 bg-indigo-600 p-4 rounded-2xl text-white shadow-lg">
-                    <p class="text-[9px] font-bold opacity-70">BALANCE</p>
-                    <p class="text-xl font-black">৳<span id="display-balance">0.00</span></p>
-                </div>
-                <div class="flex-1 bg-slate-50 border p-4 rounded-2xl text-center">
-                    <p class="text-[9px] font-bold text-slate-400 uppercase">Status</p>
-                    <p class="text-[11px] font-black text-slate-800"><span id="vid-watch-count">0</span>/10 Videos</p>
-                </div>
-            </div>
-            <div id="episode-list" class="space-y-3"></div>
-        </div>
 
                 <div id="task-page" class="sub-page">
             <div class="p-4">
@@ -385,105 +392,111 @@ video::-webkit-media-controls-panel { display: flex !important; opacity: 1 !impo
         });
     }
 
-    // --- আনলক লজিক (১০০% কাজ করবে) ---
-    function unlockStep(k, url) {
-        // ১. লোকাল স্টোরেজ থেকে ডেটা নেওয়া
-        let adData = JSON.parse(localStorage.getItem('ad_progress_data')) || {};
-        let today = new Date().toDateString();
+function unlockStep(k, url) {
+    let adData = JSON.parse(localStorage.getItem('ad_progress_data')) || {};
+    let today = new Date().toDateString();
 
-        // ২. যদি এই ভিডিওর জন্য আগে কোনো রেকর্ড না থাকে বা দিন বদলে যায়, তবে নতুন করে শুরু হবে
-        if (!adData[k] || adData[k].date !== today) {
-            adData[k] = { count: 0, date: today };
-        }
+    if (!adData[k] || adData[k].date !== today) {
+        adData[k] = { count: 0, date: today };
+    }
 
-        let currentCount = adData[k].count;
-
-        if (currentCount < 5) {
-            // ৩. অ্যাড নেটওয়ার্ক ফাংশনটি চেক করা
-            if (typeof show_10530857 === 'function') {
-                // সরাসরি অ্যাড কল করা
-                show_10530857();
-                
-                // আপনার রিকোয়েস্ট অনুযায়ী ২ সেকেন্ড পর কাউন্ট বাড়ানো
-                setTimeout(() => {
-                    adData[k].count++;
-                    localStorage.setItem('ad_progress_data', JSON.stringify(adData));
-                    
-                    // UI আপডেট করা (বাটনের লেখা পাল্টে যাবে)
-                    loadContent(); 
-                    
-                    // মেসেজ দেখানো
-                    if(typeof tg !== 'undefined') {
-                        tg.showAlert(`বিজ্ঞাপন কাউন্ট হয়েছে: ${adData[k].count}/৫`);
-                    } else {
-                        alert(`অ্যাড কাউন্ট: ${adData[k].count}/৫`);
-                    }
-                }, 2000); 
-
-            } else {
-                // যদি অ্যাড লোড না হয় তবে সরাসরি কাউন্ট (টেস্টিং এর জন্য)
+    if (adData[k].count < 5) {
+        if (typeof show_10530857 === 'function') {
+            show_10530857();
+            setTimeout(() => {
                 adData[k].count++;
                 localStorage.setItem('ad_progress_data', JSON.stringify(adData));
-                loadContent();
+                loadContent(); 
+            }, 2000); 
+        }
+    } else {
+        // ১. ডাটাবেসে ভিউ ১টি বাড়িয়ে দেওয়া (নতুন যোগ করা হয়েছে)
+        db.ref('tasks/' + k + '/views').transaction(currentViews => {
+            return (currentViews || 0) + 1;
+        });
+
+        // ২. রিয়েল-টাইম ভিউ এবং টাইটেল প্লেয়ারে দেখানো
+        db.ref('tasks/' + k).on('value', snap => {
+            const data = snap.val();
+            if(data) {
+                document.getElementById('player-view-count').innerText = (data.views || 0) + " People Watched";
+                document.getElementById('player-video-title').innerText = data.title || data.name || "Premium Video";
             }
-        } else {
-            // ৪. ৫টি অ্যাড দেখা শেষ হলে ভিডিও ওপেন হবে
-            const loader = document.getElementById('ad-loader');
-            if(loader) loader.style.display = 'flex';
-            
-            // ৩ সেকেন্ডের লোডিং ডিলে (ভিডিও আসার আগে)
-            setTimeout(() => {
-                if(loader) loader.style.display = 'none';
-                
-                if(video) {
-                    video.src = url;
-                    video.setAttribute('data-current-key', k);
-                    video.load();
-                    
-                    // প্লেয়ার সেকশন দেখানো
-                    const playerSec = document.getElementById('video-player-section');
-                    if(playerSec) {
-                        playerSec.style.display = 'flex';
-                        playerSec.classList.add('active');
-                    }
-                }
-            }, 3000); 
+        });
+
+        if(video) {
+            video.src = url;
+            video.setAttribute('data-current-key', k);
+            video.load();
+            document.getElementById('video-player-section').style.display = 'flex';
+            document.getElementById('video-player-section').classList.add('active');
         }
     }
+}
 
 
 
     function loadContent() {
+    // ১. ভিডিও টাস্ক লোড করার অংশ (সব আগের মতো + নতুন ভিউ সেকশন)
     db.ref('tasks').on('value', snap => {
         const list = document.getElementById('episode-list'); 
         if(!list) return; 
         list.innerHTML = "";
+        
         let adData = JSON.parse(localStorage.getItem('ad_progress_data')) || {};
         let today = new Date().toDateString();
 
+        let videos = [];
         snap.forEach(child => {
-            const v = child.val(); 
-            const k = child.key;
+            videos.push({ key: child.key, val: child.val() });
+        });
+
+        // নতুন ভিডিও উপরে দেখানোর জন্য
+        videos.reverse();
+
+        videos.forEach(item => {
+            const v = item.val; 
+            const k = item.key;
+            const views = v.views || 0; 
             let currentCount = (adData[k] && adData[k].date === today) ? adData[k].count : 0;
 
             list.innerHTML += `
             <div class="video-card-item bg-white p-4 rounded-3xl flex flex-col gap-3 border border-slate-100 shadow-sm mb-4">
                 <div class="flex items-center gap-4">
-                    <img src="${v.image || 'https://via.placeholder.com/150'}" class="w-24 h-20 rounded-2xl object-cover shadow-md border-2 border-slate-50">
+                    <div class="relative">
+                        <img src="${v.image || 'https://via.placeholder.com/150'}" class="w-24 h-20 rounded-2xl object-cover shadow-md border-2 border-slate-50">
+                        <div class="absolute bottom-1 right-1 bg-black/60 text-white text-[8px] px-1.5 py-0.5 rounded-md flex items-center gap-1">
+                            👁️ ${views}
+                        </div>
+                    </div>
                     <div class="flex-1">
                         <h4 class="video-title text-[13px] font-black text-slate-800 uppercase leading-tight">${v.title || v.name}</h4>
-                        <p class="text-[10px] text-slate-400 font-bold mt-1">Status: ${currentCount >= 5 ? 'Ready ✅' : 'Locked 🔒'}</p>
+                        <div class="flex items-center gap-2 mt-1">
+                            <p class="text-[10px] text-slate-400 font-bold">Status: ${currentCount >= 5 ? 'Ready ✅' : 'Locked 🔒'}</p>
+                            <span class="text-[10px] text-indigo-600 font-bold">• ${views} Views</span>
+                        </div>
                     </div>
                 </div>
+
+                <div class="flex justify-between items-center bg-slate-50 p-3 rounded-2xl border border-dashed border-slate-200">
+                    <span class="text-[10px] font-black text-slate-500 uppercase">Real-Time Stats:</span>
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                        <span class="text-[10px] font-bold text-slate-700">${views} People Watched</span>
+                    </div>
+                </div>
+
                 <button onclick="unlockStep('${k}', '${v.url}')" 
                     class="w-full ${currentCount >= 5 ? 'bg-green-500 shadow-green-200' : 'bg-indigo-600 shadow-indigo-200'} text-white py-4 rounded-2xl text-[12px] font-black uppercase shadow-lg active:scale-95 transition-all">
                     ${currentCount >= 5 ? 'PLAY VIDEO NOW ✅' : 'UNLOCK VIDEO ('+currentCount+'/5 Ads) 🔒'}
                 </button>
             </div>`;
         });
+        
+        if(typeof lucide !== 'undefined') lucide.createIcons();
     });
 
-    // সোশ্যাল টাস্ক লোড করার অংশ (নিচে না থাকলে এটিও যোগ করে দিন)
+    // ২. সোশ্যাল টাস্ক লোড করার অংশ (এটিও আগের মতো রাখা হয়েছে)
     db.ref('social_tasks').on('value', snap => {
         const list = document.getElementById('social-list'); 
         if(!list) return;
@@ -538,12 +551,21 @@ video::-webkit-media-controls-panel { display: flex !important; opacity: 1 !impo
     }
 
     function closeVideo() { 
-        if(video) { video.pause(); video.src = ""; }
-        if(penaltyTimer) clearInterval(penaltyTimer);
-        document.getElementById('ad-penalty-screen').style.display = 'none';
-        document.getElementById('video-player-section').style.display = 'none';
-        document.getElementById('video-player-section').classList.remove('active');
+    if(video) { 
+        video.pause(); 
+        video.src = ""; 
     }
+    
+    // ভিডিওর কী (Key) অনুযায়ী লিসেনার বন্ধ করা
+    const k = video.getAttribute('data-current-key');
+    if(k) {
+        db.ref('tasks/' + k).off(); 
+    }
+    
+    document.getElementById('video-player-section').style.display = 'none';
+    document.getElementById('video-player-section').classList.remove('active');
+}
+
 
     function copyRef() {
         const text = document.getElementById('ref-link-display').innerText;
