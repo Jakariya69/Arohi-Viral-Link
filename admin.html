@@ -57,36 +57,43 @@
                         </div>
                     </div>
 
-                    <div class="pt-4 border-t border-white/5">
-                        <h2 class="text-lg font-extrabold mb-4 flex items-center gap-3 text-violet-400 uppercase">
-                            <i data-lucide="image"></i> Home Thumbnail
-                        </h2>
-                        <input id="app-home-thumb" type="text" placeholder="Thumbnail URL (Image Link)" class="input-box w-full p-4 rounded-xl outline-none text-sm font-bold">
-                        <div class="flex gap-3 mt-3">
-                            <button onclick="updateThumb()" class="flex-1 bg-violet-600 py-3 rounded-xl font-black text-[10px] uppercase">Change Image</button>
-                            <button onclick="deleteThumb()" class="bg-red-500/10 border border-red-500/30 text-red-500 px-6 rounded-xl font-black text-[10px] uppercase">Delete</button>
-                        </div>
+                         <div class="pt-4 border-t border-white/5">
+                    <h2 class="text-lg font-extrabold mb-4 flex items-center gap-3 text-violet-400 uppercase">
+                        <i data-lucide="images"></i> Home Sliders (4 Images)
+                    </h2>
+                    <div class="grid grid-cols-1 gap-3">
+                        <input id="thumb-1" type="text" placeholder="Slider 1 Link (Image URL)" class="input-box w-full p-4 rounded-xl outline-none text-xs font-bold bg-white/5 border border-white/10 text-white">
+                        <input id="thumb-2" type="text" placeholder="Slider 2 Link (Image URL)" class="input-box w-full p-4 rounded-xl outline-none text-xs font-bold bg-white/5 border border-white/10 text-white">
+                        <input id="thumb-3" type="text" placeholder="Slider 3 Link (Image URL)" class="input-box w-full p-4 rounded-xl outline-none text-xs font-bold bg-white/5 border border-white/10 text-white">
+                        <input id="thumb-4" type="text" placeholder="Slider 4 Link (Image URL)" class="input-box w-full p-4 rounded-xl outline-none text-xs font-bold bg-white/5 border border-white/10 text-white">
+                    </div>
+                    <div class="flex gap-3 mt-4">
+                        <button onclick="updateSliders()" class="flex-1 bg-violet-600 py-3 rounded-xl font-black text-[10px] uppercase shadow-lg active:scale-95 transition-all">Update All Sliders</button>
+                        <button onclick="db.ref('app_config/sliders').remove().then(()=>alert('Deleted!'))" class="bg-red-500/10 border border-red-500/30 text-red-500 px-6 rounded-xl font-black text-[10px] uppercase">Clear All</button>
                     </div>
                 </div>
 
-                <div>
+                <div class="mt-8">
                     <h2 class="text-lg font-extrabold mb-4 flex items-center gap-3 text-yellow-400 uppercase">
                         <i data-lucide="message-square"></i> Support Line
                     </h2>
-                    <div class="flex flex-col h-[300px] bg-black/40 rounded-[2rem] border border-white/5 overflow-hidden">
-                        <div id="chat-user-list" class="flex gap-2 p-3 overflow-x-auto border-b border-white/5 bg-white/5"></div>
-                        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 flex flex-col">
-                            <p class="text-[10px] text-slate-500 text-center mt-20 italic font-bold">SELECT A USER ID TO CHAT</p>
+                    <div class="flex flex-col h-[350px] bg-black/40 rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl">
+                        <div id="chat-user-list" class="flex gap-2 p-3 overflow-x-auto border-b border-white/5 bg-white/5 custom-scroll"></div>
+                        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 flex flex-col gap-3 custom-scroll">
+                            <div class="flex flex-col items-center justify-center h-full opacity-30">
+                                <i data-lucide="message-circle" class="w-12 h-12 mb-2"></i>
+                                <p class="text-[10px] italic font-bold uppercase tracking-widest">Select a user to start chat</p>
+                            </div>
                         </div>
-                        <div class="p-3 flex gap-2 border-t border-white/5">
-                            <input id="admin-msg-input" type="text" placeholder="Type message..." class="input-box flex-1 p-3 rounded-xl outline-none text-xs font-bold">
-                            <button onclick="sendReply()" class="bg-yellow-500 text-black px-4 rounded-xl font-black text-[10px] uppercase">Send</button>
+                        <div class="p-4 flex gap-2 border-t border-white/5 bg-white/5">
+                            <input id="admin-msg-input" type="text" placeholder="Write your reply..." class="input-box flex-1 p-3 rounded-xl outline-none text-xs font-bold bg-black/20 border border-white/10 text-white">
+                            <button onclick="sendReply()" class="bg-yellow-500 text-black px-6 rounded-xl font-black text-[10px] uppercase shadow-lg active:scale-95">Send</button>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
+
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
             <div class="glass p-5 rounded-[2rem]">
@@ -173,71 +180,143 @@
     const db = firebase.database();
     let selectedUserId = null;
 
-    // --- ১. সেটিংস লিসেনার ---
+    // --- ১. সেটিংস ও নোটিশ ও স্লাইডার কন্ট্রোল ---
     db.ref('notice').on('value', s => { if(s.exists()) document.getElementById('app-notice').value = s.val(); });
-    db.ref('app_config/home_thumbnail').on('value', s => { if(s.exists()) document.getElementById('app-home-thumb').value = s.val(); });
+    
+    // চ্যানেল লিঙ্ক ডাটাবেস থেকে লোড করা
+    db.ref('app_config/channel_link').on('value', s => { if(s.exists()) document.getElementById('channel-link-input').value = s.val(); });
+
+    // ৪টি স্লাইডার থাম্বনেইল ডাটাবেস থেকে লোড করা
+    db.ref('app_config/sliders').on('value', s => {
+        if(s.exists()){
+            const data = s.val();
+            document.getElementById('thumb-1').value = data.img1 || "";
+            document.getElementById('thumb-2').value = data.img2 || "";
+            document.getElementById('thumb-3').value = data.img3 || "";
+            document.getElementById('thumb-4').value = data.img4 || "";
+        }
+    });
 
     function toggleSettings() { document.getElementById('settings-panel').classList.toggle('hidden'); }
     function updateNotice() { db.ref('notice').set(document.getElementById('app-notice').value).then(() => alert("Notice Updated!")); }
-    function deleteNotice() { if(confirm("Delete notice?")) db.ref('notice').remove(); }
     
-    function updateThumb() { 
-        const thumbUrl = document.getElementById('app-home-thumb').value;
-        db.ref('app_config/home_thumbnail').set(thumbUrl).then(() => alert("Thumbnail Updated!"));
-    }
-    function deleteThumb() { if(confirm("Delete thumbnail?")) db.ref('app_config/home_thumbnail').remove(); }
-
-    // --- [নতুন] মেইনটেন্যান্স ও ব্রডকাস্ট লজিক ---
-    function toggleMaintenance() {
-        db.ref('app_config/maintenance').once('value', s => {
-            const status = !s.val();
-            db.ref('app_config/maintenance').set(status);
-            alert("Maintenance Mode: " + (status ? "ON" : "OFF"));
-        });
-    }
-    function sendBroadcast() {
-        const msg = prompt("Enter notice for all users:");
-        if (msg) db.ref('broadcast').set({ message: msg, time: Date.now() }).then(() => alert("Broadcast Sent!"));
+    function updateChannelLink() {
+        const link = document.getElementById('channel-link-input').value;
+        if(!link) return alert("লিঙ্ক দিন!");
+        db.ref('app_config/channel_link').set(link).then(() => alert("Channel Link Updated!"));
     }
 
-    // --- ২. স্ট্যাটিস্টিক্স ও ইউজার লিস্ট জেনারেশন ---
+    // ৪টি স্লাইডার একসাথে আপডেট করার ফাংশন
+    function updateSliders() {
+        const urls = {
+            img1: document.getElementById('thumb-1').value,
+            img2: document.getElementById('thumb-2').value,
+            img3: document.getElementById('thumb-3').value,
+            img4: document.getElementById('thumb-4').value
+        };
+        db.ref('app_config/sliders').set(urls).then(() => alert("All 4 Sliders Updated Successfully!"));
+    }
+    
+    // --- ২. ইউজার লিস্ট ও স্ট্যাটিস্টিক্স ---
     db.ref('user_activity').on('value', snap => {
-        document.getElementById('stat-users').innerText = snap.numChildren();
+        const totalCount = snap.numChildren();
+        if(document.getElementById('stat-users')) {
+            document.getElementById('stat-users').innerText = totalCount;
+        }
+
         
         let userContainer = document.getElementById('dynamic-user-list');
+        let totalSystemBalance = 0; 
+
         if(!userContainer){
-            const parent = document.getElementById('adm-withdraw-list').parentElement;
-            parent.insertAdjacentHTML('beforeend', `
-                <h2 class="text-lg font-extrabold mb-4 mt-10 flex items-center justify-between italic text-green-400">
-                    <span class="flex items-center gap-3"><i data-lucide="users"></i> REGISTERED USERS</span>
-                    <button onclick="sendBroadcast()" class="text-[9px] bg-blue-500/20 text-blue-400 px-2 py-1 rounded-md not-italic border border-blue-500/30">BROADCAST</button>
-                </h2>
-                <input type="text" id="userSearch" onkeyup="searchUser()" placeholder="Search by name or UID..." class="w-full p-2.5 bg-white/5 border border-white/10 rounded-xl mb-4 text-[10px] text-white focus:outline-none focus:border-green-500/50">
-                <div id="dynamic-user-list" class="space-y-3 max-h-[300px] overflow-y-auto pr-2"></div>
+            const withdrawSection = document.getElementById('adm-withdraw-list')?.parentElement || document.body;
+            withdrawSection.insertAdjacentHTML('afterend', `
+                <div class="glass p-6 rounded-3xl border border-white/10 mb-6 mt-6">
+                    <p class="text-white text-xs font-black uppercase mb-3 text-indigo-400">📢 YouTube/Telegram Link</p>
+                    <input type="text" id="channel-link-input" placeholder="লিঙ্কটি এখানে দিন" class="w-full p-4 bg-white/5 border border-white/10 rounded-2xl mb-4 text-[11px] text-white outline-none">
+                    <button onclick="updateChannelLink()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-black uppercase text-[12px] shadow-lg active:scale-95 transition-all">
+                        Update Channel Link
+                    </button>
+                </div>
+
+                <div class="glass p-8 rounded-[2.5rem] mt-8 border-t border-emerald-500/30">
+                    <h2 class="text-lg font-extrabold mb-2 flex items-center justify-between italic text-green-400">
+                        <span class="flex items-center gap-3"><i data-lucide="users"></i> USERS (<span id="count-header">${totalCount}</span>)</span>
+                    </h2>
+                    <p class="text-[10px] text-slate-400 mb-4 font-bold uppercase">Total User Balance: ৳<span id="total-system-bal">0</span></p>
+                    
+                    <div class="mb-4">
+                        <button onclick="sendBroadcast()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-black uppercase shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all text-[12px]">
+                            📢 Send Message To All Users
+                        </button>
+                    </div>
+
+                    <input type="text" id="userSearch" onkeyup="searchUser()" placeholder="Search by name or ID..." class="w-full p-3 bg-white/5 border border-white/10 rounded-xl mb-4 text-[11px] text-white outline-none">
+                    <div id="dynamic-user-list" class="space-y-3 max-h-[450px] overflow-y-auto pr-2 custom-scroll"></div>
+                </div>
             `);
             userContainer = document.getElementById('dynamic-user-list');
+        } else {
+            document.getElementById('count-header').innerText = totalCount;
         }
 
         userContainer.innerHTML = "";
         snap.forEach(child => {
             const u = child.val();
-            const balance = (u.balance || 0).toFixed(2);
+            const balance = parseFloat(u.balance || 0);
+            totalSystemBalance += balance; // ব্যালেন্স যোগ হচ্ছে
+            const userId = child.key;
+            
+            let statusHTML = "";
+            if (u.last_seen) {
+                const now = Date.now();
+                const diff = (now - u.last_seen) / 1000; 
+                if (diff < 60) {
+                    statusHTML = `<span class="text-emerald-400 animate-pulse">● Online</span>`;
+                } else {
+                    const date = new Date(u.last_seen);
+                    statusHTML = `<span class="text-slate-500">${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>`;
+                }
+            } else {
+                statusHTML = `<span class="text-slate-600 italic">Offline</span>`;
+            }
+
+            let displayName = u.name || (u.username ? "@" + u.username : u.first_name || "ID: " + userId.substring(0, 8));
+
+            // ভিডিও বেশি দেখলে কার্ডে সবুজ বর্ডার আসবে
+            const activeClass = u.videosWatched > 10 ? 'border-green-500/40' : 'border-white/5';
+
             userContainer.innerHTML += `
-            <div class="user-card p-3 bg-white/5 rounded-2xl border border-white/5 flex justify-between items-center">
+            <div class="user-card p-4 bg-slate-900/40 rounded-2xl border ${activeClass} flex justify-between items-center mb-2">
                 <div class="overflow-hidden">
-                    <p class="text-[10px] font-black text-white truncate">${u.name || 'User'}</p>
-                    <p class="text-[8px] text-slate-500 font-bold uppercase select-all">${child.key}</p>
+                    <div class="flex items-center gap-2">
+                        <p class="text-[11px] font-black text-white truncate">${displayName}</p>
+                        <p class="text-[8px] font-bold uppercase">${statusHTML}</p>
+                    </div>
+                    <p onclick="navigator.clipboard.writeText('${userId}'); alert('ID Copied!')" class="text-[8px] text-slate-500 font-bold uppercase cursor-pointer hover:text-indigo-400 transition-colors">${userId}</p>
                 </div>
                 <div class="text-right flex items-center gap-3">
-                    <p class="text-[10px] font-black text-green-400">৳${balance}</p>
-                    <button onclick="editBalance('${child.key}', ${balance})" class="text-white/30 hover:text-white"><i data-lucide="pencil" class="w-3 h-3"></i></button>
+                    <div>
+                        <p class="text-[11px] font-black text-green-400">৳${balance.toFixed(2)}</p>
+                        <p class="text-[7px] ${u.videosWatched > 0 ? 'text-indigo-400' : 'text-slate-400'} font-bold">${u.videosWatched || 0} Videos</p>
+                    </div>
+                    <button onclick="editBalance('${userId}', ${balance})" class="bg-white/5 p-2 rounded-lg text-white/30 hover:text-white transition-all">
+                        <i data-lucide="pencil" class="w-3 h-3"></i>
+                    </button>
                 </div>
             </div>`;
         });
-        lucide.createIcons();
+        
+        // টোটাল ব্যালেন্স আপডেট করা
+        document.getElementById('total-system-bal').innerText = totalSystemBalance.toFixed(2);
+        if(window.lucide) lucide.createIcons();
+
     });
 
-    // --- [নতুন] সার্চ ও ব্যালেন্স এডিট ফাংশন ---
+
+
+
+    // সার্চ ফাংশন
     function searchUser() {
         let input = document.getElementById('userSearch').value.toUpperCase();
         let cards = document.getElementsByClassName('user-card');
@@ -246,25 +325,65 @@
             cards[i].style.display = text.indexOf(input) > -1 ? "" : "none";
         }
     }
+
+    // ব্যালেন্স এডিট ফাংশন
     function editBalance(uid, cur) {
-        const amt = prompt(`Edit Balance for ${uid}\nCurrent: ৳${cur}\nEnter new amount:`, cur);
-        if (amt !== null && !isNaN(amt)) db.ref(`user_activity/${uid}`).update({ balance: parseFloat(amt) }).then(()=>alert("Balance Updated!"));
+        const amt = prompt("নতুন ব্যালেন্স লিখুন:", cur);
+        if (amt !== null && !isNaN(amt)) {
+            db.ref('user_activity/' + uid).update({ balance: parseFloat(amt) })
+            .then(() => alert("Updated!"));
+        }
     }
 
-    // --- ৩. চ্যাট সাপোর্ট ---
+
+        // ১. উন্নত ব্রডকাস্ট সিস্টেম (নোটিশ + ইনবক্স মেসেজ)
+    function sendBroadcast() {
+        const msg = prompt("সব ইউজারকে কি নোটিশ এবং পার্সোনাল মেসেজ পাঠাতে চান?");
+        
+        if (msg) {
+            // অ্যাপের উপরের নোটিশ বোর্ড আপডেট
+            db.ref('notice').set(msg);
+
+            // সব ইউজারের ইনবক্সে মেসেজ পাঠানো
+            db.ref('user_activity').once('value', snapshot => {
+                let count = 0;
+                snapshot.forEach(userSnap => {
+                    const targetUserId = userSnap.key;
+                    db.ref('support_chats/' + targetUserId).push({
+                        sender: 'admin',
+                        text: "📢 ANNOUNCEMENT: " + msg,
+                        time: firebase.database.ServerValue.TIMESTAMP
+                    });
+                    count++;
+                });
+                alert("নোটিশ আপডেট হয়েছে এবং " + count + " জন ইউজারের ইনবক্সে মেসেজ পাঠানো হয়েছে!");
+            });
+        }
+    }
+
+    // ২. চ্যাট সাপোর্ট (আইডির বদলে নাম দেখাবে)
     db.ref('support_chats').on('value', snap => {
         const list = document.getElementById('chat-user-list'); 
+        if(!list) return;
         list.innerHTML = "";
+        
         snap.forEach(u => {
             const uid = u.key;
-            list.innerHTML += `<button onclick="openChat('${uid}')" class="bg-white/10 text-white px-3 py-1.5 rounded-xl text-[10px] font-black uppercase whitespace-nowrap">${uid}</button>`;
+            // ইউজার অ্যাক্টিভিটি থেকে নাম খুঁজে বের করা
+            db.ref('user_activity/' + uid + '/name').once('value', nSnap => {
+                const uName = nSnap.val() || uid; // নাম না থাকলে আইডি দেখাবে
+                list.innerHTML += `<button onclick="openChat('${uid}')" class="bg-white/10 text-white px-3 py-1.5 rounded-xl text-[10px] font-black uppercase whitespace-nowrap mb-1 mr-1">${uName}</button>`;
+            });
         });
     });
 
+    // ৩. চ্যাট বক্স ওপেন করা
     function openChat(uid) {
         selectedUserId = uid;
         db.ref('support_chats/' + uid).on('value', snap => {
-            const box = document.getElementById('chat-messages'); box.innerHTML = "";
+            const box = document.getElementById('chat-messages'); 
+            if(!box) return;
+            box.innerHTML = "";
             snap.forEach(m => {
                 const d = m.val();
                 box.innerHTML += `<div class="${d.sender === 'admin' ? 'msg-admin' : 'msg-user'} font-bold">${d.text}</div>`;
@@ -272,6 +391,7 @@
             box.scrollTop = box.scrollHeight;
         });
     }
+
 
     function sendReply() {
         const txt = document.getElementById('admin-msg-input').value;
@@ -356,13 +476,17 @@
 
     function confirmPay(id) { if(confirm("Paid?")) db.ref('withdrawals/'+id).remove(); }
 
-    // --- কন্টেন্ট আপলোড ফাংশন (Fix) ---
+    // --- কন্টেন্ট আপলোড ফাংশন (Ad Limit সহ আপডেট করা হয়েছে) ---
     function addContent() {
         const title = document.getElementById('adm-title').value;
         const url = document.getElementById('adm-url').value;
         const thumb = document.getElementById('adm-thumb').value;
-        const type = document.getElementById('adm-type').value; // tasks or social_tasks
+        const type = document.getElementById('adm-type').value; 
         const reward = parseFloat(document.getElementById('adm-reward').value);
+        
+        // পাবলিশ বাটনে ক্লিক করলে এই বক্সটি আসবে
+        let adLimitVal = prompt("এই ভিডিওর জন্য কয়টি অ্যাড দেখাতে চান?", "5");
+        const adLimit = parseInt(adLimitVal) || 5;
 
         if(!title || !url) {
             alert("Title এবং URL অবশ্যই দিতে হবে!");
@@ -371,21 +495,20 @@
 
         const payload = {
             title: title,
-            name: title, // দুইটাই রাখা হলো যাতে অ্যাপ সাপোর্ট করে
+            name: title, 
             url: url,
             image: thumb || "https://via.placeholder.com/150",
             thumbnail: thumb || "https://via.placeholder.com/150",
             reward: reward || 5,
+            adLimit: adLimit, // ডাটাবেসে অ্যাড সংখ্যা সেভ হবে
             views: 0,
             state: 'active',
             time: firebase.database.ServerValue.TIMESTAMP
         };
 
-        // Firebase-এ ডেটা পুশ করা
         db.ref(type).push(payload)
         .then(() => {
-            alert("সফলভাবে পাবলিশ হয়েছে!");
-            // ইনপুট বক্স খালি করা
+            alert("সফলভাবে পাবলিশ হয়েছে! অ্যাড লিমিট সেট করা হয়েছে: " + adLimit);
             document.getElementById('adm-title').value = "";
             document.getElementById('adm-url').value = "";
             document.getElementById('adm-thumb').value = "";
