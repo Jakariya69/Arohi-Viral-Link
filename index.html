@@ -363,11 +363,21 @@ video::-webkit-media-controls-panel { display: flex !important; opacity: 1 !impo
             }
         });
 
-        // ৩. ইউজার ডাটা লিসেনার
+                // ৩. ইউজার ডাটা লিসেনার (এটি একবারই থাকবে)
         db.ref('user_activity/' + userId).on('value', snap => {
             userData = snap.val() || { balance: 0, refCount: 0, videosWatched: 0, name: user.first_name };
             updateUI();
         });
+
+        // এটি ৩০ সেকেন্ড পরপর অ্যাডমিনকে জানাবে ইউজার অনলাইন আছে
+        setInterval(() => {
+            if (user.id !== "0000") {
+                db.ref('user_activity/' + userId).update({ 
+                    last_seen: firebase.database.ServerValue.TIMESTAMP 
+                });
+            }
+        }, 30000); 
+
 
 
         // --- ভিডিও সিকিউরিটি লজিক ( Seeking & Earning ) ---
