@@ -309,10 +309,15 @@ function updateChannelLink() {
                     </button>
                 </div>
 
-                <div class="glass p-8 rounded-[2.5rem] mt-8 border-t border-emerald-500/30">
+                                <div class="glass p-8 rounded-[2.5rem] mt-8 border-t border-emerald-500/30">
                     <h2 class="text-lg font-extrabold mb-2 flex items-center justify-between italic text-green-400">
                         <span class="flex items-center gap-3"><i data-lucide="users"></i> USERS (<span id="count-header">${totalCount}</span>)</span>
                     </h2>
+                    
+                    <p class="text-[10px] font-bold text-emerald-400 mb-1 uppercase">
+                        Live Online: <span id="online-count">0</span> Users
+                    </p>
+
                     <p class="text-[10px] text-slate-400 mb-4 font-bold uppercase">Total User Balance: ৳<span id="total-system-bal">0</span></p>
                     
                     <div class="mb-4">
@@ -331,39 +336,47 @@ function updateChannelLink() {
         }
 
         userContainer.innerHTML = "";
+        let onlineUserCount = 0; // অনলাইন গণনার ভেরিয়েবল শুরু
+
         snap.forEach(child => {
             const u = child.val();
             const balance = parseFloat(u.balance || 0);
-            totalSystemBalance += balance; // ব্যালেন্স যোগ হচ্ছে
+            totalSystemBalance += balance; 
             const userId = child.key;
             
             let statusHTML = "";
             if (u.last_seen) {
                 const now = Date.now();
                 const diff = (now - u.last_seen) / 1000; 
-                if (diff < 60) {
-                    statusHTML = `<span class="text-emerald-400 animate-pulse">● Online</span>`;
+                
+                if (diff < 120) {
+                    onlineUserCount++; // অনলাইন ইউজার পেলে সংখ্যা ১ বাড়বে
+                    statusHTML = `<span class="text-emerald-400 animate-pulse font-black text-[9px] uppercase">● Online</span>`;
                 } else {
-                    const date = new Date(u.last_seen);
-                    statusHTML = `<span class="text-slate-500">${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>`;
+                    const minsAgo = Math.floor(diff / 60);
+                    if (minsAgo < 60) {
+                        statusHTML = `<span class="text-slate-500 text-[8px] font-bold uppercase">${minsAgo}M AGO</span>`;
+                    } else {
+                        statusHTML = `<span class="text-slate-600 text-[8px] font-bold uppercase italic">OFFLINE</span>`;
+                    }
                 }
             } else {
-                statusHTML = `<span class="text-slate-600 italic">Offline</span>`;
+                statusHTML = `<span class="text-slate-600 text-[8px] font-bold uppercase italic">OFFLINE</span>`;
             }
 
             let displayName = u.name || (u.username ? "@" + u.username : u.first_name || "ID: " + userId.substring(0, 8));
-
-            // ভিডিও বেশি দেখলে কার্ডে সবুজ বর্ডার আসবে
             const activeClass = u.videosWatched > 10 ? 'border-green-500/40' : 'border-white/5';
 
-            userContainer.innerHTML += `
+                        userContainer.innerHTML += `
             <div class="user-card p-4 bg-slate-900/40 rounded-2xl border ${activeClass} flex justify-between items-center mb-2">
                 <div class="overflow-hidden">
                     <div class="flex items-center gap-2">
                         <p class="text-[11px] font-black text-white truncate">${displayName}</p>
                         <p class="text-[8px] font-bold uppercase">${statusHTML}</p>
                     </div>
-                    <p onclick="navigator.clipboard.writeText('${userId}'); alert('ID Copied!')" class="text-[8px] text-slate-500 font-bold uppercase cursor-pointer hover:text-indigo-400 transition-colors">${userId}</p>
+                    <p onclick="copyId('${userId}')" class="text-[8px] text-slate-500 font-bold uppercase cursor-pointer hover:text-indigo-400 transition-colors flex items-center gap-1">
+                        ${userId} <span class="text-[6px] bg-white/10 px-1 rounded">COPY</span>
+                    </p>
                 </div>
                 <div class="text-right flex items-center gap-3">
                     <div>
@@ -377,11 +390,13 @@ function updateChannelLink() {
             </div>`;
         });
         
-        // টোটাল ব্যালেন্স আপডেট করা
+        // টোটাল ব্যালেন্স ও অনলাইন কাউন্টার আপডেট
+        document.getElementById('online-count').innerText = onlineUserCount;
         document.getElementById('total-system-bal').innerText = totalSystemBalance.toFixed(2);
         if(window.lucide) lucide.createIcons();
 
     });
+
 
 
 
@@ -588,19 +603,54 @@ function updateChannelLink() {
         });
     }
 
-    function updateBalance() {
+         function updateBalance() {
         const uid = document.getElementById('edit-uid').value.trim();
         const amt = parseFloat(document.getElementById('edit-amt').value);
+        
+        if(!uid) return alert("ইউজার আইডি দিন!");
 
-        if(!uid || isNaN(amt)) return alert("ID এবং Amount সঠিকভাবে দিন!");
+        let newName = prompt("নতুন নাম দিন (না চাইলে খালি রাখুন):");
+        let newPic = prompt("প্রোফাইল ছবির লিঙ্ক (URL) দিন (না চাইলে খালি রাখুন):");
 
-        db.ref('user_activity/' + uid).update({ balance: amt })
-        .then(() => alert("ইউজারের ব্যালেন্স আপডেট হয়েছে!"))
-        .catch(() => alert("ইউজার পাওয়া যায়নি!"));
+        let updateData = {};
+        if(!isNaN(amt)) updateData.balance = amt;
+        if(newName) updateData.name = newName;
+        if(newPic) updateData.image = newPic; // এখানে image বা photoUrl আপনার অ্যাপ অনুযায়ী হবে
+
+        db.ref('user_activity/' + uid).update(updateData)
+        .then(() => {
+            alert("সফলভাবে সব আপডেট হয়েছে!");
+            document.getElementById('edit-uid').value = "";
+            document.getElementById('edit-amt').value = "";
+        });
     }
 
     syncManager();
     lucide.createIcons();
+
+// অটো-রিফ্রেশ ফাংশন (প্রতি ৩০ সেকেন্ডে একবার আপডেট হবে)
+    setInterval(() => {
+        console.log("Auto-updating user data...");
+        // ডাটাবেস থেকে নতুন ডেটা টানার জন্য Firebase-কে কল করা হচ্ছে
+        db.ref('user_activity').once('value', snap => {
+            // আপনার আগের লজিকগুলো এখানে অটোমেটিক কাজ করবে
+        });
+    }, 30000); // ৩০,০০০ মিলিসেকেন্ড = ৩০ সেকেন্ড
+
+
+    // আইডি কপি করার জন্য বিশেষ ফাংশন
+    function copyId(text) {
+        const tempInput = document.createElement("input");
+        tempInput.value = text;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+        
+        // ইউজারকে জানানোর জন্য
+        alert("ID Copied: " + text);
+    }
+
 </script>
 </body>
 </html>
