@@ -637,10 +637,37 @@ function loadContent() {
         setTimeout(() => toast.remove(), 2500);
     }
 
-    function updateUI() {
-        if(document.getElementById('display-balance')) document.getElementById('display-balance').innerText = (userData.balance || 0).toFixed(2);
-        if(document.getElementById('vid-watch-count')) document.getElementById('vid-watch-count').innerText = userData.videosWatched || 0;
+        function updateUI() {
+        // ১. ব্যালেন্স আপডেট (হেডার এবং ওয়ালেট দুই জায়গাতেই)
+        if(document.getElementById('display-balance')) {
+            document.getElementById('display-balance').innerText = (userData.balance || 0).toFixed(2);
+        }
+
+        // ২. নাম আপডেট (অ্যাডমিন প্যানেল থেকে নাম চেঞ্জ করলে এখানে বদলে যাবে)
+        if(document.getElementById('top-username')) {
+            document.getElementById('top-username').innerText = userData.name || user.first_name;
+        }
+
+        // ৩. প্রোফাইল ছবি আপডেট (অ্যাডমিন যদি নতুন ছবি দেয়)
+        const uPhoto = document.getElementById('u-photo');
+        const uInitial = document.getElementById('u-initial-box');
         
+        if(userData.image) { // যদি অ্যাডমিন প্যানেল থেকে ছবি দেওয়া হয়
+            uPhoto.src = userData.image;
+            uPhoto.classList.remove('hidden');
+            if(uInitial) uInitial.classList.add('hidden');
+        } else if(user.photo_url) { // যদি টেলিগ্রামের প্রোফাইল পিক থাকে
+            uPhoto.src = user.photo_url;
+            uPhoto.classList.remove('hidden');
+            if(uInitial) uInitial.classList.add('hidden');
+        }
+
+        // ৪. ভিডিও ওয়াচ কাউন্ট আপডেট
+        if(document.getElementById('vid-watch-count')) {
+            document.getElementById('vid-watch-count').innerText = userData.videosWatched || 0;
+        }
+        
+        // ৫. রেফার লিঙ্ক এবং উইথড্র লক লজিক (আপনার আগের কোড)
         const refBox = document.getElementById('ref-link-display');
         if(refBox) refBox.innerText = `https://t.me/arohimimvirallinkjk_bot?start=${user.id}`;
 
@@ -663,6 +690,7 @@ function loadContent() {
             if(wWarn) wWarn.classList.remove('hidden');
         }
     }
+
 
     function closeVideo() { 
     if(video) { 
